@@ -6,23 +6,42 @@ export default function Areas() {
   const areas = t.raw('list') as string[];
 
   return (
-    <section id="areas" className="py-24 bg-navy relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(rgba(201,168,76,0.05)_1px,transparent_1px)] [background-size:24px_24px]" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">{t('title')}</h2>
-          <div className="w-20 h-1 bg-gold mx-auto rounded-full mb-6" />
-          <p className="text-gray-400 text-lg">{t('subtitle')}</p>
-        </div>
+    <section id="areas" className="py-32 bg-navy relative overflow-hidden">
+      <div className="absolute inset-0"
+        style={{ backgroundImage: 'radial-gradient(ellipse at top right, rgba(201,168,76,0.08) 0%, transparent 60%)' }} />
 
-        <div className="flex flex-wrap justify-center gap-4">
-          {areas.map((area: string) => (
-            <div key={area}
-              className="flex items-center gap-2 bg-white/5 border border-white/10 hover:border-gold/50 hover:bg-white/10 px-5 py-3 rounded-full transition group cursor-default">
-              <span className="text-gold text-sm">📍</span>
-              <span className="text-white font-medium text-sm">{area}</span>
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+
+          {/* Left */}
+          <div>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-8 h-px bg-gold" />
+              <span className="text-gold text-xs tracking-ultra uppercase font-medium">Coverage</span>
             </div>
-          ))}
+            <h2 className="font-display font-light text-white mb-6"
+              style={{ fontSize: 'clamp(2.5rem, 4vw, 3.5rem)' }}>
+              {t('title')}
+            </h2>
+            <p className="text-white/45 font-light text-lg leading-relaxed">
+              {t('subtitle')}
+            </p>
+          </div>
+
+          {/* Right — areas grid */}
+          <div className="flex flex-wrap gap-3">
+            {areas.map((area: string, i: number) => (
+              <div key={area}
+                className={`flex items-center gap-2 px-5 py-3 rounded-full border transition-all duration-300 cursor-default ${
+                  i === 0
+                    ? 'border-gold/50 bg-gold/10 text-gold'
+                    : 'border-white/10 bg-white/5 text-white/60 hover:border-gold/30 hover:text-white/80'
+                }`}>
+                <span className="text-xs">📍</span>
+                <span className="text-sm font-medium">{area}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

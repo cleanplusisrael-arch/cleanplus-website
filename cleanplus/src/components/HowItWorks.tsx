@@ -2,39 +2,53 @@
 import { useTranslations } from 'next-intl';
 
 const STEPS = [
-  { num: '1', emoji: '📝', key: 'step1' },
-  { num: '2', emoji: '📞', key: 'step2' },
-  { num: '3', emoji: '✨', key: 'step3' },
+  { num: '01', emoji: '📝', key: 'step1' },
+  { num: '02', emoji: '📞', key: 'step2' },
+  { num: '03', emoji: '✨', key: 'step3' },
 ];
 
 export default function HowItWorks() {
   const t = useTranslations('how');
 
   return (
-    <section id="how" className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black text-navy mb-4">{t('title')}</h2>
-          <div className="w-20 h-1 bg-gold mx-auto rounded-full" />
+    <section id="how" className="py-32 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Header */}
+        <div className="text-center mb-20">
+          <div className="flex items-center justify-center gap-3 mb-5">
+            <div className="w-8 h-px bg-gold" />
+            <span className="text-gold text-xs tracking-ultra uppercase font-medium">Process</span>
+            <div className="w-8 h-px bg-gold" />
+          </div>
+          <h2 className="font-display font-light text-navy"
+            style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+            {t('title')}
+          </h2>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start gap-8 relative">
-          {/* Connecting line desktop */}
-          <div className="hidden md:block absolute top-10 start-[15%] end-[15%] h-px bg-gray-200 z-0" />
+        {/* Steps */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+          {/* Connecting line */}
+          <div className="hidden md:block absolute top-12 start-[20%] end-[20%] h-px bg-gradient-to-r rtl:bg-gradient-to-l from-transparent via-gold/30 to-transparent" />
 
           {STEPS.map(({ num, emoji, key }) => (
-            <div key={key} className="flex flex-col items-center text-center w-full md:w-1/3 z-10 px-4">
-              {/* Icon circle */}
-              <div className="relative mb-6">
-                <div className="w-20 h-20 rounded-full bg-light-gray border-4 border-white shadow-xl flex items-center justify-center text-3xl">
-                  {emoji}
+            <div key={key} className="text-center group">
+              {/* Number circle */}
+              <div className="relative inline-block mb-8">
+                <div className="w-24 h-24 rounded-full border border-gold/20 bg-cream flex items-center justify-center mx-auto transition-all duration-400 group-hover:border-gold/50 group-hover:bg-gold/5">
+                  <span className="text-3xl transition-transform duration-300 group-hover:scale-110">{emoji}</span>
                 </div>
-                <span className="absolute -top-1 -end-1 w-7 h-7 bg-gold text-navy text-xs font-black rounded-full flex items-center justify-center border-2 border-white">
-                  {num}
-                </span>
+                <div className="absolute -top-2 -end-2 w-8 h-8 rounded-full bg-navy border-2 border-cream flex items-center justify-center">
+                  <span className="text-gold text-xs font-bold font-display">{num}</span>
+                </div>
               </div>
-              <h3 className="text-lg font-black text-navy mb-2">{t(`${key}_title`)}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{t(`${key}_desc`)}</p>
+
+              <h3 className="font-display text-xl font-semibold text-navy mb-3">
+                {t(`${key}_title`)}
+              </h3>
+              <p className="text-gray-500 text-sm font-light leading-relaxed max-w-xs mx-auto">
+                {t(`${key}_desc`)}
+              </p>
             </div>
           ))}
         </div>

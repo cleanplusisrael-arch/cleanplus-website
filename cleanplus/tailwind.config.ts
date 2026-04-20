@@ -9,25 +9,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: '#0D1B2A',
-        'navy-mid': '#1A2B3C',
-        gold: '#C9A84C',
-        'gold-hover': '#B5953F',
-        'light-gray': '#F4F7F9',
+        navy: '#0a1628',
+        'navy-mid': '#152236',
+        'navy-light': '#1e3a5f',
+        gold: '#c9a84c',
+        'gold-light': '#e8c96a',
+        'gold-pale': '#f5e6b8',
+        cream: '#faf7f2',
+        'gray-luxury': '#9ca3af',
       },
       fontFamily: {
         heebo: ['Heebo', 'sans-serif'],
+        display: ['Cormorant Garamond', 'serif'],
       },
-      animation: {
-        'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-        'float': 'float 3s ease-in-out infinite',
+      letterSpacing: {
+        'ultra': '0.2em',
+        'wide-luxury': '0.15em',
       },
-      keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-8px)' },
-        }
-      }
+      backgroundImage: {
+        'gold-gradient': 'linear-gradient(135deg, #c9a84c, #e8c96a, #c9a84c)',
+        'navy-gradient': 'linear-gradient(135deg, #0a1628, #152236)',
+      },
+      boxShadow: {
+        'gold': '0 4px 24px rgba(201, 168, 76, 0.25)',
+        'gold-lg': '0 8px 40px rgba(201, 168, 76, 0.35)',
+        'luxury': '0 20px 60px rgba(10, 22, 40, 0.15)',
+        'luxury-lg': '0 40px 80px rgba(10, 22, 40, 0.2)',
+      },
     },
   },
   plugins: [],

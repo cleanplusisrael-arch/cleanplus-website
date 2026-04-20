@@ -2,49 +2,88 @@
 import { useTranslations } from 'next-intl';
 
 const SERVICES = [
-  { key: 'residential', icon: '🏠', badge: null },
-  { key: 'renovation', icon: '🏗️', badge: 'הנמכר ביותר' },
-  { key: 'office', icon: '🏢', badge: null },
+  { key: 'residential', icon: '🏠', num: '01' },
+  { key: 'renovation',  icon: '🏗️', num: '02', featured: true },
+  { key: 'office',      icon: '🏢', num: '03' },
 ];
 
 export default function Services() {
   const t = useTranslations('services');
 
   return (
-    <section id="services" className="py-24 bg-light-gray">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section id="services" className="py-32 bg-cream relative overflow-hidden">
+      {/* Decorative number */}
+      <div className="absolute top-16 end-8 font-display text-[200px] font-bold text-navy/[0.03] select-none leading-none pointer-events-none">
+        01
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black text-navy mb-4">{t('title')}</h2>
-          <div className="w-20 h-1 bg-gold mx-auto rounded-full mb-6" />
-          <p className="text-gray-600 max-w-xl mx-auto text-lg">{t('subtitle')}</p>
+        <div className="mb-20">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-px bg-gold" />
+            <span className="text-gold text-xs tracking-ultra uppercase font-medium">Services</span>
+          </div>
+          <h2 className="font-display font-light text-navy leading-tight"
+            style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+            {t('title')}
+          </h2>
+          <p className="mt-4 text-gray-600 max-w-lg font-light text-lg leading-relaxed">
+            {t('subtitle')}
+          </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {SERVICES.map(({ key, icon, badge }) => (
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {SERVICES.map(({ key, icon, num, featured }) => (
             <div key={key}
-              className="bg-white rounded-3xl p-8 shadow-md card-hover border border-gray-100 relative overflow-hidden group">
-              {badge && (
-                <div className="absolute top-0 start-0 bg-gold text-navy text-xs font-black px-3 py-1 rounded-ee-xl">
-                  {badge}
-                </div>
+              className={`card-luxury rounded-3xl p-10 relative overflow-hidden group cursor-pointer ${
+                featured ? 'bg-navy text-white' : 'bg-white'
+              }`}>
+
+              {featured && (
+                <div className="absolute top-0 start-0 end-0 h-0.5 bg-gold-gradient" />
               )}
-              {/* Icon */}
-              <div className="w-16 h-16 bg-light-gray rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-navy transition duration-300">
-                <span className="group-hover:grayscale-0">{icon}</span>
+
+              {/* Number */}
+              <div className={`font-display text-6xl font-bold mb-6 leading-none ${
+                featured ? 'text-gold/20' : 'text-navy/8'
+              }`}>
+                {num}
               </div>
-              <h3 className="text-xl font-black text-navy mb-3">
+
+              {/* Icon */}
+              <div className={`text-4xl mb-6 transition-transform duration-300 group-hover:scale-110 inline-block`}>
+                {icon}
+              </div>
+
+              {/* Content */}
+              <h3 className={`font-display text-2xl font-semibold mb-4 ${
+                featured ? 'text-white' : 'text-navy'
+              }`}>
                 {t(`${key}.title`)}
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+              <p className={`text-sm leading-relaxed mb-8 font-light ${
+                featured ? 'text-white/60' : 'text-gray-500'
+              }`}>
                 {t(`${key}.desc`)}
               </p>
+
+              {/* CTA */}
               <a href="#contact"
-                className="text-gold font-bold flex items-center gap-2 hover:gap-4 transition-all text-sm group/link">
+                className={`inline-flex items-center gap-2 text-sm font-medium transition-all duration-300 ${
+                  featured
+                    ? 'text-gold hover:gap-4'
+                    : 'text-navy hover:text-gold hover:gap-4'
+                }`}>
                 {t('more')}
                 <span className="text-lg">←</span>
               </a>
+
+              {/* Hover accent */}
+              {!featured && (
+                <div className="absolute bottom-0 start-0 w-0 h-0.5 bg-gold transition-all duration-500 group-hover:w-full" />
+              )}
             </div>
           ))}
         </div>
