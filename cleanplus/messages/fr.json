@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "services": "Services",
+    "areas": "Zones",
+    "about": "À propos",
+    "contact": "Contact",
+    "cta": "Obtenir un devis"
+  },
+  "hero": {
+    "badge": "Un nouveau standard de nettoyage",
+    "title": "Votre maison — Propre, Brillante, Parfaite",
+    "subtitle": "Services de nettoyage professionnels pour particuliers et entreprises. Équipe qualifiée, assurée et fiable — de Rehovot à Hadera.",
+    "cta_primary": "Obtenir un devis gratuit",
+    "cta_secondary": "Appeler maintenant",
+    "badge_insured": "Entièrement assuré",
+    "badge_pro": "Équipe professionnelle",
+    "badge_available": "Disponible 7j/7"
+  },
+  "services": {
+    "title": "Nos Services",
+    "subtitle": "Solutions de nettoyage complètes pour tous vos besoins — au plus haut standard",
+    "residential": {
+      "title": "Nettoyage d'appartements et maisons",
+      "desc": "Nettoyage complet et minutieux pour maisons privées et appartements. Incluant lustrage, fenêtres, désinfection salles de bains et cuisines."
+    },
+    "renovation": {
+      "title": "Nettoyage après travaux",
+      "desc": "Élimination des résidus de peinture, joints et poussières de construction. Nous transformons votre chantier en maison prête à habiter."
+    },
+    "office": {
+      "title": "Nettoyage de bureaux et entreprises",
+      "desc": "Entretien régulier et nettoyage en profondeur pour bureaux et entreprises. Un environnement propre qui booste la productivité."
+    },
+    "more": "En savoir plus"
+  },
+  "how": {
+    "title": "Comment ça marche ?",
+    "step1_title": "Laissez vos coordonnées",
+    "step1_desc": "Remplissez le court formulaire ou appelez-nous directement.",
+    "step2_title": "On vous rappelle sous une heure",
+    "step2_desc": "Nous adaptons le service à vos besoins et proposons un prix juste.",
+    "step3_title": "On vient et on fait le travail",
+    "step3_desc": "Notre équipe qualifiée arrive et fait briller l'endroit à votre satisfaction."
+  },
+  "areas": {
+    "title": "Nos zones d'intervention",
+    "subtitle": "Nous couvrons tout le Centre et la région du Sharon",
+    "list": ["Tel Aviv", "Park Tzameret", "Herzliya", "Netanya", "Césarée", "Or Akiva", "Hadera", "Kfar Saba", "Ra'anana", "Hod HaSharon"]
+  },
+  "stats": {
+    "clients": "+500",
+    "clients_label": "Clients satisfaits",
+    "experience": "+3",
+    "experience_label": "Années d'expérience",
+    "insured": "100%",
+    "insured_label": "Assuré & fiable",
+    "available": "7/7",
+    "available_label": "Disponibilité totale"
+  },
+  "testimonials": {
+    "title": "Avis clients",
+    "t1_text": "Service tout simplement excellent ! L'équipe est arrivée à l'heure, a travaillé minutieusement et professionnellement. L'appartement est comme neuf.",
+    "t1_name": "Ronit Levy",
+    "t1_city": "Tel Aviv",
+    "t2_text": "Nous travaillons avec eux depuis un an pour le nettoyage de nos bureaux. Toujours à l'heure, travail minutieux, prix tout à fait honnête.",
+    "t2_name": "Yossi Cohen",
+    "t2_city": "Herzliya",
+    "t3_text": "J'ai commandé un nettoyage avant déménagement. L'équipe n'est pas partie avant que tout soit parfait. Fortement recommandé !",
+    "t3_name": "Michal Sharon",
+    "t3_city": "Netanya"
+  },
+  "contact": {
+    "title": "Obtenir un devis gratuit",
+    "subtitle": "On vous répond dans l'heure",
+    "name": "Nom complet",
+    "phone": "Téléphone",
+    "service": "Type de service",
+    "service_residential": "Nettoyage appartement / maison",
+    "service_renovation": "Nettoyage après travaux",
+    "service_office": "Nettoyage bureau / entreprise",
+    "service_other": "Autre",
+    "notes": "Notes (optionnel)",
+    "submit": "Envoyer la demande",
+    "whatsapp": "Envoyer WhatsApp",
+    "success": "Détails envoyés avec succès ! On vous contacte très bientôt."
+  },
+  "footer": {
+    "tagline": "Un nouveau standard de nettoyage en Israël",
+    "quick_links": "Liens rapides",
+    "contact_us": "Contactez-nous",
+    "rights": "Tous droits réservés"
+  }
+}
