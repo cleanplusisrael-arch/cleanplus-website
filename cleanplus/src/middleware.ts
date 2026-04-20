@@ -1,11 +1,18 @@
 import createMiddleware from 'next-intl/middleware';
+import { NextRequest } from 'next/server';
 
-export default createMiddleware({
+const intlMiddleware = createMiddleware({
   locales: ['he', 'en', 'fr', 'ru'],
   defaultLocale: 'he',
-  localePrefix: 'as-needed' // Hebrew has no prefix (cleanplus.co.il/), others get prefix
+  localePrefix: 'as-needed'
 });
 
+export default function middleware(request: NextRequest) {
+  return intlMiddleware(request);
+}
+
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)' 
+  ]
 };
