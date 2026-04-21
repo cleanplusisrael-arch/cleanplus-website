@@ -58,7 +58,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 dir="ltr"
-                className="w-full bg-white/8 border border-white/15 rounded-lg px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-gold/40"
+                className="w-full bg-white border border-white/20 rounded-lg px-4 py-2.5 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold/60 autofill:bg-white"
                 placeholder="admin@cleanplus.co.il"
               />
             </div>
@@ -72,13 +72,13 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   dir="ltr"
-                  className="w-full bg-white/8 border border-white/15 rounded-lg px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-gold/40 pe-10"
+                  className="w-full bg-white border border-white/20 rounded-lg px-4 py-2.5 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold/60 pe-10 autofill:bg-white"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
