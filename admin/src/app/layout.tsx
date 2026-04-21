@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'Clean+ | לוח ניהול',
   description: 'Dashboard admin — Clean+ ניקיון מקצועי',
   robots: 'noindex, nofollow',
+  icons: { icon: '/favicon.ico' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

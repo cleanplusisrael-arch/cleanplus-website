@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   Users, Briefcase, CalendarDays, Clock, DollarSign,
@@ -23,14 +24,15 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-navy min-h-screen flex flex-col border-e border-navy/80" dir="rtl">
-      <div className="px-6 py-6 border-b border-white/10">
+      {/* Logo */}
+      <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gold/20 border border-gold/30 flex items-center justify-center">
-            <span className="text-gold font-bold text-sm">C+</span>
+          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+            <Image src="/logo.png" alt="Clean+" width={44} height={44} className="object-contain" />
           </div>
           <div>
-            <p className="text-white font-bold text-sm font-hebrew">Clean+</p>
-            <p className="text-white/40 text-xs">לוח ניהול</p>
+            <p className="text-white font-bold text-sm font-hebrew leading-tight">Clean+</p>
+            <p className="text-white/40 text-xs font-hebrew">לוח ניהול</p>
           </div>
         </div>
       </div>
