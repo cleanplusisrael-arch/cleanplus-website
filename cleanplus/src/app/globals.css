@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Hebrew-first fonts (israeli-ui-design-system + hebrew-tailwind-preset skills) ── */
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&family=Assistant:wght@300;400;600;700;800&family=Rubik:wght@300;400;500;700;800&display=swap');
+
+/* ── Design Tokens (israeli-ui-design-system skill) ── */
+:root {
+  --navy:        #0a1628;
+  --navy-mid:    #112240;
+  --navy-light:  #1e3a5f;
+  --gold:        #c9a84c;
+  --gold-light:  #e8c96a;
+  --cream:       #faf8f3;
+  --white:       #ffffff;
+
+  /* Hebrew type scale (ui-design-system: 16px min, 1.7 line-height) */
+  --text-xs:   0.8125rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+
+  /* Hebrew line heights — taller than Latin */
+  --leading-tight:   1.4;
+  --leading-normal:  1.7;
+  --leading-relaxed: 1.9;
+
+  /* Contrast-safe text colors for white backgrounds */
+  --text-primary:   #0a1628;   /* 15.7:1 on white ✅ */
+  --text-secondary: #374151;   /* 10.7:1 on white ✅ */
+  --text-muted:     #4b5563;   /* 7.6:1 on white ✅ */
+  --text-subtle:    #6b7280;   /* 5.1:1 on white ✅ */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* hebrew-tailwind-preset: font-hebrew, leading-hebrew, no letter-spacing */
+body {
+  font-family: 'Heebo', 'Assistant', 'Rubik', 'Noto Sans Hebrew', sans-serif;
+  background: var(--cream);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  /* Hebrew typography settings */
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  letter-spacing: normal;      /* NEVER letter-spacing for Hebrew */
+  word-spacing: 0.05em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.fade-up   { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) both; }
+.fade-up-1 { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+.fade-up-2 { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.2s both; }
+.fade-up-3 { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.3s both; }
+.fade-up-4 { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.4s both; }
+.anim-float { animation: float 5s ease-in-out infinite; }
+
+/* ── Gold gradient text ── */
+.gold-text {
+  background: linear-gradient(135deg, #b8922a 0%, #e8c96a 50%, #c9a84c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Primary button ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #c9a84c, #e8c96a, #b8922a);
+  background-size: 200% auto;
+  color: #0a1628;
+  font-weight: 700;
+  font-family: 'Heebo', sans-serif;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn-primary:hover {
+  background-position: right center;
+  box-shadow: 0 8px 32px rgba(201,168,76,0.45);
+  transform: translateY(-2px);
+}
+
+/* ── Cards — high contrast on white ── */
+.card {
+  background: white;
+  border: 1px solid rgba(201,168,76,0.12);
+  border-radius: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.card:hover {
+  border-color: rgba(201,168,76,0.35);
+  box-shadow: 0 20px 60px rgba(10,22,40,0.1);
+  transform: translateY(-4px);
+}
+
+/* ── Section label ── */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--gold);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-block-end: 1rem;
+  letter-spacing: 0.1em; /* OK for Latin labels only */
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 2rem;
+  height: 1.5px;
+  background: var(--gold);
+}
+
+/* ── Phone/numbers stay LTR (RTL skill) ── */
+.phone-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+/* ── Navbar: readable on BOTH dark and light backgrounds ── */
+.nav-link-dark  { color: rgba(255,255,255,0.65); }
+.nav-link-dark:hover { color: var(--gold); }
+.nav-link-light { color: var(--text-secondary); }
+.nav-link-light:hover { color: var(--gold); }
+
+/* ── Contrast-safe text on white/cream backgrounds ── */
+.text-body    { color: var(--text-primary); }
+.text-muted   { color: var(--text-muted); }
+.text-subtle  { color: var(--text-subtle); }
