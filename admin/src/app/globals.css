@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&family=Rubik:wght@300;400;500;700;800&display=swap');
+
+:root {
+  --navy: #0a1628;
+  --gold:  #c9a84c;
+  --cream: #faf8f3;
+}
+
+html, body {
+  direction: rtl;
+  font-family: 'Heebo', 'Rubik', 'Assistant', sans-serif;
+  line-height: 1.7;
+  letter-spacing: normal;
+}
+
+/* Numbers and phone/ID fields stay LTR */
+[dir="ltr"],
+input[type="tel"],
+input[type="number"] {
+  direction: ltr;
+  text-align: start;
+}
+
+/* Remove letter-spacing on Hebrew text */
+.font-hebrew {
+  letter-spacing: normal;
+}
