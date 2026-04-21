@@ -15,7 +15,7 @@ export default function Hero() {
           alt=""
           aria-hidden="true"
           className="w-full h-full object-cover object-center"
-          style={{ opacity: 0.22 }}
+          style={{ opacity: 0.42 }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
         {/* Overlay: dark on text side (right in RTL), slightly lighter on card side (left in RTL) */}
@@ -66,7 +66,7 @@ export default function Hero() {
               }}>
               <span className="block">ניקיון מקצועי</span>
               <span className="block gold-text">לבתים, משרדים</span>
-              <span className="block">ועסקים.</span>
+              <span className="block">ועסקים</span>
             </h1>
 
             {/* Subtitle */}
