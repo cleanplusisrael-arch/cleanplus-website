@@ -38,7 +38,8 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Headline */}
+          {/* Headline — each line is a block span to give its own RTL bidi context,
+               preventing the period from drifting to the wrong edge */}
           <h1 className="fade-up-1 text-white mb-6"
             style={{
               fontSize: 'clamp(2.4rem, 5vw, 4.2rem)',
@@ -46,11 +47,9 @@ export default function Hero() {
               fontWeight: 800,
               fontFamily: "'Rubik', 'Heebo', sans-serif"
             }}>
-            ניקיון מקצועי
-            <br />
-            <span className="gold-text">לבתים, משרדים</span>
-            <br />
-            ועסקים.
+            <span className="block">ניקיון מקצועי</span>
+            <span className="block gold-text">לבתים, משרדים</span>
+            <span className="block">ועסקים.</span>
           </h1>
 
           {/* Subtitle */}
