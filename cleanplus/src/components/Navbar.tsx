@@ -33,25 +33,21 @@ export default function Navbar() {
     }`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
 
-        {/* Logo */}
+        {/* Logo — transparent PNG with gold colors, visible on both dark and white bg */}
         <Link href="/" className="flex items-center shrink-0">
-          <div className={`transition-all duration-300 rounded-xl ${
-            !scrolled ? 'bg-white/10 px-3 py-1.5' : ''
-          }`}>
-            <Image
-              src="/logo.png"
-              alt="Clean+"
-              width={160}
-              height={72}
-              priority
-              className="object-contain"
-              style={{
-                filter: scrolled
-                  ? 'none'
-                  : 'drop-shadow(0 2px 10px rgba(0,0,0,0.4)) brightness(1.25)'
-              }}
-            />
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Clean+"
+            width={190}
+            height={90}
+            priority
+            className="object-contain"
+            style={{
+              filter: scrolled
+                ? 'none'
+                : 'drop-shadow(0 2px 10px rgba(0,0,0,0.35))'
+            }}
+          />
         </Link>
 
         {/* Desktop nav */}

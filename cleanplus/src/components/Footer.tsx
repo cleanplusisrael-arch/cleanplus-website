@@ -11,7 +11,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           <div>
-            <Image src="/logo.png" alt="Clean+" width={110} height={52} className="object-contain mb-4" />
+            <Image src="/logo.png" alt="Clean+" width={150} height={72} className="object-contain mb-4" />
             <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.875rem', fontWeight: 300, lineHeight: 1.7 }}>
               {t('tagline')}
             </p>
