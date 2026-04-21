@@ -4,9 +4,8 @@ import { getMessages } from 'next-intl/server';
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "Clean+ | סטנדרט חדש של ניקיון",
-  description: "חברת ניקיון מקצועית לבתים ועסקים — מרחובות ועד חדרה. Clean+ מציעה שירות אמין, מבוטח ובמחיר הוגן.",
-  keywords: "חברת ניקיון, ניקיון דירות, ניקיון אחרי שיפוץ, ניקיון משרדים, cleanplus",
+  title: "Clean+ | שירות ניקיון מקצועי",
+  description: "חברת ניקיון מקצועית לבתים ועסקים — מרחובות ועד חדרה.",
 };
 
 export default async function LocaleLayout({
@@ -17,16 +16,16 @@ export default async function LocaleLayout({
   params: { locale: string };
 }) {
   const messages = await getMessages();
-  const isRTL = locale === 'he' || locale === 'ar';
+  const isRTL = locale === 'he';
 
   return (
     <html lang={locale} dir={isRTL ? 'rtl' : 'ltr'} className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&family=Assistant:wght@300;400;600;700&family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-heebo antialiased">
+      <body className="antialiased" style={{ fontFamily: "'Heebo', 'Assistant', 'Rubik', sans-serif" }}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

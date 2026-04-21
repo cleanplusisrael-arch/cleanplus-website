@@ -27,14 +27,23 @@ export default function Navbar() {
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-400 ${
-      scrolled
-        ? 'bg-navy/96 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.3)] py-3'
-        : 'bg-transparent py-5'
+      scrolled ? 'bg-navy/97 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.3)] py-3' : 'bg-transparent py-5'
     }`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
 
+        {/* Logo — bigger, with white bg for transparency */}
         <Link href="/" className="flex items-center shrink-0">
-          <Image src="/logo.png" alt="Clean+" width={100} height={48} priority className="object-contain" />
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-1.5">
+            <Image
+              src="/logo.png"
+              alt="Clean+"
+              width={130}
+              height={62}
+              priority
+              className="object-contain"
+              style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }}
+            />
+          </div>
         </Link>
 
         {/* Desktop nav */}
@@ -61,7 +70,7 @@ export default function Navbar() {
             ))}
           </div>
           <a href="tel:+972500000000" className="text-white/50 hover:text-gold text-sm transition-colors flex items-center gap-1.5">
-            📞 <span className="hidden lg:inline">050-0000000</span>
+            📞
           </a>
           <a href="#contact" className="btn-primary text-sm px-5 py-2.5">
             {t('cta')}
@@ -101,9 +110,8 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          <a href="#contact" onClick={() => setMenuOpen(false)}
-            className="btn-primary mx-auto text-sm">
-            {t('cta')} ←
+          <a href="#contact" onClick={() => setMenuOpen(false)} className="btn-primary mx-auto text-sm">
+            {t('cta')}
           </a>
         </div>
       </div>
