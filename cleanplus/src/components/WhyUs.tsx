@@ -11,7 +11,7 @@ const FEATURES = [
 
 export default function WhyUs() {
   return (
-    <section className="py-24 bg-white">
+    <section id="about" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
 
         <div className="text-center mb-16">

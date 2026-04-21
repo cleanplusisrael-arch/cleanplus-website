@@ -17,7 +17,7 @@ export default function Stats() {
               <div className="text-2xl mb-3">{icon}</div>
               <div className="text-4xl md:text-5xl font-bold gold-text mb-2 phone-ltr"
                 style={{ fontFamily: "'Rubik', sans-serif" }}>{val}</div>
-              <div className="text-white/40 text-xs" style={{ letterSpacing: '0.08em' }}>{label}</div>
+              <div className="text-white/40 text-xs">{label}</div>
             </div>
           ))}
         </div>

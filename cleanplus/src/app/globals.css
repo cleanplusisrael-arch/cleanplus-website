@@ -126,7 +126,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   margin-block-end: 1rem;
-  letter-spacing: 0.1em; /* OK for Latin labels only */
+  /* No letter-spacing — breaks Hebrew glyphs */
 }
 .section-label::before {
   content: '';
