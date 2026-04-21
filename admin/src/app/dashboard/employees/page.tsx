@@ -5,7 +5,8 @@ import { Header } from '@/components/layout/Header';
 import { StatCard } from '@/components/ui/StatCard';
 import { CONTRACT_LABELS, ZONES } from '@/lib/employee-types';
 import type { Employee, ContractType } from '@/lib/employee-types';
-import { Users, UserCheck, UserX, Plus, Phone, Pencil, X, Save } from 'lucide-react';
+import { Users, UserCheck, UserX, Plus, Phone, Pencil, X, Save, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 const EMPTY: Omit<Employee, 'id' | 'createdAt'> = {
   name: '', phone: '', email: '', zone: '', hireDate: '', status: 'active',
@@ -126,7 +127,11 @@ export default function EmployeesPage() {
               {loading && <tr><td colSpan={7} className="py-16 text-center text-gray-400 font-hebrew text-sm">טוען...</td></tr>}
               {filtered.map((emp) => (
                 <tr key={emp.id} className={`border-b border-gray-50 hover:bg-gray-50/40 transition-colors ${emp.status === 'inactive' ? 'opacity-50' : ''}`}>
-                  <td className="ps-4 pe-3 py-3.5 font-medium text-gray-800 font-hebrew">{emp.name}</td>
+                  <td className="ps-4 pe-3 py-3.5 font-medium">
+                    <Link href={`/dashboard/employees/${emp.id}`} className="text-gray-800 hover:text-navy hover:underline font-hebrew flex items-center gap-1.5 group">
+                      {emp.name}<ExternalLink size={11} className="text-gray-300 group-hover:text-navy opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </Link>
+                  </td>
                   <td className="px-3 py-3.5"><a href={`tel:${emp.phone}`} className="flex items-center gap-1.5 text-gray-600 hover:text-navy" dir="ltr"><Phone size={13} className="text-gray-400" />{emp.phone}</a></td>
                   <td className="px-3 py-3.5 text-gray-600 font-hebrew">{emp.zone ?? '—'}</td>
                   <td className="px-3 py-3.5 text-gray-600 font-hebrew">{emp.contractType ? CONTRACT_LABELS[emp.contractType] : '—'}</td>
