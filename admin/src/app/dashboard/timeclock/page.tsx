@@ -195,7 +195,7 @@ export default function TimeclockPage() {
               <p className="text-sm font-semibold text-blue-800 font-hebrew mb-1">קישור כניסה מהטלפון</p>
               <p className="text-xs text-blue-600 font-hebrew mb-2">שלח לעובדים קישור לדיווח נוכחות מהנייד:</p>
               <code className="text-xs bg-white border border-blue-200 rounded px-2 py-1 text-blue-700 select-all" dir="ltr">
-                {typeof window !== 'undefined' ? `${window.location.origin}/timeclock` : 'admin.cleanplus.co.il/timeclock'}
+                https://admin.cleanplus.co.il/timeclock
               </code>
             </div>
           </div>
