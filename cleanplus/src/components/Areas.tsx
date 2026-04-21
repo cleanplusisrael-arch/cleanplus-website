@@ -12,7 +12,7 @@ export default function Areas() {
           <div>
             <div className="section-label">{t('title')}</div>
             <h2 style={{ color: 'white', fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)', fontWeight: 700, fontFamily: "'Rubik', sans-serif", marginBottom: '1rem' }}>
-              {t('title')}
+              {t('subtitle')}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 300, fontSize: '1.05rem', lineHeight: 1.7 }}>
               {t('subtitle')}

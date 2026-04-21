@@ -33,29 +33,33 @@ export default function Navbar() {
     }`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
 
-        {/* Logo — bigger, no physical margin */}
+        {/* Logo */}
         <Link href="/" className="flex items-center shrink-0">
-          <Image
-            src="/logo.png"
-            alt="Clean+"
-            width={140}
-            height={65}
-            priority
-            className="object-contain"
-            style={{
-              filter: scrolled
-                ? 'none'
-                : 'drop-shadow(0 2px 8px rgba(0,0,0,0.4)) brightness(1.1)'
-            }}
-          />
+          <div className={`transition-all duration-300 rounded-xl ${
+            !scrolled ? 'bg-white/10 px-3 py-1.5' : ''
+          }`}>
+            <Image
+              src="/logo.png"
+              alt="Clean+"
+              width={160}
+              height={72}
+              priority
+              className="object-contain"
+              style={{
+                filter: scrolled
+                  ? 'none'
+                  : 'drop-shadow(0 2px 10px rgba(0,0,0,0.4)) brightness(1.25)'
+              }}
+            />
+          </div>
         </Link>
 
-        {/* Desktop nav — contrast-aware */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
           {['services', 'areas', 'about', 'contact'].map((key) => (
             <a key={key} href={`#${key}`}
               className={`text-sm font-medium transition-colors duration-250 relative group ${
-                scrolled ? 'text-[#374151] hover:text-[#c9a84c]' : 'text-white/70 hover:text-[#c9a84c]'
+                scrolled ? 'text-[#374151] hover:text-[#c9a84c]' : 'text-white/75 hover:text-[#c9a84c]'
               }`}>
               {t(key)}
               <span className="absolute -bottom-0.5 start-0 w-0 h-px bg-[#c9a84c] transition-all duration-300 group-hover:w-full" />
@@ -73,19 +77,19 @@ export default function Navbar() {
                 className={`text-xs px-2.5 py-0.5 rounded-full font-medium transition-all duration-200 ${
                   locale === l.code
                     ? 'bg-[#c9a84c] text-[#0a1628]'
-                    : scrolled ? 'text-gray-500 hover:text-gray-800' : 'text-white/45 hover:text-white'
+                    : scrolled ? 'text-gray-500 hover:text-gray-800' : 'text-white/50 hover:text-white'
                 }`}>
                 {l.label}
               </Link>
             ))}
           </div>
 
-          {/* Phone */}
+          {/* Phone with number */}
           <a href="tel:+972500000000"
-            className={`text-sm transition-colors flex items-center gap-1.5 ${
-              scrolled ? 'text-gray-500 hover:text-[#c9a84c]' : 'text-white/50 hover:text-[#c9a84c]'
+            className={`text-sm transition-colors flex items-center gap-1.5 font-medium ${
+              scrolled ? 'text-[#374151] hover:text-[#c9a84c]' : 'text-white/70 hover:text-[#c9a84c]'
             }`}>
-            📞
+            📞 <span className="phone-ltr">050-000-0000</span>
           </a>
 
           {/* CTA */}
@@ -120,6 +124,10 @@ export default function Navbar() {
               {t(key)}
             </a>
           ))}
+          <a href="tel:+972500000000"
+            className="text-[#374151] text-base font-medium">
+            📞 <span className="phone-ltr">050-000-0000</span>
+          </a>
           <div className="flex justify-center gap-2 pt-2">
             {LOCALES.map((l) => (
               <Link key={l.code} href={getLocalePath(l.code)}
