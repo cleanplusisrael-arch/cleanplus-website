@@ -8,7 +8,20 @@ export default function Hero() {
     <section className="relative min-h-screen flex items-center overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #060f1e 0%, #0a1628 55%, #0d2444 100%)' }}>
 
-      {/* Atmospheric layers */}
+      {/* Hero photo with dark overlay for text readability */}
+      <div className="absolute inset-0">
+        <img
+          src="/hero.jpg"
+          alt=""
+          aria-hidden="true"
+          className="w-full h-full object-cover object-center"
+          style={{ opacity: 0.22 }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+        />
+        {/* Gradient overlay — heavier on the text side (start), lighter on the card side (end) */}
+        <div className="absolute inset-0"
+          style={{ background: 'linear-gradient(to end, rgba(6,15,30,0.96) 0%, rgba(10,22,40,0.88) 50%, rgba(13,36,68,0.75) 100%)' }} />
+      </div>
       <div className="absolute inset-0 pointer-events-none">
         {/* Gold radial glow top-end */}
         <div className="absolute -top-20 -end-20 w-[700px] h-[700px] rounded-full"
