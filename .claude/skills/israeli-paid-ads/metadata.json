@@ -1,0 +1,41 @@
+{
+  "author": "skills-il",
+  "version": "1.1.0",
+  "category": "marketing-growth",
+  "tags": {
+    "he": [
+      "פרסום-ממומן",
+      "גוגל-אדס",
+      "מטא",
+      "PPC",
+      "קידום-ממומן",
+      "שיווק-דיגיטלי"
+    ],
+    "en": [
+      "paid-ads",
+      "google-ads",
+      "meta",
+      "ppc",
+      "paid-promotion",
+      "digital-marketing"
+    ]
+  },
+  "display_name": {
+    "he": "פרסום ממומן ישראלי",
+    "en": "Israeli Paid Ads"
+  },
+  "display_description": {
+    "he": "הקמה ואופטימיזציה של קמפיינים ממומנים ב-Google, Meta (פייסבוק/אינסטגרם), לינקדאין וטיקטוק לשוק הישראלי, עם קופי בעברית, מחקר מילות מפתח עם וריאציות מורפולוגיות, ציות לחוק הגנת הצרכן (כולל מע\"מ בכל מחיר), ואסטרטגיות הצעת מחיר שמתחשבות ב-18% מע\"מ ב-ROAS.",
+    "en": "Create and optimize paid advertising campaigns for the Israeli market across Google Ads, Meta (Facebook/Instagram), and local platforms. Use when user asks about Israeli PPC, Hebrew ad copy, Israeli audience targeting, or ad budget optimization. Covers Hebrew keyword research, Israeli Consumer Protection Law ad regulations, local bidding strategies, and audience segmentation."
+  },
+  "supported_agents": [
+    "claude-code",
+    "cursor",
+    "github-copilot",
+    "windsurf",
+    "opencode",
+    "codex",
+    "antigravity",
+    "gemini-cli"
+  ]
+}
