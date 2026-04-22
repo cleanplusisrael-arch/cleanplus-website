@@ -8,30 +8,38 @@ export default function Hero() {
     <section className="relative min-h-screen flex items-center overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #060f1e 0%, #0a1628 55%, #0d2444 100%)' }}>
 
-      {/* Hero photo — full opacity, light overlay only */}
+      {/* Hero photo */}
       <div className="absolute inset-0">
         <img
           src="/hero.jpg"
           alt=""
           aria-hidden="true"
           className="w-full h-full object-cover object-center"
-          style={{ opacity: 1 }}
+          style={{ opacity: 0.42 }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
-        {/* Soft gradient overlay — keeps text legible on the right side, photo clear on the left */}
+        {/* Overlay: dark on text side (right in RTL), slightly lighter on card side (left in RTL) */}
         <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(to left, rgba(6,15,30,0.35) 0%, rgba(10,22,40,0.10) 55%, transparent 100%)' }} />
+          style={{ background: 'linear-gradient(to left, rgba(6,15,30,0.96) 0%, rgba(10,22,40,0.90) 45%, rgba(13,36,68,0.78) 100%)' }} />
       </div>
 
-      {/* Atmospheric layers — corner glow + bottom fade only (dot grid removed for cleaner photo) */}
+      {/* Atmospheric layers */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-20 -end-20 w-[700px] h-[700px] rounded-full"
           style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 65%)' }} />
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'radial-gradient(circle, rgba(201,168,76,0.9) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
         <div className="absolute bottom-0 inset-x-0 h-32"
           style={{ background: 'linear-gradient(to top, #faf8f3, transparent)' }} />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 pt-28 pb-20">
+        {/*
+          Flex row layout — in RTL flex, items flow right→left:
+          • Text (first child in DOM) → placed at the RIGHT edge (reading start in RTL) ✓
+          • Card (second child in DOM) → placed at the LEFT edge (reading end in RTL) ✓
+          This is more reliable than absolute positioning for RTL.
+        */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-10">
 
           {/* ── Text content — first child → rightmost in RTL ── */}
@@ -48,14 +56,13 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Headline — with text-shadow for legibility on photo */}
+            {/* Headline — block spans give each line its own RTL bidi context */}
             <h1 className="fade-up-1 text-white mb-6"
               style={{
                 fontSize: 'clamp(2.4rem, 5vw, 4.2rem)',
                 lineHeight: 1.15,
                 fontWeight: 800,
-                fontFamily: "'Rubik', 'Heebo', sans-serif",
-                textShadow: '0 2px 24px rgba(6,15,30,0.7)'
+                fontFamily: "'Rubik', 'Heebo', sans-serif"
               }}>
               <span className="block">ניקיון מקצועי</span>
               <span className="block gold-text">לבתים, משרדים</span>
@@ -64,13 +71,7 @@ export default function Hero() {
 
             {/* Subtitle */}
             <p className="fade-up-2 mb-10 max-w-lg"
-              style={{
-                color: 'rgba(255,255,255,0.85)',
-                fontSize: '1.05rem',
-                lineHeight: 1.8,
-                fontWeight: 300,
-                textShadow: '0 1px 12px rgba(6,15,30,0.6)'
-              }}>
+              style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.05rem', lineHeight: 1.8, fontWeight: 300 }}>
               {t('subtitle')}
             </p>
 
@@ -78,8 +79,8 @@ export default function Hero() {
             <div className="fade-up-2 flex flex-wrap gap-2 mb-10">
               {['ניקיון דירות', 'ניקיון משרדים', 'ניקיון אחרי שיפוץ', 'ניקיון עסקים'].map(s => (
                 <span key={s}
-                  className="text-xs border border-white/20 text-white/75 px-3 py-1.5 rounded-full"
-                  style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}>
+                  className="text-xs border border-white/10 text-white/50 px-3 py-1.5 rounded-full"
+                  style={{ background: 'rgba(255,255,255,0.04)' }}>
                   {s}
                 </span>
               ))}
@@ -91,21 +92,20 @@ export default function Hero() {
                 קבלו הצעת מחיר
               </a>
               <a href="tel:+972500000000"
-                className="flex items-center gap-2.5 text-white/90 hover:text-white border border-white/25 hover:border-[#c9a84c]/50 px-7 py-3.5 rounded-full text-sm font-medium transition-all duration-300"
-                style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)' }}>
+                className="flex items-center gap-2.5 text-white/70 hover:text-white border border-white/15 hover:border-[#c9a84c]/40 px-7 py-3.5 rounded-full text-sm font-medium transition-all duration-300">
                 📞 <span className="phone-ltr">{t('cta_secondary')}</span>
               </a>
             </div>
 
             {/* Trust row */}
-            <div className="fade-up-4 flex flex-wrap gap-x-8 gap-y-3 pt-8 border-t border-white/15">
+            <div className="fade-up-4 flex flex-wrap gap-x-8 gap-y-3 pt-8 border-t border-white/8">
               {[
                 { icon: '👷', text: 'צוות מנוסה ומוסמך' },
                 { icon: '🧴', text: 'ציוד מקצועי כלול' },
                 { icon: '📅', text: 'זמינות 7 ימים' },
               ].map(({ icon, text }) => (
                 <div key={text} className="flex items-center gap-2"
-                  style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.875rem', textShadow: '0 1px 8px rgba(6,15,30,0.5)' }}>
+                  style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem' }}>
                   <span>{icon}</span>{text}
                 </div>
               ))}
@@ -116,8 +116,8 @@ export default function Hero() {
           <div className="hidden lg:flex flex-col gap-4 w-[290px] shrink-0 self-center">
 
             {/* Main card */}
-            <div className="rounded-2xl overflow-hidden border border-white/15"
-              style={{ background: 'rgba(10,22,40,0.55)', backdropFilter: 'blur(20px)' }}>
+            <div className="rounded-2xl overflow-hidden border border-white/10"
+              style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}>
 
               {/* Visual top */}
               <div className="p-5 pb-4">
@@ -151,12 +151,12 @@ export default function Hero() {
               <div className="px-5 pb-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <div className="text-white/40 text-xs mb-0.5">דירוג ממוצע</div>
+                    <div className="text-white/30 text-xs mb-0.5">דירוג ממוצע</div>
                     <div className="text-4xl font-bold gold-text" style={{ fontFamily: "'Rubik', sans-serif" }}>4.9</div>
                   </div>
                   <div className="text-end">
                     <div className="text-[#c9a84c] text-sm phone-ltr">★★★★★</div>
-                    <div className="text-white/35 text-xs mt-1">200+ ביקורות</div>
+                    <div className="text-white/25 text-xs mt-1">200+ ביקורות</div>
                   </div>
                 </div>
                 <div className="flex gap-1">
@@ -170,25 +170,25 @@ export default function Hero() {
             {/* Mini stats */}
             <div className="flex gap-3">
               {[{ val: '+500', label: 'לקוחות' }, { val: '7/7', label: 'זמינות' }].map(({ val, label }) => (
-                <div key={label} className="flex-1 rounded-xl p-4 text-center border border-white/15"
-                  style={{ background: 'rgba(10,22,40,0.55)', backdropFilter: 'blur(12px)' }}>
+                <div key={label} className="flex-1 rounded-xl p-4 text-center border border-white/8"
+                  style={{ background: 'rgba(255,255,255,0.04)' }}>
                   <div className="text-2xl font-bold gold-text mb-1 phone-ltr"
                     style={{ fontFamily: "'Rubik', sans-serif" }}>{val}</div>
-                  <div className="text-white/45 text-xs">{label}</div>
+                  <div className="text-white/30 text-xs">{label}</div>
                 </div>
               ))}
             </div>
 
             {/* Live notification */}
-            <div className="rounded-xl px-4 py-3.5 flex items-center gap-3 border border-white/15"
-              style={{ background: 'rgba(10,22,40,0.55)', backdropFilter: 'blur(12px)' }}>
+            <div className="rounded-xl px-4 py-3.5 flex items-center gap-3 border border-white/8"
+              style={{ background: 'rgba(255,255,255,0.04)' }}>
               <div className="relative shrink-0">
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                 <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-50" />
               </div>
               <div>
-                <div className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.75)' }}>הזמנה חדשה · לפני 8 דקות</div>
-                <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>ניקיון משרד — הרצליה</div>
+                <div className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>הזמנה חדשה · לפני 8 דקות</div>
+                <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>ניקיון משרד — הרצליה</div>
               </div>
             </div>
           </div>
