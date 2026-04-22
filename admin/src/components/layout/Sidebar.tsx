@@ -4,12 +4,13 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   Users, Briefcase, CalendarDays, Clock, DollarSign,
-  FileText, BarChart3, UserCheck, LayoutDashboard,
+  FileText, BarChart3, UserCheck, LayoutDashboard, Building2,
 } from 'lucide-react';
 
 const NAV = [
   { href: '/dashboard',             icon: LayoutDashboard, label: 'לוח בקרה' },
   { href: '/dashboard/leads',       icon: Users,           label: 'CRM לידים' },
+  { href: '/dashboard/clients',     icon: Building2,       label: 'לקוחות' },
   { href: '/dashboard/recruitment', icon: UserCheck,       label: 'CRM גיוס' },
   { href: '/dashboard/employees',   icon: Briefcase,       label: 'עובדים' },
   { href: '/dashboard/planning',    icon: CalendarDays,    label: 'תכנון משמרות' },

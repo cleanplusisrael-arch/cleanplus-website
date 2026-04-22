@@ -1,9 +1,11 @@
-export type EmployeeStatus   = 'active' | 'inactive';
-export type ContractType     = 'full_time' | 'part_time' | 'hourly' | 'freelance';
+export type EmployeeStatus = 'active' | 'inactive';
+export type ContractType   = 'full_time' | 'part_time' | 'hourly' | 'freelance';
 
 export interface Employee {
   id: string;
+  employeeNumber: string;      // E-00001
   name: string;
+  teudatZehut?: string;        // Israeli ID
   phone: string;
   email?: string;
   zone?: string;
@@ -11,7 +13,8 @@ export interface Employee {
   status: EmployeeStatus;
   contractType?: ContractType;
   nekudotZikui?: number;
-  grossSalary?: number;
+  grossSalary?: number;        // monthly (for full_time / part_time)
+  hourlyRate?: number;         // per hour (for hourly)
   notes?: string;
   createdAt: string;
   updatedAt?: string;
@@ -24,4 +27,7 @@ export const CONTRACT_LABELS: Record<ContractType, string> = {
   freelance: 'עצמאי/פרילנס',
 };
 
-export const ZONES = ['תל אביב', 'הרצליה', 'נתניה', 'קיסריה', 'כפר סבא', 'רעננה', 'הוד השרון', 'חדרה', 'ראשון לציון'];
+export const ZONES = [
+  'תל אביב', 'הרצליה', 'נתניה', 'קיסריה', 'כפר סבא',
+  'רעננה', 'הוד השרון', 'חדרה', 'ראשון לציון', 'פתח תקווה',
+];
