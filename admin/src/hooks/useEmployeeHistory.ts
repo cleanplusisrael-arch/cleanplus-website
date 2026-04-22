@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Shift } from '@/lib/shift-types';
 import type { TimeclockEntry } from '@/lib/timeclock-types';
@@ -14,17 +14,33 @@ export function useEmployeeHistory(employeeId: string) {
     if (!employeeId) return;
     let shiftsLoaded = false;
     let clockLoaded  = false;
-
     const done = () => { if (shiftsLoaded && clockLoaded) setLoading(false); };
 
+    // Single-field where only — no composite index needed, sort client-side
     const unsubShifts = onSnapshot(
-      query(collection(db, 'shifts'), where('employeeId', '==', employeeId), orderBy('date', 'desc')),
-      (snap) => { setShifts(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Shift, 'id'>) }))); shiftsLoaded = true; done(); },
+      query(collection(db, 'shifts'), where('employeeId', '==', employeeId)),
+      (snap) => {
+        const data = snap.docs
+          .map((d) => ({ id: d.id, ...(d.data() as Omit<Shift, 'id'>) }))
+          .sort((a, b) => b.date.localeCompare(a.date));
+        setShifts(data);
+        shiftsLoaded = true;
+        done();
+      },
+      () => { shiftsLoaded = true; done(); },
     );
 
     const unsubClock = onSnapshot(
-      query(collection(db, 'timeclock'), where('employeeId', '==', employeeId), orderBy('date', 'desc')),
-      (snap) => { setClock(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<TimeclockEntry, 'id'>) }))); clockLoaded = true; done(); },
+      query(collection(db, 'timeclock'), where('employeeId', '==', employeeId)),
+      (snap) => {
+        const data = snap.docs
+          .map((d) => ({ id: d.id, ...(d.data() as Omit<TimeclockEntry, 'id'>) }))
+          .sort((a, b) => b.date.localeCompare(a.date));
+        setClock(data);
+        clockLoaded = true;
+        done();
+      },
+      () => { clockLoaded = true; done(); },
     );
 
     return () => { unsubShifts(); unsubClock(); };

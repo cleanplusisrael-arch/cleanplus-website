@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Shift } from '@/lib/shift-types';
 
@@ -10,15 +10,15 @@ export function useLeadHistory(clientName: string) {
 
   useEffect(() => {
     if (!clientName) return;
-    const q = query(
-      collection(db, 'shifts'),
-      where('clientName', '==', clientName),
-      orderBy('date', 'desc'),
-    );
+    // Single-field where only — no composite index needed
+    const q = query(collection(db, 'shifts'), where('clientName', '==', clientName));
     const unsub = onSnapshot(q, (snap) => {
-      setShifts(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Shift, 'id'>) })));
+      const data = snap.docs
+        .map((d) => ({ id: d.id, ...(d.data() as Omit<Shift, 'id'>) }))
+        .sort((a, b) => b.date.localeCompare(a.date));
+      setShifts(data);
       setLoading(false);
-    });
+    }, () => setLoading(false));
     return unsub;
   }, [clientName]);
 
