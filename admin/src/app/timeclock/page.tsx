@@ -56,21 +56,38 @@ export default function PublicTimeclock() {
     setLoading(false);
   }
 
+  async function getLocation(): Promise<{ lat?: number; lng?: number }> {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return {};
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => resolve({}), 5000);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { clearTimeout(timeout); resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }); },
+        () => { clearTimeout(timeout); resolve({}); },
+        { enableHighAccuracy: false, timeout: 4000, maximumAge: 60000 },
+      );
+    });
+  }
+
   async function handleConfirm() {
     if (!employee) return;
     setLoading(true);
     const now = new Date().toISOString();
     try {
+      const loc = await getLocation();
       if (action === 'in') {
         await addDoc(collection(db, 'timeclock'), {
           employeeId: employee.id,
           employeeName: employee.name,
           date: today,
           clockIn: now,
+          ...(loc.lat && loc.lng ? { clockInLat: loc.lat, clockInLng: loc.lng } : {}),
           createdAt: now,
         });
       } else if (openEntry) {
-        await updateDoc(doc(db, 'timeclock', openEntry.id), { clockOut: now });
+        await updateDoc(doc(db, 'timeclock', openEntry.id), {
+          clockOut: now,
+          ...(loc.lat && loc.lng ? { clockOutLat: loc.lat, clockOutLng: loc.lng } : {}),
+        });
       }
       setDoneTime(fmtTime(now));
       setStep('done');

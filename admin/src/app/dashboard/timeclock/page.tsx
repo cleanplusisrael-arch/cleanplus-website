@@ -5,7 +5,7 @@ import { useEmployees } from '@/hooks/useEmployees';
 import { Header } from '@/components/layout/Header';
 import { StatCard } from '@/components/ui/StatCard';
 import { calcHours, type TimeclockEntry } from '@/lib/timeclock-types';
-import { Clock, LogIn, LogOut, Plus, X, AlertTriangle, CheckCircle2, Users } from 'lucide-react';
+import { Clock, LogIn, LogOut, Plus, X, AlertTriangle, CheckCircle2, Users, MapPin } from 'lucide-react';
 
 function fmtTime(iso?: string) {
   if (!iso) return '—';
@@ -68,6 +68,7 @@ function ClockInModal({ employees, onSave, onClose }: {
 export default function TimeclockPage() {
   const [dateFilter, setDateFilter] = useState(new Date().toISOString().slice(0, 10));
   const [showModal, setShowModal] = useState(false);
+  const [waEmployee, setWaEmployee] = useState('');
   const { entries, loading, clockIn, clockOut } = useTimeclock(dateFilter);
   const { employees } = useEmployees();
   const activeEmps = employees.filter((e) => e.status === 'active');
@@ -140,25 +141,48 @@ export default function TimeclockPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-50 bg-gray-50/50">
-                  {['עובד', 'כניסה', 'יציאה', 'שעות', 'סטטוס', ''].map((h) => (
+                  {['עובד', 'כניסה', 'יציאה', 'שעות', 'מיקום', 'סטטוס', ''].map((h) => (
                     <th key={h} className="text-start ps-4 pe-3 py-3 text-xs font-semibold text-gray-500 font-hebrew">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {loading && <tr><td colSpan={6} className="py-16 text-center text-gray-400 font-hebrew text-sm">טוען...</td></tr>}
+                {loading && <tr><td colSpan={7} className="py-16 text-center text-gray-400 font-hebrew text-sm">טוען...</td></tr>}
                 {!loading && entries.length === 0 && (
-                  <tr><td colSpan={6} className="py-16 text-center text-gray-400 font-hebrew text-sm">אין רשומות לתאריך זה</td></tr>
+                  <tr><td colSpan={7} className="py-16 text-center text-gray-400 font-hebrew text-sm">אין רשומות לתאריך זה</td></tr>
                 )}
                 {entries.map((entry) => {
                   const hours = calcHours(entry);
                   const isActive = entry.clockIn && !entry.clockOut;
+                  const inLat  = entry.clockInLat  ?? entry.lat;
+                  const inLng  = entry.clockInLng  ?? entry.lng;
+                  const outLat = entry.clockOutLat;
+                  const outLng = entry.clockOutLng;
                   return (
                     <tr key={entry.id} className="border-b border-gray-50 hover:bg-gray-50/40 transition-colors">
                       <td className="ps-4 pe-3 py-3.5 font-medium text-gray-800 font-hebrew">{entry.employeeName}</td>
                       <td className="px-3 py-3.5 text-gray-600 font-medium" dir="ltr">{fmtTime(entry.clockIn)}</td>
                       <td className="px-3 py-3.5 text-gray-600" dir="ltr">{fmtTime(entry.clockOut)}</td>
                       <td className="px-3 py-3.5 text-gray-700 font-medium" dir="ltr">{fmtHours(hours)}</td>
+                      <td className="px-3 py-3.5">
+                        <div className="flex items-center gap-1.5">
+                          {inLat && inLng ? (
+                            <a href={`https://www.google.com/maps?q=${inLat},${inLng}`} target="_blank" rel="noreferrer"
+                              title={`כניסה: ${inLat.toFixed(4)}, ${inLng.toFixed(4)}`}
+                              className="inline-flex items-center gap-0.5 text-xs text-green-600 hover:text-green-700 border border-green-200 rounded px-1.5 py-0.5">
+                              <MapPin size={11} />כ
+                            </a>
+                          ) : null}
+                          {outLat && outLng ? (
+                            <a href={`https://www.google.com/maps?q=${outLat},${outLng}`} target="_blank" rel="noreferrer"
+                              title={`יציאה: ${outLat.toFixed(4)}, ${outLng.toFixed(4)}`}
+                              className="inline-flex items-center gap-0.5 text-xs text-red-500 hover:text-red-600 border border-red-200 rounded px-1.5 py-0.5">
+                              <MapPin size={11} />י
+                            </a>
+                          ) : null}
+                          {!inLat && !outLat && <span className="text-xs text-gray-300">—</span>}
+                        </div>
+                      </td>
                       <td className="px-3 py-3.5">
                         {isActive ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
@@ -191,12 +215,59 @@ export default function TimeclockPage() {
         <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <AlertTriangle size={16} className="text-blue-500 mt-0.5 shrink-0" />
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-semibold text-blue-800 font-hebrew mb-1">קישור כניסה מהטלפון</p>
-              <p className="text-xs text-blue-600 font-hebrew mb-2">שלח לעובדים קישור לדיווח נוכחות מהנייד:</p>
-              <code className="text-xs bg-white border border-blue-200 rounded px-2 py-1 text-blue-700 select-all" dir="ltr">
-                https://admin.cleanplus.co.il/timeclock
-              </code>
+              <p className="text-xs text-blue-600 font-hebrew mb-3">שלח לעובדים קישור לדיווח נוכחות מהנייד:</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <code className="text-xs bg-white border border-blue-200 rounded px-2.5 py-1.5 text-blue-700 select-all flex-1 min-w-[200px]" dir="ltr">
+                  https://admin.cleanplus.co.il/timeclock
+                </code>
+                <button
+                  onClick={() => navigator.clipboard.writeText('https://admin.cleanplus.co.il/timeclock')}
+                  className="text-xs bg-white border border-blue-200 hover:border-blue-400 text-blue-700 px-3 py-1.5 rounded font-hebrew shrink-0">
+                  העתק
+                </button>
+              </div>
+
+              {/* Send via WhatsApp */}
+              <div className="mt-3 pt-3 border-t border-blue-100">
+                <p className="text-xs font-semibold text-blue-700 font-hebrew mb-2">שליחה מהירה בוואטסאפ:</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={waEmployee}
+                    onChange={(e) => setWaEmployee(e.target.value)}
+                    className="flex-1 min-w-[180px] text-xs border border-blue-200 rounded px-2.5 py-1.5 bg-white font-hebrew focus:outline-none focus:border-blue-400">
+                    <option value="">בחר עובד...</option>
+                    {activeEmps.filter((e) => e.phone).map((e) => (
+                      <option key={e.id} value={e.id}>{e.name} — {e.phone}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => {
+                      const emp = activeEmps.find((e) => e.id === waEmployee);
+                      if (!emp || !emp.phone) return;
+                      const phone = emp.phone.replace(/^0/, '').replace(/-/g, '').replace(/\s/g, '');
+                      const msg = encodeURIComponent(
+                        `היי ${emp.name},\nבבקשה השתמש בקישור הבא לדיווח נוכחות (כניסה / יציאה) מהטלפון:\n\nhttps://admin.cleanplus.co.il/timeclock\n\nהזן את מספר תעודת הזהות שלך ותוכל לרשום כניסה או יציאה בלחיצה אחת.`
+                      );
+                      window.open(`https://wa.me/972${phone}?text=${msg}`, '_blank');
+                    }}
+                    disabled={!waEmployee}
+                    className="flex items-center gap-1.5 text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded font-hebrew shrink-0 disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span>💬</span>שלח קישור
+                  </button>
+                  <button
+                    onClick={() => {
+                      const msg = encodeURIComponent(
+                        `היי,\nבבקשה השתמש בקישור הבא לדיווח נוכחות (כניסה / יציאה) מהטלפון:\n\nhttps://admin.cleanplus.co.il/timeclock\n\nהזן את מספר תעודת הזהות שלך ותוכל לרשום כניסה או יציאה בלחיצה אחת.`
+                      );
+                      window.open(`https://wa.me/?text=${msg}`, '_blank');
+                    }}
+                    className="text-xs border border-green-300 text-green-600 hover:bg-green-50 px-3 py-1.5 rounded font-hebrew shrink-0">
+                    שלח לאחר
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
