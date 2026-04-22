@@ -1,48 +1,50 @@
-# Clean+ Website — cleanplus.co.il
+# Clean+ — Hero Patch
 
-Site vitrine Next.js 14 pour Clean+, société de nettoyage professionnelle en Israël.
+Changements à appliquer sur `cleanplusisrael-arch/cleanplus-website` (branche `main`).
 
-## Stack
-- **Next.js 14** App Router
-- **Tailwind CSS** Design system navy/gold
-- **next-intl** Multilingual (HE/EN/FR/RU) avec RTL automatique
-- **Firebase Firestore** Stockage leads
-- **Vercel** Déploiement + Serverless functions
+## Fichiers dans ce zip
 
-## Structure des routes
 ```
-cleanplus.co.il/              → Site hébreu (défaut, RTL)
-cleanplus.co.il/en/           → English
-cleanplus.co.il/fr/           → Français
-cleanplus.co.il/ru/           → Русский
-cleanplus.co.il/devis-nettoyage → Landing page leads (à créer)
-cleanplus.co.il/rejoindre-equipe → Landing page recrutement (à créer)
+cleanplus/
+├── public/
+│   └── hero.jpg                    ← remplace l'existant
+└── src/
+    └── components/
+        └── Hero.tsx                ← remplace l'existant
 ```
 
-## Collections Firestore
-```
-leads_clients/    → Leads depuis le formulaire site
-leads_candidates/ → Candidatures recrutement
-```
+## Installation
 
-## Setup
+### Option A — via l'interface web GitHub
+1. Ouvrez https://github.com/cleanplusisrael-arch/cleanplus-website
+2. Pour **`cleanplus/public/hero.jpg`** :
+   - Naviguez au dossier `cleanplus/public/`
+   - Cliquez sur `hero.jpg` puis sur l'icône poubelle → Commit
+   - Revenez au dossier, cliquez "Add file" → "Upload files" → déposez le nouveau `hero.jpg`
+   - Commit directement sur `main`
+3. Pour **`cleanplus/src/components/Hero.tsx`** :
+   - Naviguez à `cleanplus/src/components/Hero.tsx`
+   - Cliquez sur l'icône crayon (Edit)
+   - Supprimez tout le contenu, collez le nouveau Hero.tsx
+   - Commit directement sur `main`
+
+Vercel redéploiera automatiquement.
+
+### Option B — via votre machine
 ```bash
-cp .env.example .env.local
-# Remplir les variables Firebase + WhatsApp
-npm install
-npm run dev
+git clone https://github.com/cleanplusisrael-arch/cleanplus-website.git
+cd cleanplus-website
+# copiez les 2 fichiers de ce zip aux bons emplacements (cleanplus/public/hero.jpg et cleanplus/src/components/Hero.tsx)
+git add .
+git commit -m "hero: photo plus claire, overlay allégé"
+git push origin main
 ```
 
-## Déploiement Vercel
-```bash
-vercel --prod
-```
-Configurer les variables d'env dans le dashboard Vercel.
+## Ce qui change
 
-## À faire (prochaines étapes)
-- [ ] Landing page /devis-nettoyage
-- [ ] Landing page /rejoindre-equipe
-- [ ] Notification WhatsApp manager via API
-- [ ] Google Analytics + Meta Pixel
-- [ ] Blog section pour SEO
-- [ ] admin.cleanplus.co.il (dashboard)
+- **Photo hero** : nouvelle image + opacité passée de 0.42 → 1 (photo pleinement visible)
+- **Overlay** : passé de ~0.9 opaque à un dégradé doux 0.35 → transparent
+- **Grille de points** : supprimée pour ne rien ajouter sur la photo
+- **Lisibilité du texte** : `text-shadow` ajouté sur le h1, le subtitle et la trust row
+- **Pills & bouton téléphone** : fond semi-transparent avec backdrop-blur pour rester lisibles sur la photo
+- **Carte stats à droite** : fond navy semi-transparent (0.55) au lieu de blanc transparent pour rester lisible contre la photo claire
