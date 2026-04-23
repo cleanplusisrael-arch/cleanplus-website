@@ -29,3 +29,27 @@ input[type="number"] {
 .font-hebrew {
   letter-spacing: normal;
 }
+
+/* Print: show only the document, hide dashboard chrome */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #doc-print,
+  #doc-print * {
+    visibility: visible !important;
+  }
+  #doc-print {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 2cm !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+  }
+}

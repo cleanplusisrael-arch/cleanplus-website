@@ -95,7 +95,7 @@ function ClientQuote({ subject, lines, extraNotes, quoteNum }: {
   const validUntil = fmtDate(new Date(Date.now() + 30 * 24 * 3600000));
   const filledLines = lines.filter((l) => l.description.trim());
   const subtotal = filledLines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
-  const vat = Math.round(subtotal * 0.17);
+  const vat = Math.round(subtotal * 0.18);
   const total = subtotal + vat;
 
   return (
@@ -163,7 +163,7 @@ function ClientQuote({ subject, lines, extraNotes, quoteNum }: {
             <span dir="ltr">{fmtMoney(subtotal)}</span>
           </div>
           <div className="flex justify-between text-gray-600 py-1 border-b border-gray-100">
-            <span className="font-hebrew">מע״מ 17%</span>
+            <span className="font-hebrew">מע״מ 18%</span>
             <span dir="ltr">{fmtMoney(vat)}</span>
           </div>
           <div className="flex justify-between font-bold text-[#0a1628] py-2 text-base">
@@ -459,19 +459,50 @@ export default function DocumentsPage() {
                 <Download size={15} />הדפס / PDF
               </button>
             )}
-            {preview && docType === 'quote' && quoteSubject && (
-              <>
-                <a href={`https://wa.me/972${quoteSubject.phone.replace(/^0/, '').replace(/\D/g, '')}?text=${encodeURIComponent(`שלום ${quoteSubject.name}, מצורפת הצעת מחיר מספר ${quoteNum} מ-Clean+. לפרטים נוספים נשמח לעמוד לרשותכם.`)}`}
-                  target="_blank" rel="noreferrer"
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-hebrew transition-colors">
-                  <MessageCircle size={15} />WhatsApp
-                </a>
-                <a href={`mailto:?subject=${encodeURIComponent(`הצעת מחיר ${quoteNum} — Clean+`)}&body=${encodeURIComponent(`שלום ${quoteSubject.name},\n\nמצורפת הצעת מחיר מספר ${quoteNum} מ-Clean+.\n\nלשאלות נוספות אנחנו זמינים.\n\nקמינוס הפקות בע״מ — Clean+\ninfo@cleanplus.co.il`)}`}
-                  className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-blue-300 hover:text-blue-600 transition-colors">
-                  <Mail size={15} />שלח מייל
-                </a>
-              </>
-            )}
+            {preview && docType === 'quote' && quoteSubject && (() => {
+              const filled = quoteLines.filter((l) => l.description.trim());
+              const sub = filled.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+              const tot = sub + Math.round(sub * 0.18);
+              const linesSummary = filled.map((l) => `• ${l.description} × ${l.qty} = ₪${(l.qty * l.unitPrice).toLocaleString()}`).join('\n');
+              const waText = [
+                `שלום ${quoteSubject.name},`,
+                `מצורף פירוט הצעת מחיר מספר ${quoteNum} מ-Clean+:`,
+                '',
+                linesSummary,
+                '',
+                `סה״כ לתשלום (כולל מע״מ 18%): ₪${tot.toLocaleString()}`,
+                '',
+                'להדפסת המסמך המלא, אנא פנו אלינו.',
+                'קמינוס הפקות בע״מ | info@cleanplus.co.il',
+              ].join('\n');
+              const mailBody = [
+                `שלום ${quoteSubject.name},`,
+                '',
+                `מצורפת הצעת מחיר מספר ${quoteNum}:`,
+                '',
+                linesSummary,
+                '',
+                `סה״כ לתשלום (כולל מע״מ 18%): ₪${tot.toLocaleString()}`,
+                '',
+                'ניתן להדפיס את המסמך המלא ישירות מהמערכת.',
+                '',
+                'קמינוס הפקות בע״מ — Clean+',
+                'info@cleanplus.co.il',
+              ].join('\n');
+              return (
+                <>
+                  <a href={`https://wa.me/972${quoteSubject.phone.replace(/^0/, '').replace(/\D/g, '')}?text=${encodeURIComponent(waText)}`}
+                    target="_blank" rel="noreferrer"
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-hebrew transition-colors">
+                    <MessageCircle size={15} />WhatsApp
+                  </a>
+                  <a href={`mailto:${quoteSubject.phone ? '' : ''}?subject=${encodeURIComponent(`הצעת מחיר ${quoteNum} — Clean+`)}&body=${encodeURIComponent(mailBody)}`}
+                    className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-blue-300 hover:text-blue-600 transition-colors">
+                    <Mail size={15} />שלח מייל
+                  </a>
+                </>
+              );
+            })()}
           </div>
         </div>
 
