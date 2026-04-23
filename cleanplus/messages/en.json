@@ -8,13 +8,19 @@
   },
   "hero": {
     "badge": "A New Standard of Cleaning",
-    "title": "Your Home — Clean, Spotless, Perfect",
+    "title_line1": "Professional Cleaning",
+    "title_line2": "for Homes, Offices",
+    "title_line3": "& Businesses",
     "subtitle": "Professional cleaning services for homes and businesses. Skilled, insured and reliable team — from Rehovot to Hadera.",
     "cta_primary": "Get a Free Quote",
     "cta_secondary": "Call Now",
-    "badge_insured": "Fully Insured",
-    "badge_pro": "Professional Team",
-    "badge_available": "7/7 Available"
+    "service1": "Apartment Cleaning",
+    "service2": "Office Cleaning",
+    "service3": "Post-Renovation Cleaning",
+    "service4": "Business Cleaning",
+    "trust1": "Experienced & Certified Team",
+    "trust2": "Professional Equipment Included",
+    "trust3": "7-Day Availability"
   },
   "services": {
     "title": "Our Services",
@@ -31,21 +37,12 @@
       "title": "Office & Business Cleaning",
       "desc": "Regular maintenance and thorough cleaning for offices and businesses. A clean work environment that boosts productivity."
     },
-    "more": "Learn More"
-  },
-  "how": {
-    "title": "How It Works",
-    "step1_title": "Leave Your Details",
-    "step1_desc": "Fill out the short form or call us directly.",
-    "step2_title": "We Call Back Within an Hour",
-    "step2_desc": "We'll tailor the service to your needs and offer a fair price.",
-    "step3_title": "We Come and Get the Job Done",
-    "step3_desc": "Our skilled team will arrive and make the place shine to your satisfaction."
-  },
-  "areas": {
-    "title": "Our Service Areas",
-    "subtitle": "Serving the entire Center and Sharon region",
-    "list": ["Tel Aviv", "Park Tzameret", "Herzliya", "Netanya", "Caesarea", "Or Akiva", "Hadera", "Kfar Saba", "Ra'anana", "Hod HaSharon"]
+    "more": "Learn More",
+    "featured_label": "Most Popular",
+    "feature1": "Clear price, no surprises",
+    "feature2": "Professional equipment included",
+    "feature3": "Flexible scheduling",
+    "cta": "Get a Quote →"
   },
   "stats": {
     "clients": "+500",
@@ -56,6 +53,51 @@
     "insured_label": "Insured & Reliable",
     "available": "7/7",
     "available_label": "Full Availability"
+  },
+  "whyus": {
+    "label": "Why Clean+",
+    "heading": "All Inclusive. One Transparent Price.",
+    "subtitle": "Professional team, equipment included, flexible scheduling — everything you need for a perfect home.",
+    "f1_title": "Experienced & Certified Team",
+    "f1_desc": "Every employee has undergone comprehensive professional training. We never send anyone to your home unprepared.",
+    "f2_title": "Professional Equipment — Included",
+    "f2_desc": "We bring all equipment and supplies. You don't need to worry about anything.",
+    "f3_title": "7-Day Availability",
+    "f3_desc": "We work on weekends and holidays too — at hours that suit you.",
+    "f4_title": "Transparent Pricing",
+    "f4_desc": "A fixed price agreed before work begins. No surprise additions.",
+    "f5_title": "Same Team Every Time",
+    "f5_desc": "Long-term arrangement? The same people will come — they know your home and preferences.",
+    "f6_title": "Area-Based Assignment",
+    "f6_desc": "Our team is divided by area — ensuring on-time arrival and maximum efficiency."
+  },
+  "guarantee": {
+    "heading_pre": "100%",
+    "heading_post": "Guarantee — Zero Risk",
+    "desc": "Not satisfied with the cleaning? We'll come back and fix it for free. Still not happy? Full refund. No questions, no hassle.",
+    "item1": "Free return visit to fix",
+    "item2": "Full refund if required",
+    "item3": "No unnecessary questions"
+  },
+  "how": {
+    "title": "How It Works",
+    "heading": "3 Simple Steps",
+    "step1_title": "Leave Your Details",
+    "step1_desc": "Fill out the short form or call us directly.",
+    "step1_time": "60 seconds",
+    "step2_title": "We Call Back Within an Hour",
+    "step2_desc": "We'll tailor the service to your needs and offer a fair price.",
+    "step2_time": "Within an hour",
+    "step3_title": "We Come and Get the Job Done",
+    "step3_desc": "Our skilled team will arrive and make the place shine to your satisfaction.",
+    "step3_time": "On the agreed day",
+    "cta": "Book a Cleaning Now →",
+    "note": "No commitment · We call back within an hour"
+  },
+  "areas": {
+    "title": "Our Service Areas",
+    "subtitle": "Serving the entire Center and Sharon region",
+    "list": ["Tel Aviv", "Park Tzameret", "Herzliya", "Netanya", "Caesarea", "Or Akiva", "Hadera", "Kfar Saba", "Ra'anana", "Hod HaSharon"]
   },
   "testimonials": {
     "title": "Client Reviews",
@@ -72,6 +114,10 @@
   "contact": {
     "title": "Get a Free Quote",
     "subtitle": "We'll get back to you within an hour",
+    "heading": "We'd Love to Hear From You",
+    "form_title": "Request a Quote",
+    "form_badge": "We'll get back to you within an hour · No commitment",
+    "online": "Available Now",
     "name": "Full Name",
     "phone": "Phone",
     "service": "Service Type",
@@ -80,14 +126,26 @@
     "service_office": "Office / Business Cleaning",
     "service_other": "Other",
     "notes": "Notes (optional)",
+    "placeholder_name": "John Smith",
+    "placeholder_size": "Property size, floor, additional details...",
     "submit": "Send Request",
+    "loading": "Sending...",
     "whatsapp": "Send WhatsApp",
-    "success": "Details sent successfully! We'll get back to you shortly."
+    "success_title": "Request Sent Successfully",
+    "success_sub": "We'll be in touch with you shortly.",
+    "success": "Details sent successfully! We'll get back to you shortly.",
+    "vat_note": "Prices include VAT by law · No commitment",
+    "phone_label": "Phone",
+    "email_label": "Email",
+    "area_label": "Service Area",
+    "area_value": "Tel Aviv & Sharon Region"
   },
   "footer": {
     "tagline": "A new standard of cleaning in Israel",
     "quick_links": "Quick Links",
     "contact_us": "Contact Us",
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "vat_note": "Prices include VAT by law",
+    "area_value": "Tel Aviv & Sharon Region"
   }
 }

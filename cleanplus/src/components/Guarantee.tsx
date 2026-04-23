@@ -1,6 +1,9 @@
 'use client';
+import { useTranslations } from 'next-intl';
 
 export default function Guarantee() {
+  const t = useTranslations('guarantee');
+
   return (
     <section className="py-20 bg-navy relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none"
@@ -12,16 +15,15 @@ export default function Guarantee() {
         </div>
         <h2 className="font-display font-light text-white mb-4"
           style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)' }}>
-          ערבות <span className="gold-text font-semibold">100%</span> — ללא סיכון
+          {t('heading_pre')} <span className="gold-text font-semibold">100%</span> {t('heading_post')}
         </h2>
         <p className="text-white/45 text-lg font-light leading-relaxed mb-10 max-w-2xl mx-auto">
-          אם אינך מרוצה מהניקיון — נחזור ונתקן <strong className="text-white/70">חינם</strong>.
-          עדיין לא מרוצה? <strong className="text-white/70">החזר כספי מלא</strong>. ללא שאלות, ללא סיבוכים.
+          {t('desc')}
         </p>
         <div className="flex flex-wrap justify-center gap-6 text-sm text-white/40">
-          {['נחזור לתקן חינם', 'החזר כספי מלא אם נדרש', 'ללא שאלות מיותרות'].map((item, i) => (
-            <div key={item} className="flex items-center gap-2">
-              <span className="text-gold">✓</span> {item}
+          {(['item1', 'item2', 'item3'] as const).map((key) => (
+            <div key={key} className="flex items-center gap-2">
+              <span className="text-gold">✓</span> {t(key)}
             </div>
           ))}
         </div>

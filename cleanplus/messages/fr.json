@@ -8,13 +8,19 @@
   },
   "hero": {
     "badge": "Un nouveau standard de nettoyage",
-    "title": "Votre maison — Propre, Brillante, Parfaite",
+    "title_line1": "Nettoyage professionnel",
+    "title_line2": "pour maisons, bureaux",
+    "title_line3": "& entreprises",
     "subtitle": "Services de nettoyage professionnels pour particuliers et entreprises. Équipe qualifiée, assurée et fiable — de Rehovot à Hadera.",
     "cta_primary": "Obtenir un devis gratuit",
     "cta_secondary": "Appeler maintenant",
-    "badge_insured": "Entièrement assuré",
-    "badge_pro": "Équipe professionnelle",
-    "badge_available": "Disponible 7j/7"
+    "service1": "Nettoyage d'appartements",
+    "service2": "Nettoyage de bureaux",
+    "service3": "Nettoyage après travaux",
+    "service4": "Nettoyage d'entreprises",
+    "trust1": "Équipe expérimentée et certifiée",
+    "trust2": "Équipement professionnel inclus",
+    "trust3": "Disponible 7j/7"
   },
   "services": {
     "title": "Nos Services",
@@ -31,21 +37,12 @@
       "title": "Nettoyage de bureaux et entreprises",
       "desc": "Entretien régulier et nettoyage en profondeur pour bureaux et entreprises. Un environnement propre qui booste la productivité."
     },
-    "more": "En savoir plus"
-  },
-  "how": {
-    "title": "Comment ça marche ?",
-    "step1_title": "Laissez vos coordonnées",
-    "step1_desc": "Remplissez le court formulaire ou appelez-nous directement.",
-    "step2_title": "On vous rappelle sous une heure",
-    "step2_desc": "Nous adaptons le service à vos besoins et proposons un prix juste.",
-    "step3_title": "On vient et on fait le travail",
-    "step3_desc": "Notre équipe qualifiée arrive et fait briller l'endroit à votre satisfaction."
-  },
-  "areas": {
-    "title": "Nos zones d'intervention",
-    "subtitle": "Nous couvrons tout le Centre et la région du Sharon",
-    "list": ["Tel Aviv", "Park Tzameret", "Herzliya", "Netanya", "Césarée", "Or Akiva", "Hadera", "Kfar Saba", "Ra'anana", "Hod HaSharon"]
+    "more": "En savoir plus",
+    "featured_label": "Le plus populaire",
+    "feature1": "Prix clair, sans surprises",
+    "feature2": "Équipement professionnel inclus",
+    "feature3": "Planification flexible",
+    "cta": "Obtenir un devis →"
   },
   "stats": {
     "clients": "+500",
@@ -56,6 +53,51 @@
     "insured_label": "Assuré & fiable",
     "available": "7/7",
     "available_label": "Disponibilité totale"
+  },
+  "whyus": {
+    "label": "Pourquoi Clean+",
+    "heading": "Tout inclus. Un seul prix transparent.",
+    "subtitle": "Équipe professionnelle, équipement inclus, planification flexible — tout ce qu'il faut pour une maison parfaite.",
+    "f1_title": "Équipe expérimentée et certifiée",
+    "f1_desc": "Chaque employé a suivi une formation professionnelle complète. Nous n'envoyons jamais quelqu'un chez vous sans préparation.",
+    "f2_title": "Équipement professionnel — inclus",
+    "f2_desc": "Nous apportons tout l'équipement et les fournitures. Vous n'avez rien à prévoir de votre côté.",
+    "f3_title": "Disponible 7 jours sur 7",
+    "f3_desc": "Nous travaillons aussi le week-end et les jours fériés — aux heures qui vous conviennent.",
+    "f4_title": "Prix transparent à l'avance",
+    "f4_desc": "Un prix fixe convenu avant le début du travail. Aucun ajout surprise.",
+    "f5_title": "La même équipe à chaque fois",
+    "f5_desc": "Arrangement à long terme ? Les mêmes personnes viendront — elles connaissent votre maison et vos préférences.",
+    "f6_title": "Attribution par zone",
+    "f6_desc": "Notre équipe est divisée par zone — garantissant une arrivée à temps et une efficacité maximale."
+  },
+  "guarantee": {
+    "heading_pre": "Garantie",
+    "heading_post": "100% — Zéro risque",
+    "desc": "Pas satisfait du nettoyage ? Nous revenons corriger gratuitement. Toujours pas satisfait ? Remboursement intégral. Sans questions, sans complications.",
+    "item1": "Retour gratuit pour corriger",
+    "item2": "Remboursement complet si nécessaire",
+    "item3": "Sans questions inutiles"
+  },
+  "how": {
+    "title": "Comment ça marche ?",
+    "heading": "3 étapes simples",
+    "step1_title": "Laissez vos coordonnées",
+    "step1_desc": "Remplissez le court formulaire ou appelez-nous directement.",
+    "step1_time": "60 secondes",
+    "step2_title": "On vous rappelle sous une heure",
+    "step2_desc": "Nous adaptons le service à vos besoins et proposons un prix juste.",
+    "step2_time": "Dans l'heure",
+    "step3_title": "On vient et on fait le travail",
+    "step3_desc": "Notre équipe qualifiée arrive et fait briller l'endroit à votre satisfaction.",
+    "step3_time": "Le jour convenu",
+    "cta": "Réserver un nettoyage →",
+    "note": "Sans engagement · Rappel dans l'heure"
+  },
+  "areas": {
+    "title": "Nos zones d'intervention",
+    "subtitle": "Nous couvrons tout le Centre et la région du Sharon",
+    "list": ["Tel Aviv", "Park Tzameret", "Herzliya", "Netanya", "Césarée", "Or Akiva", "Hadera", "Kfar Saba", "Ra'anana", "Hod HaSharon"]
   },
   "testimonials": {
     "title": "Avis clients",
@@ -72,6 +114,10 @@
   "contact": {
     "title": "Obtenir un devis gratuit",
     "subtitle": "On vous répond dans l'heure",
+    "heading": "Nous sommes à votre écoute",
+    "form_title": "Demande de devis",
+    "form_badge": "On vous répond dans l'heure · Sans engagement",
+    "online": "Disponible maintenant",
     "name": "Nom complet",
     "phone": "Téléphone",
     "service": "Type de service",
@@ -80,14 +126,26 @@
     "service_office": "Nettoyage bureau / entreprise",
     "service_other": "Autre",
     "notes": "Notes (optionnel)",
+    "placeholder_name": "Jean Dupont",
+    "placeholder_size": "Taille du bien, étage, détails supplémentaires...",
     "submit": "Envoyer la demande",
+    "loading": "Envoi...",
     "whatsapp": "Envoyer WhatsApp",
-    "success": "Détails envoyés avec succès ! On vous contacte très bientôt."
+    "success_title": "Demande envoyée avec succès",
+    "success_sub": "Nous vous contacterons très bientôt.",
+    "success": "Détails envoyés avec succès ! On vous contacte très bientôt.",
+    "vat_note": "Prix incluant TVA selon la loi · Sans engagement",
+    "phone_label": "Téléphone",
+    "email_label": "E-mail",
+    "area_label": "Zone de service",
+    "area_value": "Tel Aviv & région du Sharon"
   },
   "footer": {
     "tagline": "Un nouveau standard de nettoyage en Israël",
     "quick_links": "Liens rapides",
     "contact_us": "Contactez-nous",
-    "rights": "Tous droits réservés"
+    "rights": "Tous droits réservés",
+    "vat_note": "Prix incluant TVA selon la loi",
+    "area_value": "Tel Aviv & région du Sharon"
   }
 }

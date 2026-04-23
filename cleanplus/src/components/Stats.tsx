@@ -1,13 +1,16 @@
 'use client';
-
-const STATS = [
-  { val: '+500', label: 'לקוחות מרוצים', icon: '👥' },
-  { val: '+3',   label: 'שנות ניסיון',   icon: '🏆' },
-  { val: '100%', label: 'ביטוח מקצועי',  icon: '🛡️' },
-  { val: '7/7',  label: 'זמינות מלאה',   icon: '⚡' },
-];
+import { useTranslations } from 'next-intl';
 
 export default function Stats() {
+  const t = useTranslations('stats');
+
+  const STATS = [
+    { val: t('clients'),    label: t('clients_label'),    icon: '👥' },
+    { val: t('experience'), label: t('experience_label'), icon: '🏆' },
+    { val: t('insured'),    label: t('insured_label'),    icon: '🛡️' },
+    { val: t('available'),  label: t('available_label'),  icon: '⚡' },
+  ];
+
   return (
     <section className="bg-[#0a1628]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
