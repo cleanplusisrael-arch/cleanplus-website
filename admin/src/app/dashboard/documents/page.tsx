@@ -7,11 +7,17 @@ import { Header } from '@/components/layout/Header';
 import { CONTRACT_LABELS } from '@/lib/employee-types';
 import type { Employee } from '@/lib/employee-types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
-import { FileText, Download, ChevronDown, ExternalLink } from 'lucide-react';
+import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle } from 'lucide-react';
 
 function fmtDate(d: Date) {
   return new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
 }
+
+function fmtMoney(n: number) {
+  return `₪${n.toLocaleString('he-IL', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+}
+
+type QuoteLine = { description: string; qty: number; unitPrice: number };
 
 function EmploymentContract({ emp }: { emp: Employee }) {
   const today = fmtDate(new Date());
@@ -79,72 +85,125 @@ function EmploymentContract({ emp }: { emp: Employee }) {
 
 type QuoteSubject = { name: string; phone: string; city?: string; notes?: string; service?: string };
 
-function ClientQuote({ subject }: { subject: QuoteSubject }) {
+function ClientQuote({ subject, lines, extraNotes, quoteNum }: {
+  subject: QuoteSubject;
+  lines: QuoteLine[];
+  extraNotes: string;
+  quoteNum: string;
+}) {
   const today = fmtDate(new Date());
   const validUntil = fmtDate(new Date(Date.now() + 30 * 24 * 3600000));
+  const filledLines = lines.filter((l) => l.description.trim());
+  const subtotal = filledLines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
+  const vat = Math.round(subtotal * 0.17);
+  const total = subtotal + vat;
 
   return (
-    <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.8 }}>
-      <div className="text-center mb-8 border-b border-gray-200 pb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">הצעת מחיר</h1>
-        <p className="text-gold font-semibold text-sm">Clean+ — ניקיון ואחזקה מקצועי</p>
-        <p className="text-gray-400 text-xs mt-1">קמינוס הפקות בע״מ | ח.פ 516820826</p>
-        <p className="text-gray-400 text-xs">cleanplus.co.il | info@cleanplus.co.il</p>
+    <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl"
+      style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.7 }}>
+
+      {/* Header */}
+      <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-[#0a1628]">
+        <div>
+          <div className="text-3xl font-black tracking-tight text-[#0a1628]">
+            Clean<span className="text-[#c9a84c]">+</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">קמינוס הפקות בע״מ</p>
+          <p className="text-xs text-gray-400">ח.פ 516820826</p>
+          <p className="text-xs text-gray-400">שד׳ דוד המלך 509, אור עקיבא</p>
+          <p className="text-xs text-gray-400">info@cleanplus.co.il | cleanplus.co.il</p>
+        </div>
+        <div className="text-start">
+          <h1 className="text-2xl font-bold text-[#0a1628] mb-1">הצעת מחיר</h1>
+          <p className="text-xs text-gray-500">מספר: <span className="font-mono font-semibold">{quoteNum}</span></p>
+          <p className="text-xs text-gray-500">תאריך: {today}</p>
+          <p className="text-xs text-gray-500">בתוקף עד: {validUntil}</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
-        <div className="space-y-1">
-          <p className="font-bold text-gray-600 text-xs uppercase tracking-wide mb-2">פרטי הלקוח</p>
-          <p><strong>שם:</strong> {subject.name}</p>
-          <p><strong>טלפון:</strong> <span dir="ltr">{subject.phone}</span></p>
-          {subject.city && <p><strong>עיר:</strong> {subject.city}</p>}
-        </div>
-        <div className="space-y-1">
-          <p className="font-bold text-gray-600 text-xs uppercase tracking-wide mb-2">פרטי ההצעה</p>
-          <p><strong>תאריך:</strong> {today}</p>
-          <p><strong>תוקף:</strong> {validUntil}</p>
-          {subject.service && <p><strong>שירות:</strong> {LEAD_SERVICE_LABELS[subject.service as keyof typeof LEAD_SERVICE_LABELS] ?? subject.service}</p>}
-        </div>
+      {/* Client */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100 text-sm">
+        <p className="text-xs text-gray-400 uppercase tracking-wide mb-2 font-semibold">לכבוד</p>
+        <p className="font-bold text-gray-800">{subject.name}</p>
+        <p className="text-gray-600" dir="ltr">{subject.phone}</p>
+        {subject.city && <p className="text-gray-600">{subject.city}</p>}
       </div>
 
-      <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
+      {/* Lines table */}
+      <div className="border border-gray-200 rounded-lg overflow-hidden mb-1">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-navy text-white">
-              <th className="text-start px-4 py-3 font-hebrew">תיאור השירות</th>
-              <th className="text-center px-4 py-3 font-hebrew">כמות</th>
-              <th className="text-end px-4 py-3 font-hebrew">מחיר ליח׳</th>
-              <th className="text-end px-4 py-3 font-hebrew">סה״כ</th>
+            <tr style={{ backgroundColor: '#0a1628' }} className="text-white">
+              <th className="text-start px-4 py-2.5 font-hebrew font-medium">תיאור השירות / המוצר</th>
+              <th className="text-center px-3 py-2.5 font-hebrew font-medium w-16">יח׳</th>
+              <th className="text-end px-3 py-2.5 font-hebrew font-medium w-24">מחיר</th>
+              <th className="text-end px-4 py-2.5 font-hebrew font-medium w-24">סה״כ</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-t border-gray-100">
-              <td className="px-4 py-3 font-hebrew">{subject.service ? (LEAD_SERVICE_LABELS[subject.service as keyof typeof LEAD_SERVICE_LABELS] ?? subject.service) : 'שירותי ניקיון'}</td>
-              <td className="px-4 py-3 text-center">1</td>
-              <td className="px-4 py-3 text-end" dir="ltr">—</td>
-              <td className="px-4 py-3 text-end font-medium" dir="ltr">לפי סיכום</td>
-            </tr>
+            {filledLines.length === 0 ? (
+              <tr><td colSpan={4} className="px-4 py-4 text-center text-gray-400 font-hebrew text-xs">אין פריטים</td></tr>
+            ) : filledLines.map((l, i) => (
+              <tr key={i} className={`border-t border-gray-100 ${i % 2 === 1 ? 'bg-gray-50/50' : ''}`}>
+                <td className="px-4 py-2.5 font-hebrew text-gray-800">{l.description}</td>
+                <td className="px-3 py-2.5 text-center text-gray-600">{l.qty}</td>
+                <td className="px-3 py-2.5 text-end text-gray-600" dir="ltr">{fmtMoney(l.unitPrice)}</td>
+                <td className="px-4 py-2.5 text-end font-medium text-gray-800" dir="ltr">{fmtMoney(l.qty * l.unitPrice)}</td>
+              </tr>
+            ))}
           </tbody>
-          <tfoot>
-            <tr className="border-t border-gray-200 bg-gray-50">
-              <td colSpan={3} className="px-4 py-3 font-bold text-end font-hebrew">סה״כ לתשלום (כולל מע״מ):</td>
-              <td className="px-4 py-3 font-bold text-end text-navy" dir="ltr">לפי הסכם</td>
-            </tr>
-          </tfoot>
         </table>
       </div>
 
-      {subject.notes && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg text-sm">
-          <p className="font-semibold mb-1 font-hebrew">הערות:</p>
-          <p className="text-gray-600 font-hebrew">{subject.notes}</p>
+      {/* Totals */}
+      <div className="flex justify-end mb-6">
+        <div className="w-56 text-sm space-y-1 mt-2">
+          <div className="flex justify-between text-gray-600 py-1 border-b border-gray-100">
+            <span className="font-hebrew">סכום ביניים</span>
+            <span dir="ltr">{fmtMoney(subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-gray-600 py-1 border-b border-gray-100">
+            <span className="font-hebrew">מע״מ 17%</span>
+            <span dir="ltr">{fmtMoney(vat)}</span>
+          </div>
+          <div className="flex justify-between font-bold text-[#0a1628] py-2 text-base">
+            <span className="font-hebrew">סה״כ לתשלום</span>
+            <span dir="ltr" style={{ color: '#c9a84c' }}>{fmtMoney(total)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Notes */}
+      {(extraNotes || subject.notes) && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-100 rounded-lg text-sm">
+          <p className="font-semibold mb-1 font-hebrew text-gray-700">הערות:</p>
+          {extraNotes && <p className="text-gray-600 font-hebrew">{extraNotes}</p>}
+          {subject.notes && <p className="text-gray-500 font-hebrew mt-1">{subject.notes}</p>}
         </div>
       )}
 
+      {/* Footer terms */}
       <div className="text-xs text-gray-400 space-y-1 border-t border-gray-100 pt-4">
         <p>• ההצעה בתוקף עד: {validUntil}</p>
         <p>• התשלום יבוצע עם קבלת העבודה, אלא אם הוסכם אחרת.</p>
         <p>• החברה מחזיקה בכיסוי ביטוחי מלא לנזקי רכוש ואחריות צד שלישי.</p>
+        <p>• מחירים כוללים מע״מ כחוק.</p>
+      </div>
+
+      {/* Signatures */}
+      <div className="mt-10 grid grid-cols-2 gap-10">
+        <div className="text-center">
+          <div className="border-t border-gray-300 pt-2">
+            <p className="text-xs text-gray-500">חתימת החברה</p>
+            <p className="text-xs text-gray-400 mt-0.5">קמינוס הפקות בע״מ</p>
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="border-t border-gray-300 pt-2">
+            <p className="text-xs text-gray-500">חתימת הלקוח</p>
+            <p className="text-xs text-gray-400 mt-0.5">{subject.name}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -290,6 +349,15 @@ export default function DocumentsPage() {
   // prefixed: "lead:<id>" or "client:<id>"
   const [selectedQuoteId, setSelectedQuoteId] = useState('');
   const [preview, setPreview] = useState(false);
+  const [quoteLines, setQuoteLines] = useState<QuoteLine[]>([{ description: '', qty: 1, unitPrice: 0 }]);
+  const [quoteNotes, setQuoteNotes] = useState('');
+  const [quoteNum] = useState(() => `Q-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 8999) + 1000)}`);
+
+  function addLine() { setQuoteLines((l) => [...l, { description: '', qty: 1, unitPrice: 0 }]); }
+  function removeLine(i: number) { setQuoteLines((l) => l.filter((_, idx) => idx !== i)); }
+  function updateLine(i: number, field: keyof QuoteLine, value: string | number) {
+    setQuoteLines((l) => l.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
+  }
 
   const activeEmps  = employees.filter((e) => e.status === 'active');
   const wonLeads    = leads.filter((l) => ['won', 'contacted', 'quote_sent'].includes(l.status));
@@ -378,7 +446,7 @@ export default function DocumentsPage() {
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <button
               onClick={() => setPreview(true)}
               disabled={((docType === 'contract' || docType === 'tofes101') && !selectedEmpId) || (docType === 'quote' && !selectedQuoteId)}
@@ -388,11 +456,60 @@ export default function DocumentsPage() {
             {preview && (
               <button onClick={printDoc}
                 className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-navy/30 hover:text-navy">
-                <Download size={15} />הדפס / שמור PDF
+                <Download size={15} />הדפס / PDF
               </button>
+            )}
+            {preview && docType === 'quote' && quoteSubject && (
+              <>
+                <a href={`https://wa.me/972${quoteSubject.phone.replace(/^0/, '').replace(/\D/g, '')}?text=${encodeURIComponent(`שלום ${quoteSubject.name}, מצורפת הצעת מחיר מספר ${quoteNum} מ-Clean+. לפרטים נוספים נשמח לעמוד לרשותכם.`)}`}
+                  target="_blank" rel="noreferrer"
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-hebrew transition-colors">
+                  <MessageCircle size={15} />WhatsApp
+                </a>
+                <a href={`mailto:?subject=${encodeURIComponent(`הצעת מחיר ${quoteNum} — Clean+`)}&body=${encodeURIComponent(`שלום ${quoteSubject.name},\n\nמצורפת הצעת מחיר מספר ${quoteNum} מ-Clean+.\n\nלשאלות נוספות אנחנו זמינים.\n\nקמינוס הפקות בע״מ — Clean+\ninfo@cleanplus.co.il`)}`}
+                  className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-blue-300 hover:text-blue-600 transition-colors">
+                  <Mail size={15} />שלח מייל
+                </a>
+              </>
             )}
           </div>
         </div>
+
+        {/* Quote line-items editor */}
+        {docType === 'quote' && quoteSubject && (
+          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-700 font-hebrew">פירוט השירותים</h3>
+              <button onClick={addLine}
+                className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
+                <Plus size={13} />הוסף שורה
+              </button>
+            </div>
+            <div className="space-y-2">
+              <div className="grid grid-cols-[1fr_64px_96px_32px] gap-2 text-xs text-gray-400 font-hebrew px-1">
+                <span>תיאור</span><span className="text-center">כמות</span><span className="text-center">מחיר ₪</span><span />
+              </div>
+              {quoteLines.map((line, i) => (
+                <div key={i} className="grid grid-cols-[1fr_64px_96px_32px] gap-2 items-center">
+                  <input value={line.description} onChange={(e) => updateLine(i, 'description', e.target.value)}
+                    placeholder="תיאור השירות..."
+                    className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                  <input type="number" min={1} value={line.qty} onChange={(e) => updateLine(i, 'qty', Math.max(1, Number(e.target.value)))}
+                    className="border border-gray-200 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                  <input type="number" min={0} value={line.unitPrice} onChange={(e) => updateLine(i, 'unitPrice', Math.max(0, Number(e.target.value)))}
+                    className="border border-gray-200 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                  <button onClick={() => removeLine(i)} disabled={quoteLines.length === 1}
+                    className="flex items-center justify-center text-gray-300 hover:text-red-400 disabled:opacity-20 transition-colors">
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <textarea value={quoteNotes} onChange={(e) => setQuoteNotes(e.target.value)} rows={2}
+              placeholder="הערות להצעה (אופציונלי)..."
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 resize-none" />
+          </div>
+        )}
 
         {preview && docType === 'contract' && selectedEmp && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -414,7 +531,7 @@ export default function DocumentsPage() {
                 <Download size={13} />הדפס
               </button>
             </div>
-            <ClientQuote subject={quoteSubject} />
+            <ClientQuote subject={quoteSubject} lines={quoteLines} extraNotes={quoteNotes} quoteNum={quoteNum} />
           </div>
         )}
 
