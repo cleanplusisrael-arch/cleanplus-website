@@ -104,11 +104,12 @@ function EmploymentContract({ emp, signature }: { emp: Employee; signature?: Sig
 
 type QuoteSubject = { name: string; phone: string; city?: string; notes?: string; service?: string };
 
-function ClientQuote({ subject, lines, extraNotes, quoteNum }: {
+function ClientQuote({ subject, lines, extraNotes, quoteNum, signature }: {
   subject: QuoteSubject;
   lines: QuoteLine[];
   extraNotes: string;
   quoteNum: string;
+  signature?: SignatureRecord;
 }) {
   const today = fmtDate(new Date());
   const validUntil = fmtDate(new Date(Date.now() + 30 * 24 * 3600000));
@@ -224,11 +225,12 @@ function ClientQuote({ subject, lines, extraNotes, quoteNum }: {
           </div>
         </div>
       </div>
+      {signature && <SignatureBadge sig={signature} />}
     </div>
   );
 }
 
-function Tofes101Form({ emp }: { emp: Employee }) {
+function Tofes101Form({ emp, signature }: { emp: Employee; signature?: SignatureRecord }) {
   const today = fmtDate(new Date());
   return (
     <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.8 }}>
@@ -366,6 +368,7 @@ function Tofes101Form({ emp }: { emp: Employee }) {
         <p className="font-semibold mb-1">הנחיות למילוי:</p>
         <p>יש להדפיס, למלא את הפרטים החסרים ולחתום. ניתן גם למלא את הטופס המקוון באתר מס הכנסה.</p>
       </div>
+      {signature && <SignatureBadge sig={signature} />}
     </div>
   );
 }
@@ -487,7 +490,7 @@ export default function DocumentsPage() {
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">לקוח / ליד</label>
               <div className="relative">
-                <select value={selectedQuoteId} onChange={(e) => { setSelectedQuoteId(e.target.value); setPreview(false); }}
+                <select value={selectedQuoteId} onChange={(e) => { setSelectedQuoteId(e.target.value); setPreview(false); setSignature(null); }}
                   className="w-full border border-gray-200 rounded-lg ps-3 pe-8 py-2.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white appearance-none">
                   <option value="">בחר לקוח...</option>
                   {activeClients.length > 0 && (
@@ -644,11 +647,23 @@ export default function DocumentsPage() {
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
               <p className="text-xs text-gray-500 font-hebrew">תצוגה מקדימה — הצעת מחיר</p>
-              <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
-                <Download size={13} />הדפס
-              </button>
+              <div className="flex items-center gap-3">
+                {!signature && (
+                  <button
+                    onClick={() => signDocument({ docType: 'quote', signedBy: quoteSubject.name, signedById: selectedQuoteId })}
+                    disabled={signing}
+                    className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
+                    {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                    {signing ? 'חותם...' : 'חתום דיגיטלית'}
+                  </button>
+                )}
+                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום ✓</span>}
+                <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
+                  <Download size={13} />הדפס
+                </button>
+              </div>
             </div>
-            <ClientQuote subject={quoteSubject} lines={quoteLines} extraNotes={quoteNotes} quoteNum={quoteNum} />
+            <ClientQuote subject={quoteSubject} lines={quoteLines} extraNotes={quoteNotes} quoteNum={quoteNum} signature={signature ?? undefined} />
           </div>
         )}
 
@@ -661,12 +676,22 @@ export default function DocumentsPage() {
                   className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-hebrew">
                   <ExternalLink size={13} />מילוי מקוון
                 </a>
+                {!signature && (
+                  <button
+                    onClick={() => signDocument({ docType: 'tofes101', signedBy: selectedEmp.name, signedById: selectedEmp.id })}
+                    disabled={signing}
+                    className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
+                    {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                    {signing ? 'חותם...' : 'חתום דיגיטלית'}
+                  </button>
+                )}
+                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום ✓</span>}
                 <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
                   <Download size={13} />הדפס
                 </button>
               </div>
             </div>
-            <Tofes101Form emp={selectedEmp} />
+            <Tofes101Form emp={selectedEmp} signature={signature ?? undefined} />
           </div>
         )}
       </div>
