@@ -19,7 +19,9 @@ function EmploymentContract({ emp }: { emp: Employee }) {
     <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.8 }}>
       <div className="text-center mb-8 border-b border-gray-200 pb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">חוזה העסקה</h1>
-        <p className="text-gray-500 text-sm">Clean+ — ניקיון ואחזקה</p>
+        <p className="text-gray-700 font-semibold text-sm">קמינוס הפקות בע״מ</p>
+        <p className="text-gray-400 text-xs">ח.פ 516820826 | שד׳ דוד המלך 509, אור עקיבא</p>
+        <p className="text-gray-400 text-xs mt-0.5">פועלת תחת המותג המסחרי Clean+</p>
       </div>
 
       <div className="mb-6 space-y-1 text-sm">
@@ -61,7 +63,7 @@ function EmploymentContract({ emp }: { emp: Employee }) {
         <div className="text-center">
           <div className="border-t border-gray-400 pt-2">
             <p className="text-sm text-gray-600">חתימת המעסיק</p>
-            <p className="text-xs text-gray-400 mt-1">Clean+ — ניקיון ואחזקה</p>
+            <p className="text-xs text-gray-400 mt-1">קמינוס הפקות בע״מ (Clean+)</p>
           </div>
         </div>
         <div className="text-center">
@@ -84,7 +86,8 @@ function ClientQuote({ lead }: { lead: Lead }) {
       <div className="text-center mb-8 border-b border-gray-200 pb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">הצעת מחיר</h1>
         <p className="text-gold font-semibold text-sm">Clean+ — ניקיון ואחזקה מקצועי</p>
-        <p className="text-gray-400 text-xs mt-1">cleanplus.co.il | info@cleanplus.co.il</p>
+        <p className="text-gray-400 text-xs mt-1">קמינוס הפקות בע״מ | ח.פ 516820826</p>
+        <p className="text-gray-400 text-xs">cleanplus.co.il | info@cleanplus.co.il</p>
       </div>
 
       <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
@@ -194,11 +197,15 @@ function Tofes101Form({ emp }: { emp: Employee }) {
         <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-xs text-gray-500 mb-0.5">שם המעסיק</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">Clean+ ניקיון ואחזקה</div>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">קמינוס הפקות בע״מ</div>
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-0.5">מ.פ / ח.פ מעסיק</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+            <p className="text-xs text-gray-500 mb-0.5">ח.פ מעסיק</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800" dir="ltr">516820826</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">כתובת המעסיק</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">שד׳ דוד המלך 509, אור עקיבא</div>
           </div>
           <div>
             <p className="text-xs text-gray-500 mb-0.5">תאריך תחילת עבודה</p>
