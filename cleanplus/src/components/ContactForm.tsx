@@ -93,6 +93,18 @@ export default function ContactForm() {
                         placeholder={t('placeholder_size')} />
                     </div>
 
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input type="checkbox" required
+                        className="mt-0.5 w-4 h-4 accent-[#c9a84c] shrink-0" />
+                      <span className="text-xs text-slate-400 leading-relaxed">
+                        {t('consent_pre')}{' '}
+                        <a href="/privacy" className="text-[#c9a84c] hover:underline">{t('privacy_link')}</a>
+                        {' '}{t('consent_mid')}{' '}
+                        <a href="/terms" className="text-[#c9a84c] hover:underline">{t('terms_link')}</a>
+                        {' '}{t('consent_post')}
+                      </span>
+                    </label>
+
                     <button type="submit" disabled={loading}
                       className="w-full btn-primary justify-center py-4 rounded-xl text-base disabled:opacity-60">
                       {loading ? `⏳ ${t('loading')}` : t('submit')}

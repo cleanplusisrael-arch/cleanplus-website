@@ -97,7 +97,18 @@
   "areas": {
     "title": "Nos zones d'intervention",
     "subtitle": "Nous couvrons tout le Centre et la région du Sharon",
-    "list": ["Tel Aviv", "Park Tzameret", "Herzliya", "Netanya", "Césarée", "Or Akiva", "Hadera", "Kfar Saba", "Ra'anana", "Hod HaSharon"]
+    "list": [
+      "Tel Aviv",
+      "Park Tzameret",
+      "Herzliya",
+      "Netanya",
+      "Césarée",
+      "Or Akiva",
+      "Hadera",
+      "Kfar Saba",
+      "Ra'anana",
+      "Hod HaSharon"
+    ]
   },
   "testimonials": {
     "title": "Avis clients",
@@ -138,7 +149,12 @@
     "phone_label": "Téléphone",
     "email_label": "E-mail",
     "area_label": "Zone de service",
-    "area_value": "Tel Aviv & région du Sharon"
+    "area_value": "Tel Aviv & région du Sharon",
+    "consent_pre": "J'ai lu et j'accepte la",
+    "privacy_link": "politique de confidentialité",
+    "consent_mid": "et les",
+    "terms_link": "conditions d'utilisation",
+    "consent_post": "du site."
   },
   "footer": {
     "tagline": "Un nouveau standard de nettoyage en Israël",
@@ -146,6 +162,8 @@
     "contact_us": "Contactez-nous",
     "rights": "Tous droits réservés",
     "vat_note": "Prix incluant TVA selon la loi",
-    "area_value": "Tel Aviv & région du Sharon"
+    "area_value": "Tel Aviv & région du Sharon",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation"
   }
 }

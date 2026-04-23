@@ -46,7 +46,13 @@ export default function Footer() {
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
           style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.2)' }}>
           <p>© 2025 Clean+ · {t('rights')}</p>
-          <p>{t('vat_note')}</p>
+          <div className="flex items-center gap-4">
+            <a href="/privacy" className="hover:text-[#c9a84c] transition-colors">{t('privacy')}</a>
+            <span>·</span>
+            <a href="/terms" className="hover:text-[#c9a84c] transition-colors">{t('terms')}</a>
+            <span>·</span>
+            <p>{t('vat_note')}</p>
+          </div>
         </div>
       </div>
     </footer>
