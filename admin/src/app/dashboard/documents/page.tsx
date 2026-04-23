@@ -332,6 +332,17 @@ function Tofes101Form({ emp }: { emp: Employee }) {
         </div>
       </div>
 
+      {/* ID Card scan */}
+      {emp.idCardUrl && (
+        <div className="mt-6">
+          <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ה. צילום תעודת זהות</h2>
+          <div className="border border-gray-200 border-t-0 rounded-b-md p-3 text-center">
+            <img src={emp.idCardUrl} alt="תעודת זהות" className="max-w-full max-h-48 mx-auto rounded object-contain" />
+            <p className="text-xs text-gray-400 mt-1">מצורף לצרכי זיהוי בלבד — לשימוש פנימי</p>
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
         <p className="font-semibold mb-1">הנחיות למילוי:</p>
         <p>יש להדפיס, למלא את הפרטים החסרים ולחתום. ניתן גם למלא את הטופס המקוון באתר מס הכנסה.</p>
