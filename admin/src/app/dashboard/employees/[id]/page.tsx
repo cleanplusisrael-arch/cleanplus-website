@@ -1,8 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useEmployeeHistory } from '@/hooks/useEmployeeHistory';
+import { useIdCardUpload } from '@/hooks/useIdCardUpload';
 import { Header } from '@/components/layout/Header';
 import { CONTRACT_LABELS } from '@/lib/employee-types';
 import { SHIFT_STATUS_LABELS, SHIFT_STATUS_COLORS } from '@/lib/shift-types';
@@ -11,6 +12,7 @@ import { calcHours } from '@/lib/timeclock-types';
 import {
   ArrowRight, Phone, Mail, MapPin, Calendar, FileText,
   Clock, Briefcase, TrendingUp, Save, ChevronDown, ChevronUp,
+  Upload, Trash2, ExternalLink, CreditCard,
 } from 'lucide-react';
 
 const TAX_BRACKETS = [
@@ -67,6 +69,8 @@ export default function EmployeePage({ params }: { params: { id: string } }) {
   const [saving, setSaving]   = useState(false);
   const [saved, setSaved]     = useState(false);
   const [showMonths, setShowMonths] = useState(false);
+  const { uploadIdCard, deleteIdCard, uploading, progress } = useIdCardUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize notes from emp once when loaded
   useEffect(() => {
@@ -115,6 +119,21 @@ export default function EmployeePage({ params }: { params: { id: string } }) {
     setSaving(true);
     await updateEmployee(emp.id, { notes });
     setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2000);
+  }
+
+  async function handleIdCardUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!emp || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    if (file.size > 10 * 1024 * 1024) { alert('הקובץ גדול מדי (מקסימום 10MB)'); return; }
+    const url = await uploadIdCard(emp.id, file);
+    await updateEmployee(emp.id, { idCardUrl: url });
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  async function handleDeleteIdCard() {
+    if (!emp || !confirm('למחוק את תעודת הזהות?')) return;
+    await deleteIdCard(emp.id);
+    await updateEmployee(emp.id, { idCardUrl: '' });
   }
 
   const contractLabel = emp.contractType && emp.contractType in CONTRACT_LABELS
@@ -341,6 +360,56 @@ export default function EmployeePage({ params }: { params: { id: string } }) {
                   <FileText size={15} />צור חוזה עבודה
                 </Link>
               </div>
+            </div>
+
+            {/* ID Card upload */}
+            <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 font-hebrew flex items-center gap-2">
+                <CreditCard size={14} className="text-gray-400" />תעודת זהות
+              </h3>
+              {emp.idCardUrl ? (
+                <div className="space-y-2">
+                  {/\.(jpg|jpeg|png|webp)$/i.test(emp.idCardUrl) ? (
+                    <a href={emp.idCardUrl} target="_blank" rel="noreferrer">
+                      <img src={emp.idCardUrl} alt="ת.ז" className="w-full rounded-lg border border-gray-100 object-cover max-h-36 hover:opacity-90 transition-opacity" />
+                    </a>
+                  ) : (
+                    <a href={emp.idCardUrl} target="_blank" rel="noreferrer"
+                      className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg text-blue-700 text-sm font-hebrew hover:bg-blue-100 transition-colors">
+                      <FileText size={15} />פתח קובץ
+                      <ExternalLink size={12} className="mr-auto" />
+                    </a>
+                  )}
+                  <div className="flex gap-2">
+                    <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                      className="flex-1 flex items-center justify-center gap-1.5 text-xs text-gray-500 hover:text-navy border border-gray-200 rounded-lg py-1.5 transition-colors disabled:opacity-40">
+                      <Upload size={12} />החלף
+                    </button>
+                    <button onClick={handleDeleteIdCard} disabled={uploading}
+                      className="flex items-center justify-center gap-1.5 text-xs text-red-400 hover:text-red-600 border border-red-100 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40">
+                      <Trash2 size={12} />מחק
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                  className="w-full flex flex-col items-center gap-2 border-2 border-dashed border-gray-200 hover:border-gold/40 rounded-xl p-5 text-gray-400 hover:text-gold transition-colors disabled:opacity-40">
+                  {uploading ? (
+                    <>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-gold h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                      </div>
+                      <span className="text-xs font-hebrew">מעלה... {progress}%</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={20} />
+                      <span className="text-xs font-hebrew text-center">העלה תמונה / PDF<br />של תעודת הזהות</span>
+                    </>
+                  )}
+                </button>
+              )}
+              <input ref={fileInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handleIdCardUpload} />
             </div>
 
             <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
