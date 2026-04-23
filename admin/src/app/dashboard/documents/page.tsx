@@ -581,17 +581,28 @@ export default function DocumentsPage() {
               className="flex items-center gap-2 bg-navy text-white px-5 py-2.5 rounded-lg text-sm font-hebrew hover:bg-navy/90 disabled:opacity-40">
               <FileText size={15} />תצוגה מקדימה
             </button>
-            {preview && docType !== 'quote' && (
-              <button onClick={printDoc}
-                className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-navy/30 hover:text-navy">
-                <Download size={15} />הדפס / PDF
-              </button>
+            {preview && docType !== 'quote' && selectedEmp && (
+              <>
+                <button
+                  onClick={() => downloadPDF(`${selectedEmp.name}-${docType === 'contract' ? 'חוזה-העסקה' : 'טופס-101'}.pdf`)}
+                  disabled={generating}
+                  className="flex items-center gap-2 bg-[#0a1628] text-white px-5 py-2.5 rounded-lg text-sm font-hebrew hover:bg-[#0a1628]/90 disabled:opacity-50">
+                  {generating ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+                  {generating ? 'שומר...' : 'שמור PDF'}
+                </button>
+                <button onClick={printDoc}
+                  className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-navy/30 hover:text-navy">
+                  <FileText size={15} />הדפס
+                </button>
+              </>
             )}
             {preview && docType === 'quote' && (
-              <button onClick={() => downloadPDF()} disabled={generating}
-                className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-navy/30 hover:text-navy disabled:opacity-50">
+              <button
+                onClick={() => downloadPDF(quoteSubject ? `${quoteSubject.name}-הצעת-מחיר-${quoteNum}.pdf` : undefined)}
+                disabled={generating}
+                className="flex items-center gap-2 bg-[#0a1628] text-white px-5 py-2.5 rounded-lg text-sm font-hebrew hover:bg-[#0a1628]/90 disabled:opacity-50">
                 {generating ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
-                {generating ? 'מייצר PDF...' : 'הורד PDF'}
+                {generating ? 'שומר...' : 'שמור PDF'}
               </button>
             )}
             {preview && docType === 'quote' && quoteSubject && (() => {
