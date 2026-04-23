@@ -7,7 +7,7 @@ import { CONTRACT_LABELS } from '@/lib/employee-types';
 import type { Employee } from '@/lib/employee-types';
 import type { Lead } from '@/lib/types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
-import { FileText, Download, ChevronDown } from 'lucide-react';
+import { FileText, Download, ChevronDown, ExternalLink } from 'lucide-react';
 
 function fmtDate(d: Date) {
   return new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
@@ -146,10 +146,137 @@ function ClientQuote({ lead }: { lead: Lead }) {
   );
 }
 
+function Tofes101Form({ emp }: { emp: Employee }) {
+  const today = fmtDate(new Date());
+  return (
+    <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.8 }}>
+      <div className="text-center mb-6 border-b border-gray-200 pb-5">
+        <p className="text-xs text-gray-400 mb-1">מס הכנסה — טופס</p>
+        <h1 className="text-2xl font-bold text-gray-900">101</h1>
+        <p className="text-sm text-gray-600 font-semibold mt-1">כרטיס עובד ובקשה לפטור / שינוי מניכוי מס במקור</p>
+        <p className="text-xs text-gray-400 mt-1">יש למלא טופס זה בתחילת עבודה ובכל שינוי</p>
+      </div>
+
+      {/* Section A - Employee details */}
+      <div className="mb-5">
+        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">א. פרטי העובד</h2>
+        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">שם משפחה</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.name.split(' ').slice(-1)[0] || ''}</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">שם פרטי</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.name.split(' ').slice(0, -1).join(' ') || emp.name}</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">מספר תעודת זהות</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] font-mono text-gray-800" dir="ltr">{emp.teudatZehut || '_______________'}</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">תאריך לידה</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">כתובת מגורים</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">טלפון</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.phone || ''}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section B - Employment */}
+      <div className="mb-5">
+        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ב. פרטי ההעסקה</h2>
+        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">שם המעסיק</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">Clean+ ניקיון ואחזקה</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">מ.פ / ח.פ מעסיק</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">תאריך תחילת עבודה</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.hireDate || ''}</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">סוג משרה</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.contractType ? CONTRACT_LABELS[emp.contractType] : ''}</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">שכר ברוטו חודשי</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.grossSalary ? `₪${emp.grossSalary.toLocaleString()}` : ''}</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">שכר שעתי</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.hourlyRate ? `₪${emp.hourlyRate}` : ''}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section C - Tax credits */}
+      <div className="mb-5">
+        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ג. נקודות זיכוי</h2>
+        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">סה״כ נקודות זיכוי מבוקשות</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.nekudotZikui ?? ''}</div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">מצב משפחתי</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section D - Bank */}
+      <div className="mb-5">
+        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ד. פרטי חשבון בנק להעברת שכר</h2>
+        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-3 gap-3 text-sm">
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">שם הבנק</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">מספר סניף</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">מספר חשבון</p>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Signatures */}
+      <div className="mt-8 grid grid-cols-2 gap-8 text-sm">
+        <div>
+          <p className="text-xs text-gray-500 mb-1">תאריך מילוי הטופס</p>
+          <div className="border-b border-gray-300 pb-1">{today}</div>
+        </div>
+        <div>
+          <p className="text-xs text-gray-500 mb-1">חתימת העובד</p>
+          <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+        </div>
+      </div>
+
+      <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
+        <p className="font-semibold mb-1">הנחיות למילוי:</p>
+        <p>יש להדפיס, למלא את הפרטים החסרים ולחתום. ניתן גם למלא את הטופס המקוון באתר מס הכנסה.</p>
+      </div>
+    </div>
+  );
+}
+
 export default function DocumentsPage() {
   const { employees } = useEmployees();
   const { leads } = useLeads();
-  const [docType, setDocType] = useState<'contract' | 'quote'>('contract');
+  const [docType, setDocType] = useState<'contract' | 'quote' | 'tofes101'>('contract');
   const [selectedEmpId, setSelectedEmpId] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState('');
   const [preview, setPreview] = useState(false);
@@ -168,10 +295,11 @@ export default function DocumentsPage() {
     <>
       <Header title="מסמכים" />
       <div className="p-6 space-y-5" dir="rtl">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {[
             { type: 'contract' as const, label: 'חוזה העסקה', sub: 'לעובדים', icon: '📋' },
             { type: 'quote' as const, label: 'הצעת מחיר', sub: 'ללקוחות', icon: '💼' },
+            { type: 'tofes101' as const, label: 'טופס 101', sub: 'כרטיס עובד', icon: '🗂️' },
           ].map(({ type, label, sub, icon }) => (
             <button key={type} onClick={() => { setDocType(type); setPreview(false); }}
               className={`rounded-xl border p-5 text-start transition-all ${docType === type ? 'border-gold/40 bg-gold/5 ring-1 ring-gold/20' : 'border-gray-100 bg-white hover:border-gray-200'}`}>
@@ -184,10 +312,10 @@ export default function DocumentsPage() {
 
         <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm space-y-4">
           <h3 className="text-sm font-semibold text-gray-700 font-hebrew">
-            {docType === 'contract' ? 'בחר עובד לחוזה' : 'בחר לקוח להצעת מחיר'}
+            {docType === 'contract' ? 'בחר עובד לחוזה' : docType === 'tofes101' ? 'בחר עובד לטופס 101' : 'בחר לקוח להצעת מחיר'}
           </h3>
 
-          {docType === 'contract' ? (
+          {(docType === 'contract' || docType === 'tofes101') ? (
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">עובד</label>
               <div className="relative">
@@ -216,7 +344,7 @@ export default function DocumentsPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setPreview(true)}
-              disabled={(docType === 'contract' && !selectedEmpId) || (docType === 'quote' && !selectedLeadId)}
+              disabled={((docType === 'contract' || docType === 'tofes101') && !selectedEmpId) || (docType === 'quote' && !selectedLeadId)}
               className="flex items-center gap-2 bg-navy text-white px-5 py-2.5 rounded-lg text-sm font-hebrew hover:bg-navy/90 disabled:opacity-40">
               <FileText size={15} />תצוגה מקדימה
             </button>
@@ -250,6 +378,24 @@ export default function DocumentsPage() {
               </button>
             </div>
             <ClientQuote lead={selectedLead} />
+          </div>
+        )}
+
+        {preview && docType === 'tofes101' && selectedEmp && (
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
+              <p className="text-xs text-gray-500 font-hebrew">תצוגה מקדימה — טופס 101</p>
+              <div className="flex items-center gap-3">
+                <a href="https://tofes101.co.il/forms/itc-101/submit/" target="_blank" rel="noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-hebrew">
+                  <ExternalLink size={13} />מילוי מקוון
+                </a>
+                <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
+                  <Download size={13} />הדפס
+                </button>
+              </div>
+            </div>
+            <Tofes101Form emp={selectedEmp} />
           </div>
         )}
       </div>
