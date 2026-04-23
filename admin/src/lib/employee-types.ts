@@ -16,6 +16,8 @@ export interface Employee {
   grossSalary?: number;        // monthly (for full_time / part_time)
   hourlyRate?: number;         // per hour (for hourly)
   notes?: string;
+  birthDate?: string;          // YYYY-MM-DD
+  idCardUrl?: string;          // Firebase Storage URL
   createdAt: string;
   updatedAt?: string;
 }

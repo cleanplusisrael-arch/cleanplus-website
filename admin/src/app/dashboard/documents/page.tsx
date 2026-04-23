@@ -7,8 +7,10 @@ import { Header } from '@/components/layout/Header';
 import { CONTRACT_LABELS } from '@/lib/employee-types';
 import type { Employee } from '@/lib/employee-types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
-import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle, Loader2 } from 'lucide-react';
+import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { useQuotePDF } from '@/hooks/useQuotePDF';
+import { useDocumentSigning } from '@/hooks/useDocumentSigning';
+import type { SignatureRecord } from '@/hooks/useDocumentSigning';
 
 function fmtDate(d: Date) {
   return new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
@@ -20,7 +22,7 @@ function fmtMoney(n: number) {
 
 type QuoteLine = { description: string; qty: number; unitPrice: number };
 
-function EmploymentContract({ emp }: { emp: Employee }) {
+function EmploymentContract({ emp, signature }: { emp: Employee; signature?: SignatureRecord }) {
   const today = fmtDate(new Date());
   const salary = emp.grossSalary ?? 0;
   const hireDateObj = emp.hireDate ? new Date(emp.hireDate) : new Date();
@@ -95,6 +97,7 @@ function EmploymentContract({ emp }: { emp: Employee }) {
       </div>
 
       <div className="mt-4 text-xs text-gray-400 border-t pt-2">שתי עותקים — אחד למעסיק, אחד לעובד. חוקי לאחר חתימה משתי הצדדים.</div>
+      {signature && <SignatureBadge sig={signature} />}
     </div>
   );
 }
@@ -367,16 +370,49 @@ function Tofes101Form({ emp }: { emp: Employee }) {
   );
 }
 
+function SignatureBadge({ sig }: { sig: SignatureRecord }) {
+  const dt = new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(sig.signedAt));
+  return (
+    <div className="flex items-center gap-4 p-4 border-2 border-blue-400 rounded-xl bg-blue-50/60 mt-6" dir="rtl">
+      <div className="relative flex-shrink-0 w-24 h-24">
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="#1d6fa8" strokeWidth="2.5" />
+          <circle cx="50" cy="50" r="43" fill="none" stroke="#1d6fa8" strokeWidth="1" strokeDasharray="3 2" />
+          <defs>
+            <path id="topArc" d="M 10,50 A 40,40 0 0,1 90,50" />
+            <path id="botArc" d="M 12,56 A 40,40 0 0,0 88,56" />
+          </defs>
+          <text fontSize="9.5" fill="#1d6fa8" fontWeight="600" fontFamily="Heebo, Arial, sans-serif">
+            <textPath href="#topArc" startOffset="50%" textAnchor="middle">מסמך חתום דיגיטלית</textPath>
+          </text>
+          <text fontSize="7" fill="#1d6fa8" fontFamily="Heebo, Arial, sans-serif">
+            <textPath href="#botArc" startOffset="50%" textAnchor="middle">קמינוס הפקות בע״מ ח.פ 516820826</textPath>
+          </text>
+          <text x="50" y="46" textAnchor="middle" fontSize="22" fill="#1d6fa8">🛡️</text>
+          <text x="50" y="62" textAnchor="middle" fontSize="7.5" fill="#1d6fa8" fontWeight="bold" fontFamily="monospace">{sig.verificationCode}</text>
+        </svg>
+      </div>
+      <div className="text-xs text-blue-800 space-y-0.5" dir="rtl">
+        <p className="font-bold text-sm text-blue-900">מסמך חתום דיגיטלית ✓</p>
+        <p>נחתם על ידי: <span className="font-semibold">{sig.signedBy}</span></p>
+        <p>תאריך: <span className="font-semibold">{dt}</span></p>
+        <p className="font-mono text-blue-700 tracking-wider mt-1">קוד אימות: {sig.verificationCode}</p>
+        <p className="text-[10px] text-blue-500 mt-1">מאומת ע״י SHA-256 | קמינוס הפקות בע״מ</p>
+      </div>
+    </div>
+  );
+}
+
 export default function DocumentsPage() {
   const { employees } = useEmployees();
   const { leads } = useLeads();
   const { clients } = useClients();
   const [docType, setDocType] = useState<'contract' | 'quote' | 'tofes101'>('contract');
   const [selectedEmpId, setSelectedEmpId] = useState('');
-  // prefixed: "lead:<id>" or "client:<id>"
   const [selectedQuoteId, setSelectedQuoteId] = useState('');
   const [preview, setPreview] = useState(false);
   const { downloadPDF, downloadAndEmail, generating } = useQuotePDF();
+  const { signDocument, signing, signature, setSignature } = useDocumentSigning();
   const [quoteLines, setQuoteLines] = useState<QuoteLine[]>([{ description: '', qty: 1, unitPrice: 0 }]);
   const [quoteNotes, setQuoteNotes] = useState('');
   const [quoteNum] = useState(() => `Q-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 8999) + 1000)}`);
@@ -439,7 +475,7 @@ export default function DocumentsPage() {
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">עובד</label>
               <div className="relative">
-                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); }}
+                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); setSignature(null); }}
                   className="w-full border border-gray-200 rounded-lg ps-3 pe-8 py-2.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white appearance-none">
                   <option value="">בחר עובד...</option>
                   {activeEmps.map((e) => <option key={e.id} value={e.id}>{e.name} {e.zone ? `— ${e.zone}` : ''}</option>)}
@@ -584,11 +620,23 @@ export default function DocumentsPage() {
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
               <p className="text-xs text-gray-500 font-hebrew">תצוגה מקדימה — חוזה העסקה</p>
-              <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
-                <Download size={13} />הדפס
-              </button>
+              <div className="flex items-center gap-3">
+                {!signature && (
+                  <button
+                    onClick={() => signDocument({ docType: 'contract', signedBy: selectedEmp.name, signedById: selectedEmp.id })}
+                    disabled={signing}
+                    className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
+                    {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                    {signing ? 'חותם...' : 'חתום דיגיטלית'}
+                  </button>
+                )}
+                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום ✓</span>}
+                <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
+                  <Download size={13} />הדפס
+                </button>
+              </div>
             </div>
-            <EmploymentContract emp={selectedEmp} />
+            <EmploymentContract emp={selectedEmp} signature={signature ?? undefined} />
           </div>
         )}
 
