@@ -7,7 +7,8 @@ import { Header } from '@/components/layout/Header';
 import { CONTRACT_LABELS } from '@/lib/employee-types';
 import type { Employee } from '@/lib/employee-types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
-import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle } from 'lucide-react';
+import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle, Loader2 } from 'lucide-react';
+import { useQuotePDF } from '@/hooks/useQuotePDF';
 
 function fmtDate(d: Date) {
   return new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
@@ -360,6 +361,7 @@ export default function DocumentsPage() {
   // prefixed: "lead:<id>" or "client:<id>"
   const [selectedQuoteId, setSelectedQuoteId] = useState('');
   const [preview, setPreview] = useState(false);
+  const { downloadPDF, downloadAndEmail, generating } = useQuotePDF();
   const [quoteLines, setQuoteLines] = useState<QuoteLine[]>([{ description: '', qty: 1, unitPrice: 0 }]);
   const [quoteNotes, setQuoteNotes] = useState('');
   const [quoteNum] = useState(() => `Q-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 8999) + 1000)}`);
@@ -464,10 +466,17 @@ export default function DocumentsPage() {
               className="flex items-center gap-2 bg-navy text-white px-5 py-2.5 rounded-lg text-sm font-hebrew hover:bg-navy/90 disabled:opacity-40">
               <FileText size={15} />תצוגה מקדימה
             </button>
-            {preview && (
+            {preview && docType !== 'quote' && (
               <button onClick={printDoc}
                 className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-navy/30 hover:text-navy">
                 <Download size={15} />הדפס / PDF
+              </button>
+            )}
+            {preview && docType === 'quote' && (
+              <button onClick={() => downloadPDF()} disabled={generating}
+                className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-navy/30 hover:text-navy disabled:opacity-50">
+                {generating ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+                {generating ? 'מייצר PDF...' : 'הורד PDF'}
               </button>
             )}
             {preview && docType === 'quote' && quoteSubject && (() => {
@@ -507,10 +516,13 @@ export default function DocumentsPage() {
                     className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-hebrew transition-colors">
                     <MessageCircle size={15} />WhatsApp
                   </a>
-                  <a href={`mailto:${quoteSubject.phone ? '' : ''}?subject=${encodeURIComponent(`הצעת מחיר ${quoteNum} — Clean+`)}&body=${encodeURIComponent(mailBody)}`}
-                    className="flex items-center gap-2 border border-gray-200 text-gray-600 px-5 py-2.5 rounded-lg text-sm font-hebrew hover:border-blue-300 hover:text-blue-600 transition-colors">
-                    <Mail size={15} />שלח מייל
-                  </a>
+                  <button
+                    onClick={() => downloadAndEmail(`הצעת מחיר ${quoteNum} — Clean+`, mailBody)}
+                    disabled={generating}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-hebrew transition-colors disabled:opacity-50">
+                    {generating ? <Loader2 size={15} className="animate-spin" /> : <Mail size={15} />}
+                    {generating ? 'מייצר...' : 'שלח מייל + PDF'}
+                  </button>
                 </>
               );
             })()}
