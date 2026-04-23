@@ -14,7 +14,6 @@ export default function Services() {
     <section id="services" className="py-24 bg-[#faf8f3]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
 
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
             <div className="section-label">{t('title')}</div>
@@ -24,11 +23,10 @@ export default function Services() {
             </h2>
           </div>
           <a href="#contact" className="btn-primary self-start md:self-auto shrink-0">
-            קבלו הצעת מחיר ←
+            {t('cta')}
           </a>
         </div>
 
-        {/* Cards — equal height, no empty space */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {SERVICES.map(({ key, icon, num, featured }) => (
             <div key={key}
@@ -42,22 +40,20 @@ export default function Services() {
                 <>
                   <div className="absolute top-0 inset-x-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #c9a84c, transparent)' }} />
                   <div className="absolute top-4 start-4 bg-[#c9a84c] text-[#0a1628] text-xs font-bold px-3 py-1 rounded-full">
-                    הנפוץ ביותר
+                    {t('featured_label')}
                   </div>
                 </>
               )}
 
               <div className="p-8 flex flex-col flex-1">
-                {/* Number + Icon */}
                 <div className="flex items-start justify-between mb-6">
-                  <span className={`font-bold leading-none select-none`}
+                  <span className="font-bold leading-none select-none"
                     style={{ fontSize: '3.5rem', fontFamily: "'Rubik', sans-serif", color: featured ? 'rgba(201,168,76,0.12)' : 'rgba(10,22,40,0.06)' }}>
                     {num}
                   </span>
                   <span className="text-3xl transition-transform duration-300 group-hover:scale-110">{icon}</span>
                 </div>
 
-                {/* Content */}
                 <h3 className={`text-xl font-bold mb-3 ${featured ? 'text-white' : 'text-[#0a1628]'}`}
                   style={{ fontFamily: "'Rubik', sans-serif" }}>
                   {t(`${key}.title`)}
@@ -67,16 +63,14 @@ export default function Services() {
                   {t(`${key}.desc`)}
                 </p>
 
-                {/* Features list */}
                 <ul className={`space-y-2 mb-7 text-xs ${featured ? 'text-white/45' : 'text-slate-400'}`}>
-                  {['מחיר ברור ללא הפתעות', 'ציוד מקצועי כלול', 'תיאום גמיש'].map(item => (
-                    <li key={item} className="flex items-center gap-2">
-                      <span className="text-[#c9a84c]">✓</span> {item}
+                  {(['feature1', 'feature2', 'feature3'] as const).map((fk) => (
+                    <li key={fk} className="flex items-center gap-2">
+                      <span className="text-[#c9a84c]">✓</span> {t(fk)}
                     </li>
                   ))}
                 </ul>
 
-                {/* CTA */}
                 <a href="#contact"
                   className={`inline-flex items-center gap-2 text-sm font-semibold transition-all duration-300 ${
                     featured ? 'text-[#c9a84c]' : 'text-[#0a1628] group-hover:text-[#c9a84c]'

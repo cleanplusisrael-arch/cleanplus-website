@@ -1,5 +1,5 @@
 'use client';
-import { use, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useEmployeeHistory } from '@/hooks/useEmployeeHistory';
@@ -56,8 +56,8 @@ function fmtHours(h: number | null | undefined): string {
   return `${Math.floor(h)}:${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
 }
 
-export default function EmployeePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function EmployeePage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const { employees, updateEmployee } = useEmployees();
   const emp = employees.find((e) => e.id === id);
   const { shifts, clock, loading } = useEmployeeHistory(id);

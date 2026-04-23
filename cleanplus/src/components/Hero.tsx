@@ -15,12 +15,11 @@ export default function Hero() {
           alt=""
           aria-hidden="true"
           className="w-full h-full object-cover object-center"
-          style={{ opacity: 0.42 }}
+          style={{ opacity: 0.65 }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
-        {/* Overlay: dark on text side (right in RTL), slightly lighter on card side (left in RTL) */}
         <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(to left, rgba(6,15,30,0.96) 0%, rgba(10,22,40,0.90) 45%, rgba(13,36,68,0.78) 100%)' }} />
+          style={{ background: 'linear-gradient(to left, rgba(6,15,30,0.80) 0%, rgba(10,22,40,0.68) 45%, rgba(13,36,68,0.50) 100%)' }} />
       </div>
 
       {/* Atmospheric layers */}
@@ -34,15 +33,9 @@ export default function Hero() {
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 pt-28 pb-20">
-        {/*
-          Flex row layout — in RTL flex, items flow right→left:
-          • Text (first child in DOM) → placed at the RIGHT edge (reading start in RTL) ✓
-          • Card (second child in DOM) → placed at the LEFT edge (reading end in RTL) ✓
-          This is more reliable than absolute positioning for RTL.
-        */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-10">
 
-          {/* ── Text content — first child → rightmost in RTL ── */}
+          {/* Text content */}
           <div className="w-full lg:max-w-[54%]">
 
             {/* Eyebrow badge */}
@@ -56,7 +49,7 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Headline — block spans give each line its own RTL bidi context */}
+            {/* Headline */}
             <h1 className="fade-up-1 text-white mb-6"
               style={{
                 fontSize: 'clamp(2.4rem, 5vw, 4.2rem)',
@@ -64,9 +57,9 @@ export default function Hero() {
                 fontWeight: 800,
                 fontFamily: "'Rubik', 'Heebo', sans-serif"
               }}>
-              <span className="block">ניקיון מקצועי</span>
-              <span className="block gold-text">לבתים, משרדים</span>
-              <span className="block">ועסקים</span>
+              <span className="block">{t('title_line1')}</span>
+              <span className="block gold-text">{t('title_line2')}</span>
+              <span className="block">{t('title_line3')}</span>
             </h1>
 
             {/* Subtitle */}
@@ -77,11 +70,11 @@ export default function Hero() {
 
             {/* Service pills */}
             <div className="fade-up-2 flex flex-wrap gap-2 mb-10">
-              {['ניקיון דירות', 'ניקיון משרדים', 'ניקיון אחרי שיפוץ', 'ניקיון עסקים'].map(s => (
-                <span key={s}
+              {(['service1', 'service2', 'service3', 'service4'] as const).map((key) => (
+                <span key={key}
                   className="text-xs border border-white/10 text-white/50 px-3 py-1.5 rounded-full"
                   style={{ background: 'rgba(255,255,255,0.04)' }}>
-                  {s}
+                  {t(key)}
                 </span>
               ))}
             </div>
@@ -89,7 +82,7 @@ export default function Hero() {
             {/* CTAs */}
             <div className="fade-up-3 flex flex-wrap gap-4 mb-12">
               <a href="#contact" className="btn-primary">
-                קבלו הצעת מחיר
+                {t('cta_primary')}
               </a>
               <a href="tel:+972500000000"
                 className="flex items-center gap-2.5 text-white/70 hover:text-white border border-white/15 hover:border-[#c9a84c]/40 px-7 py-3.5 rounded-full text-sm font-medium transition-all duration-300">
@@ -100,26 +93,24 @@ export default function Hero() {
             {/* Trust row */}
             <div className="fade-up-4 flex flex-wrap gap-x-8 gap-y-3 pt-8 border-t border-white/8">
               {[
-                { icon: '👷', text: 'צוות מנוסה ומוסמך' },
-                { icon: '🧴', text: 'ציוד מקצועי כלול' },
-                { icon: '📅', text: 'זמינות 7 ימים' },
-              ].map(({ icon, text }) => (
-                <div key={text} className="flex items-center gap-2"
+                { icon: '👷', key: 'trust1' as const },
+                { icon: '🧴', key: 'trust2' as const },
+                { icon: '📅', key: 'trust3' as const },
+              ].map(({ icon, key }) => (
+                <div key={key} className="flex items-center gap-2"
                   style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem' }}>
-                  <span>{icon}</span>{text}
+                  <span>{icon}</span>{t(key)}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ── Stats card — second child → leftmost in RTL ── */}
+          {/* Stats card */}
           <div className="hidden lg:flex flex-col gap-4 w-[290px] shrink-0 self-center">
 
-            {/* Main card */}
             <div className="rounded-2xl overflow-hidden border border-white/10"
               style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}>
 
-              {/* Visual top */}
               <div className="p-5 pb-4">
                 <div className="w-full h-44 rounded-xl flex items-center justify-center overflow-hidden relative"
                   style={{ background: 'linear-gradient(135deg, #0d2444 0%, #1a3a6b 100%)' }}>
@@ -147,7 +138,6 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Rating */}
               <div className="px-5 pb-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
@@ -160,7 +150,7 @@ export default function Hero() {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  {[...Array(5)].map((_,i) => (
+                  {[...Array(5)].map((_, i) => (
                     <div key={i} className="flex-1 h-1 rounded-full bg-[#c9a84c]/55" />
                   ))}
                 </div>
