@@ -7,8 +7,10 @@ import { Header } from '@/components/layout/Header';
 import { CONTRACT_LABELS } from '@/lib/employee-types';
 import type { Employee } from '@/lib/employee-types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
-import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle, Loader2 } from 'lucide-react';
+import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { useQuotePDF } from '@/hooks/useQuotePDF';
+import { useDocumentSigning } from '@/hooks/useDocumentSigning';
+import type { SignatureRecord } from '@/hooks/useDocumentSigning';
 
 function fmtDate(d: Date) {
   return new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
@@ -20,77 +22,94 @@ function fmtMoney(n: number) {
 
 type QuoteLine = { description: string; qty: number; unitPrice: number };
 
-function EmploymentContract({ emp }: { emp: Employee }) {
+function EmploymentContract({ emp, signature }: { emp: Employee; signature?: SignatureRecord }) {
   const today = fmtDate(new Date());
+  const salary = emp.grossSalary ?? 0;
+  const hireDateObj = emp.hireDate ? new Date(emp.hireDate) : new Date();
+  const seniorityYears = Math.floor((new Date().getTime() - hireDateObj.getTime()) / (365.25 * 24 * 3600 * 1000));
+  const empPension = salary ? Math.round(salary * 0.06) : 0;
+  const emplrPension = salary ? Math.round(salary * 0.065) : 0;
+  const severanceComp = salary ? Math.round(salary * 0.0833) : 0;
+  const emplrHishtalmut = salary ? Math.round(salary * 0.075) : 0;
+  const empHishtalmut = salary ? Math.round(salary * 0.025) : 0;
+  const leaveDays = seniorityYears < 4 ? 12 : seniorityYears === 4 ? 16 : seniorityYears === 5 ? 18 : 21;
+  const havraaDays = seniorityYears < 1 ? 5 : seniorityYears < 3 ? 6 : seniorityYears < 10 ? 7 : seniorityYears < 15 ? 8 : seniorityYears < 19 ? 9 : 10;
+  const havraaAmount = havraaDays * 470;
+
   return (
-    <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.8 }}>
-      <div className="text-center mb-8 border-b border-gray-200 pb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">חוזה העסקה</h1>
-        <p className="text-gray-700 font-semibold text-sm">קמינוס הפקות בע״מ</p>
-        <p className="text-gray-400 text-xs">ח.פ 516820826 | שד׳ דוד המלך 509, אור עקיבא</p>
-        <p className="text-gray-400 text-xs mt-0.5">פועלת תחת המותג המסחרי Clean+</p>
+    <div id="doc-print" className="bg-white p-10 max-w-4xl mx-auto" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.7 }}>
+      <div className="text-center mb-6 border-b-2 border-[#0a1628] pb-4">
+        <div className="text-2xl font-black tracking-tight text-[#0a1628] mb-1">Clean<span className="text-[#c9a84c]">+</span></div>
+        <h1 className="text-xl font-bold text-[#0a1628] mb-2">חוזה העסקה</h1>
+        <p className="text-xs text-gray-500">קמינוס הפקות בע״מ | ח.פ 516820826</p>
+        <p className="text-xs text-gray-400">שד׳ דוד המלך 509, אור עקיבא</p>
       </div>
 
-      <div className="mb-6 space-y-1 text-sm">
-        <p><strong>תאריך:</strong> {today}</p>
-        <p><strong>שם העובד:</strong> {emp.name}</p>
-        <p><strong>טלפון:</strong> <span dir="ltr">{emp.phone}</span></p>
-        {emp.email && <p><strong>אימייל:</strong> <span dir="ltr">{emp.email}</span></p>}
-        {emp.zone && <p><strong>אזור פעילות:</strong> {emp.zone}</p>}
-        {emp.hireDate && <p><strong>תחילת עבודה:</strong> <span dir="ltr">{emp.hireDate}</span></p>}
-        {emp.contractType && <p><strong>סוג משרה:</strong> {CONTRACT_LABELS[emp.contractType]}</p>}
-        {emp.grossSalary && <p><strong>שכר ברוטו:</strong> <span dir="ltr">₪{emp.grossSalary.toLocaleString()}</span> לחודש</p>}
-      </div>
-
-      <div className="space-y-4 text-sm text-gray-700">
-        <h2 className="font-bold text-gray-900 text-base border-b border-gray-100 pb-1">סעיפי החוזה</h2>
-
-        <div><p className="font-semibold mb-1">1. היקף המשרה</p>
-          <p>העובד מועסק בהתאם לסוג החוזה המפורט לעיל, בכפוף לצורכי החברה ובהתאם להסכמות שיידונו מעת לעת.</p>
+      <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
+        <div className="border-l-4 border-[#c9a84c] pl-4">
+          <p className="text-xs text-gray-500 mb-0.5">המעסיק</p>
+          <p className="font-semibold text-gray-800">קמינוס הפקות בע״מ</p>
+          <p className="text-xs text-gray-600">ח.פ 516820826</p>
         </div>
-
-        <div><p className="font-semibold mb-1">2. שכר ותנאים</p>
-          <p>השכר ישולם בסוף כל חודש קלנדרי. יתרות שעות נוספות ייחושבו בהתאם לחוק שעות עבודה ומנוחה, התשי״א-1951.</p>
-        </div>
-
-        <div><p className="font-semibold mb-1">3. ימי חופשה ומחלה</p>
-          <p>העובד יהיה זכאי לימי חופשה ומחלה בהתאם לחוק חופשה שנתית, התשי״א-1951, וחוק דמי מחלה, התשל״ו-1976.</p>
-        </div>
-
-        <div><p className="font-semibold mb-1">4. סודיות ואי-תחרות</p>
-          <p>העובד מתחייב לשמור בסוד כל מידע עסקי, רשימות לקוחות ונהלים פנימיים של החברה, הן במהלך תקופת ההעסקה והן לאחריה.</p>
-        </div>
-
-        <div><p className="font-semibold mb-1">5. סיום העסקה</p>
-          <p>כל אחד מהצדדים רשאי לסיים את יחסי העבודה בהודעה מוקדמת של 30 יום, בהתאם לחוק הודעה מוקדמת לפיטורים ולהתפטרות, התשס״א-2001.</p>
+        <div className="border-l-4 border-[#c9a84c] pl-4">
+          <p className="text-xs text-gray-500 mb-0.5">העובד</p>
+          <p className="font-semibold text-gray-800">{emp.name}</p>
+          {emp.teudatZehut && <p className="text-xs text-gray-600" dir="ltr">{emp.teudatZehut}</p>}
         </div>
       </div>
 
-      <div className="mt-12 grid grid-cols-2 gap-8">
-        <div className="text-center">
-          <div className="border-t border-gray-400 pt-2">
-            <p className="text-sm text-gray-600">חתימת המעסיק</p>
-            <p className="text-xs text-gray-400 mt-1">קמינוס הפקות בע״מ (Clean+)</p>
+      <div className="space-y-3 text-xs text-gray-700 mb-6">
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 1: הצדדים</p><p>בין קמינוס הפקות בע״מ (המעסיק) לבין {emp.name} (העובד), ביום {today}.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 2: מקום עבודה</p><p>עבודות ניקיון ותחזוקה. אזור: {emp.zone || 'כמפורט בהנחיה'}</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 3: תחילת עבודה וניסיון</p><p>תחילה: {emp.hireDate || 'כמפורט'}. תקופת ניסיון: 6 חודשים (הודעה של שבוע מספיקה).</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 4: שעות עבודה</p><p>42 שעות/שבוע בנוסח חוק שעות עבודה ומנוחה. שעות נוספות: 125% (2 ראשונות), 150% (לאחר).</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 5: שכר</p>{salary ? <p>ברוטו: <span dir="ltr">₪{salary.toLocaleString()}</span>/חודש. תשלום עד ה-9 בחודש הבא בהעברה בנקאית.</p> : <p>כמפורט בהודעה.</p>}</div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 6: קרן פנסיה וסעיף 14</p>{salary ? <p>תרומה: {emplrPension}₪ מעסיק + {empPension}₪ עובד. סעיף 14: {severanceComp}₪ חודשי לכיסוי סיום (במקום פיצויים).</p> : <p>פרטים בהודעה נפרדת.</p>}</div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 7: קרן השתלמות</p><p className="text-[10px]">{salary ? `${emplrHishtalmut}₪ מעסיק + ${empHishtalmut}₪ עובד (6 שנים זיכויים)` : 'לא מוצעת'}</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 8: דמי הבראה</p><p>{havraaDays} ימים/שנה × ₪470/יום (יוני-יולי). סה״כ: ₪{havraaAmount.toLocaleString()}/שנה.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 9: חופשה שנתית</p><p>מינימום {leaveDays} ימים/שנה בתשלום מלא בהתאם לחוק.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 10: דמי מחלה</p><p>יום 1: חינם. ימים 2-3: 50%. יום 4+: 100%. צבירה 1.5/חודש, מקסימום 90 יום.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 11: הודעה מוקדמת</p><p>30 יום (סימטרית). בניסיון: שבוע מספיק.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 12: סודיות</p><p>שמירת סוד על מידע עסקי, רשימות לקוחות, מחירים. התחייבות לאחר סיום: 24 חודשים.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 13: זכויות יוצר</p><p>כל יצירה, שיפור או תוכנה שנוצרו בעבודה שייכים למעסיק בעלות מלאה.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 14: אי-תחרות</p><p>6 חודשים לאחר סיום: אין תחרות בניקיון באותה עיר. הפרה: פיצוי 3 חודשי שכר.</p></div>
+        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 15: דיני חוק</p><p>חוק ישראל בלבד. בתי דין לעבודה בתל אביב. זה הסכם שלם וסופי.</p></div>
+      </div>
+
+      <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-800 mb-6"><p className="font-semibold">⚠️ סעיף 14 — סיום העסקה</p><p>על ידי חתימה, העובד מאשר קבלה והבנת סעיף 14: פקדונות המעסיק לקרן כוללים סיום העסקה.</p></div>
+
+      <div className="mt-8 space-y-6 text-sm">
+        <div className="border-t-4 border-[#0a1628] pt-4">
+          <p className="font-semibold text-[#0a1628] mb-3">אישור סעיף 14</p>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">חתימת המעסיק</p></div>
+            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">חתימת העובד</p></div>
           </div>
         </div>
-        <div className="text-center">
-          <div className="border-t border-gray-400 pt-2">
-            <p className="text-sm text-gray-600">חתימת העובד</p>
-            <p className="text-xs text-gray-400 mt-1">{emp.name}</p>
+
+        <div className="border-t-4 border-[#c9a84c] pt-4">
+          <p className="font-semibold text-[#0a1628] mb-3">חתימה סופית</p>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">קמינוס הפקות בע״מ</p><p className="text-xs text-gray-500">{today}</p></div>
+            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">{emp.name}</p><p className="text-xs text-gray-500">{today}</p></div>
           </div>
         </div>
       </div>
+
+      <div className="mt-4 text-xs text-gray-400 border-t pt-2">שתי עותקים — אחד למעסיק, אחד לעובד. חוקי לאחר חתימה משתי הצדדים.</div>
+      {signature && <SignatureBadge sig={signature} />}
     </div>
   );
 }
 
 type QuoteSubject = { name: string; phone: string; city?: string; notes?: string; service?: string };
 
-function ClientQuote({ subject, lines, extraNotes, quoteNum }: {
+function ClientQuote({ subject, lines, extraNotes, quoteNum, signature }: {
   subject: QuoteSubject;
   lines: QuoteLine[];
   extraNotes: string;
   quoteNum: string;
+  signature?: SignatureRecord;
 }) {
   const today = fmtDate(new Date());
   const validUntil = fmtDate(new Date(Date.now() + 30 * 24 * 3600000));
@@ -206,11 +225,12 @@ function ClientQuote({ subject, lines, extraNotes, quoteNum }: {
           </div>
         </div>
       </div>
+      {signature && <SignatureBadge sig={signature} />}
     </div>
   );
 }
 
-function Tofes101Form({ emp }: { emp: Employee }) {
+function Tofes101Form({ emp, signature }: { emp: Employee; signature?: SignatureRecord }) {
   const today = fmtDate(new Date());
   return (
     <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.8 }}>
@@ -348,6 +368,40 @@ function Tofes101Form({ emp }: { emp: Employee }) {
         <p className="font-semibold mb-1">הנחיות למילוי:</p>
         <p>יש להדפיס, למלא את הפרטים החסרים ולחתום. ניתן גם למלא את הטופס המקוון באתר מס הכנסה.</p>
       </div>
+      {signature && <SignatureBadge sig={signature} />}
+    </div>
+  );
+}
+
+function SignatureBadge({ sig }: { sig: SignatureRecord }) {
+  const dt = new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(sig.signedAt));
+  return (
+    <div className="flex items-center gap-4 p-4 border-2 border-blue-400 rounded-xl bg-blue-50/60 mt-6" dir="rtl">
+      <div className="relative flex-shrink-0 w-24 h-24">
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="#1d6fa8" strokeWidth="2.5" />
+          <circle cx="50" cy="50" r="43" fill="none" stroke="#1d6fa8" strokeWidth="1" strokeDasharray="3 2" />
+          <defs>
+            <path id="topArc" d="M 10,50 A 40,40 0 0,1 90,50" />
+            <path id="botArc" d="M 12,56 A 40,40 0 0,0 88,56" />
+          </defs>
+          <text fontSize="9.5" fill="#1d6fa8" fontWeight="600" fontFamily="Heebo, Arial, sans-serif">
+            <textPath href="#topArc" startOffset="50%" textAnchor="middle">מסמך חתום דיגיטלית</textPath>
+          </text>
+          <text fontSize="7" fill="#1d6fa8" fontFamily="Heebo, Arial, sans-serif">
+            <textPath href="#botArc" startOffset="50%" textAnchor="middle">קמינוס הפקות בע״מ ח.פ 516820826</textPath>
+          </text>
+          <text x="50" y="46" textAnchor="middle" fontSize="22" fill="#1d6fa8">🛡️</text>
+          <text x="50" y="62" textAnchor="middle" fontSize="7.5" fill="#1d6fa8" fontWeight="bold" fontFamily="monospace">{sig.verificationCode}</text>
+        </svg>
+      </div>
+      <div className="text-xs text-blue-800 space-y-0.5" dir="rtl">
+        <p className="font-bold text-sm text-blue-900">מסמך חתום דיגיטלית ✓</p>
+        <p>נחתם על ידי: <span className="font-semibold">{sig.signedBy}</span></p>
+        <p>תאריך: <span className="font-semibold">{dt}</span></p>
+        <p className="font-mono text-blue-700 tracking-wider mt-1">קוד אימות: {sig.verificationCode}</p>
+        <p className="text-[10px] text-blue-500 mt-1">מאומת ע״י SHA-256 | קמינוס הפקות בע״מ</p>
+      </div>
     </div>
   );
 }
@@ -358,10 +412,10 @@ export default function DocumentsPage() {
   const { clients } = useClients();
   const [docType, setDocType] = useState<'contract' | 'quote' | 'tofes101'>('contract');
   const [selectedEmpId, setSelectedEmpId] = useState('');
-  // prefixed: "lead:<id>" or "client:<id>"
   const [selectedQuoteId, setSelectedQuoteId] = useState('');
   const [preview, setPreview] = useState(false);
   const { downloadPDF, downloadAndEmail, generating } = useQuotePDF();
+  const { signDocument, signing, signature, setSignature } = useDocumentSigning();
   const [quoteLines, setQuoteLines] = useState<QuoteLine[]>([{ description: '', qty: 1, unitPrice: 0 }]);
   const [quoteNotes, setQuoteNotes] = useState('');
   const [quoteNum] = useState(() => `Q-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 8999) + 1000)}`);
@@ -424,7 +478,7 @@ export default function DocumentsPage() {
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">עובד</label>
               <div className="relative">
-                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); }}
+                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); setSignature(null); }}
                   className="w-full border border-gray-200 rounded-lg ps-3 pe-8 py-2.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white appearance-none">
                   <option value="">בחר עובד...</option>
                   {activeEmps.map((e) => <option key={e.id} value={e.id}>{e.name} {e.zone ? `— ${e.zone}` : ''}</option>)}
@@ -436,7 +490,7 @@ export default function DocumentsPage() {
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">לקוח / ליד</label>
               <div className="relative">
-                <select value={selectedQuoteId} onChange={(e) => { setSelectedQuoteId(e.target.value); setPreview(false); }}
+                <select value={selectedQuoteId} onChange={(e) => { setSelectedQuoteId(e.target.value); setPreview(false); setSignature(null); }}
                   className="w-full border border-gray-200 rounded-lg ps-3 pe-8 py-2.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white appearance-none">
                   <option value="">בחר לקוח...</option>
                   {activeClients.length > 0 && (
@@ -569,11 +623,23 @@ export default function DocumentsPage() {
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
               <p className="text-xs text-gray-500 font-hebrew">תצוגה מקדימה — חוזה העסקה</p>
-              <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
-                <Download size={13} />הדפס
-              </button>
+              <div className="flex items-center gap-3">
+                {!signature && (
+                  <button
+                    onClick={() => signDocument({ docType: 'contract', signedBy: selectedEmp.name, signedById: selectedEmp.id })}
+                    disabled={signing}
+                    className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
+                    {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                    {signing ? 'חותם...' : 'חתום דיגיטלית'}
+                  </button>
+                )}
+                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום ✓</span>}
+                <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
+                  <Download size={13} />הדפס
+                </button>
+              </div>
             </div>
-            <EmploymentContract emp={selectedEmp} />
+            <EmploymentContract emp={selectedEmp} signature={signature ?? undefined} />
           </div>
         )}
 
@@ -581,11 +647,23 @@ export default function DocumentsPage() {
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
               <p className="text-xs text-gray-500 font-hebrew">תצוגה מקדימה — הצעת מחיר</p>
-              <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
-                <Download size={13} />הדפס
-              </button>
+              <div className="flex items-center gap-3">
+                {!signature && (
+                  <button
+                    onClick={() => signDocument({ docType: 'quote', signedBy: quoteSubject.name, signedById: selectedQuoteId })}
+                    disabled={signing}
+                    className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
+                    {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                    {signing ? 'חותם...' : 'חתום דיגיטלית'}
+                  </button>
+                )}
+                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום ✓</span>}
+                <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
+                  <Download size={13} />הדפס
+                </button>
+              </div>
             </div>
-            <ClientQuote subject={quoteSubject} lines={quoteLines} extraNotes={quoteNotes} quoteNum={quoteNum} />
+            <ClientQuote subject={quoteSubject} lines={quoteLines} extraNotes={quoteNotes} quoteNum={quoteNum} signature={signature ?? undefined} />
           </div>
         )}
 
@@ -598,12 +676,22 @@ export default function DocumentsPage() {
                   className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-hebrew">
                   <ExternalLink size={13} />מילוי מקוון
                 </a>
+                {!signature && (
+                  <button
+                    onClick={() => signDocument({ docType: 'tofes101', signedBy: selectedEmp.name, signedById: selectedEmp.id })}
+                    disabled={signing}
+                    className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
+                    {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                    {signing ? 'חותם...' : 'חתום דיגיטלית'}
+                  </button>
+                )}
+                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום ✓</span>}
                 <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
                   <Download size={13} />הדפס
                 </button>
               </div>
             </div>
-            <Tofes101Form emp={selectedEmp} />
+            <Tofes101Form emp={selectedEmp} signature={signature ?? undefined} />
           </div>
         )}
       </div>

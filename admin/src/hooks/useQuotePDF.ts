@@ -29,7 +29,6 @@ export function useQuotePDF() {
       if (imgH <= pageH) {
         pdf.addImage(imgData, 'JPEG', 0, 0, pageW, imgH);
       } else {
-        // Multi-page
         let y = 0;
         while (y < imgH) {
           if (y > 0) pdf.addPage();
@@ -59,19 +58,14 @@ export function useQuotePDF() {
   }
 
   async function downloadAndEmail(subject: string, body: string): Promise<void> {
-    // Download the PDF first
     const result = await generateAndDownload();
     if (!result) return;
-
-    // Trigger download
     const url = URL.createObjectURL(result.blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = result.filename;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
-
-    // Open email client after short delay (so download starts first)
     setTimeout(() => {
       window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }, 500);

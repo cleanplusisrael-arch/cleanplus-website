@@ -6,7 +6,6 @@ export interface Employee {
   employeeNumber: string;      // E-00001
   name: string;
   teudatZehut?: string;        // Israeli ID
-  birthDate?: string;          // YYYY-MM-DD
   phone: string;
   email?: string;
   zone?: string;
@@ -17,7 +16,8 @@ export interface Employee {
   grossSalary?: number;        // monthly (for full_time / part_time)
   hourlyRate?: number;         // per hour (for hourly)
   notes?: string;
-  idCardUrl?: string;      // Firebase Storage URL of scanned ID
+  birthDate?: string;          // YYYY-MM-DD
+  idCardUrl?: string;          // Firebase Storage URL
   createdAt: string;
   updatedAt?: string;
 }
