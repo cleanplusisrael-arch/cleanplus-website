@@ -12,7 +12,7 @@ import { calcHours } from '@/lib/timeclock-types';
 import {
   ArrowRight, Phone, Mail, MapPin, Calendar, FileText,
   Clock, Briefcase, TrendingUp, Save, ChevronDown, ChevronUp,
-  Upload, Trash2, ExternalLink, CreditCard,
+  Upload, Trash2, ExternalLink, CreditCard, Navigation,
 } from 'lucide-react';
 
 const TAX_BRACKETS = [
@@ -253,14 +253,29 @@ export default function EmployeePage({ params }: { params: { id: string } }) {
                         </div>
                         <table className="w-full text-xs">
                           <tbody>
-                            {entries.map((e) => (
-                              <tr key={e.id} className="border-t border-gray-50">
-                                <td className="ps-4 py-2 text-gray-500" dir="ltr">{fmtDate(e.date)}</td>
-                                <td className="px-3 py-2 text-gray-600" dir="ltr">{fmtTime(e.clockIn)}</td>
-                                <td className="px-3 py-2 text-gray-600" dir="ltr">{fmtTime(e.clockOut)}</td>
-                                <td className="pe-4 py-2 font-medium text-gray-700" dir="ltr">{fmtHours(calcHours(e))}</td>
-                              </tr>
-                            ))}
+                            {entries.map((e) => {
+                              const lat = e.clockInLat ?? e.lat;
+                              const lng = e.clockInLng ?? e.lng;
+                              const mapsUrl = lat && lng ? `https://www.google.com/maps?q=${lat},${lng}` : null;
+                              return (
+                                <tr key={e.id} className="border-t border-gray-50">
+                                  <td className="ps-4 py-2 text-gray-500" dir="ltr">{fmtDate(e.date)}</td>
+                                  <td className="px-3 py-2 text-gray-600" dir="ltr">{fmtTime(e.clockIn)}</td>
+                                  <td className="px-3 py-2 text-gray-600" dir="ltr">{fmtTime(e.clockOut)}</td>
+                                  <td className="px-3 py-2 font-medium text-gray-700" dir="ltr">{fmtHours(calcHours(e))}</td>
+                                  <td className="pe-4 py-2">
+                                    {mapsUrl ? (
+                                      <a href={mapsUrl} target="_blank" rel="noreferrer"
+                                        className="flex items-center gap-1 text-[10px] text-blue-500 hover:text-blue-700 font-hebrew">
+                                        <Navigation size={10} />מיקום
+                                      </a>
+                                    ) : (
+                                      <span className="text-[10px] text-gray-300">—</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
