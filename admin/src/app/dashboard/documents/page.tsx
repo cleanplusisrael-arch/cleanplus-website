@@ -27,76 +27,290 @@ function EmploymentContract({ emp, signature }: { emp: Employee; signature?: Sig
   const salary = emp.grossSalary ?? 0;
   const hireDateObj = emp.hireDate ? new Date(emp.hireDate) : new Date();
   const seniorityYears = Math.floor((new Date().getTime() - hireDateObj.getTime()) / (365.25 * 24 * 3600 * 1000));
-  const empPension = salary ? Math.round(salary * 0.06) : 0;
   const emplrPension = salary ? Math.round(salary * 0.065) : 0;
+  const empPension = salary ? Math.round(salary * 0.06) : 0;
   const severanceComp = salary ? Math.round(salary * 0.0833) : 0;
   const emplrHishtalmut = salary ? Math.round(salary * 0.075) : 0;
   const empHishtalmut = salary ? Math.round(salary * 0.025) : 0;
   const leaveDays = seniorityYears < 4 ? 12 : seniorityYears === 4 ? 16 : seniorityYears === 5 ? 18 : 21;
   const havraaDays = seniorityYears < 1 ? 5 : seniorityYears < 3 ? 6 : seniorityYears < 10 ? 7 : seniorityYears < 15 ? 8 : seniorityYears < 19 ? 9 : 10;
-  const havraaAmount = havraaDays * 470;
 
   return (
-    <div id="doc-print" className="bg-white p-10 max-w-4xl mx-auto" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.7 }}>
-      <div className="text-center mb-6 border-b-2 border-[#0a1628] pb-4">
-        <div className="text-2xl font-black tracking-tight text-[#0a1628] mb-1">Clean<span className="text-[#c9a84c]">+</span></div>
-        <h1 className="text-xl font-bold text-[#0a1628] mb-2">חוזה העסקה</h1>
-        <p className="text-xs text-gray-500">קמינוס הפקות בע״מ | ח.פ 516820826</p>
-        <p className="text-xs text-gray-400">שד׳ דוד המלך 509, אור עקיבא</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
-        <div className="border-l-4 border-[#c9a84c] pl-4">
-          <p className="text-xs text-gray-500 mb-0.5">המעסיק</p>
-          <p className="font-semibold text-gray-800">קמינוס הפקות בע״מ</p>
-          <p className="text-xs text-gray-600">ח.פ 516820826</p>
+    <div id="doc-print" className="bg-white p-8 max-w-4xl mx-auto space-y-4" style={{ fontFamily: 'Arial, sans-serif', lineHeight: 1.6 }}>
+      {/* HEBREW VERSION */}
+      <div dir="rtl" className="mb-8">
+        <div className="text-center mb-4">
+          <h1 className="text-2xl font-bold mb-2">חוזה העסקה</h1>
+          <p className="text-xs text-gray-600">על פי חוק הודעה לעובד, התשס"ב-2002</p>
         </div>
-        <div className="border-l-4 border-[#c9a84c] pl-4">
-          <p className="text-xs text-gray-500 mb-0.5">העובד</p>
-          <p className="font-semibold text-gray-800">{emp.name}</p>
-          {emp.teudatZehut && <p className="text-xs text-gray-600" dir="ltr">{emp.teudatZehut}</p>}
-        </div>
-      </div>
 
-      <div className="space-y-3 text-xs text-gray-700 mb-6">
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 1: הצדדים</p><p>בין קמינוס הפקות בע״מ (המעסיק) לבין {emp.name} (העובד), ביום {today}.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 2: מקום עבודה</p><p>עבודות ניקיון ותחזוקה. אזור: {emp.zone || 'כמפורט בהנחיה'}</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 3: תחילת עבודה וניסיון</p><p>תחילה: {emp.hireDate || 'כמפורט'}. תקופת ניסיון: 6 חודשים (הודעה של שבוע מספיקה).</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 4: שעות עבודה</p><p>42 שעות/שבוע בנוסח חוק שעות עבודה ומנוחה. שעות נוספות: 125% (2 ראשונות), 150% (לאחר).</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 5: שכר</p>{salary ? <p>ברוטו: <span dir="ltr">₪{salary.toLocaleString()}</span>/חודש. תשלום עד ה-9 בחודש הבא בהעברה בנקאית.</p> : <p>כמפורט בהודעה.</p>}</div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 6: קרן פנסיה וסעיף 14</p>{salary ? <p>תרומה: {emplrPension}₪ מעסיק + {empPension}₪ עובד. סעיף 14: {severanceComp}₪ חודשי לכיסוי סיום (במקום פיצויים).</p> : <p>פרטים בהודעה נפרדת.</p>}</div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 7: קרן השתלמות</p><p className="text-[10px]">{salary ? `${emplrHishtalmut}₪ מעסיק + ${empHishtalmut}₪ עובד (6 שנים זיכויים)` : 'לא מוצעת'}</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 8: דמי הבראה</p><p>{havraaDays} ימים/שנה × ₪470/יום (יוני-יולי). סה״כ: ₪{havraaAmount.toLocaleString()}/שנה.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 9: חופשה שנתית</p><p>מינימום {leaveDays} ימים/שנה בתשלום מלא בהתאם לחוק.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 10: דמי מחלה</p><p>יום 1: חינם. ימים 2-3: 50%. יום 4+: 100%. צבירה 1.5/חודש, מקסימום 90 יום.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 11: הודעה מוקדמת</p><p>30 יום (סימטרית). בניסיון: שבוע מספיק.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 12: סודיות</p><p>שמירת סוד על מידע עסקי, רשימות לקוחות, מחירים. התחייבות לאחר סיום: 24 חודשים.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 13: זכויות יוצר</p><p>כל יצירה, שיפור או תוכנה שנוצרו בעבודה שייכים למעסיק בעלות מלאה.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 14: אי-תחרות</p><p>6 חודשים לאחר סיום: אין תחרות בניקיון באותה עיר. הפרה: פיצוי 3 חודשי שכר.</p></div>
-        <div className="bg-gray-50 p-3 rounded border border-gray-100"><p className="font-semibold text-[#0a1628] mb-1">סעיף 15: דיני חוק</p><p>חוק ישראל בלבד. בתי דין לעבודה בתל אביב. זה הסכם שלם וסופי.</p></div>
-      </div>
+        <p className="text-xs mb-4 text-gray-700">
+          על פי חוק, המעסיק חייב להעניק לעובד סיכום בכתב של תנאי העסקתו בתוך שלושים יום מתחילת עבודתו.
+        </p>
 
-      <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-800 mb-6"><p className="font-semibold">⚠️ סעיף 14 — סיום העסקה</p><p>על ידי חתימה, העובד מאשר קבלה והבנת סעיף 14: פקדונות המעסיק לקרן כוללים סיום העסקה.</p></div>
-
-      <div className="mt-8 space-y-6 text-sm">
-        <div className="border-t-4 border-[#0a1628] pt-4">
-          <p className="font-semibold text-[#0a1628] mb-3">אישור סעיף 14</p>
+        <div className="border-t-2 border-gray-300 pt-4 space-y-4 text-sm">
           <div className="grid grid-cols-2 gap-6">
-            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">חתימת המעסיק</p></div>
-            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">חתימת העובד</p></div>
+            <div>
+              <p className="font-bold mb-2">המעסיק</p>
+              <p><strong>שם:</strong> קמינוס הפקות בע״מ</p>
+              <p><strong>ת.ז./ח.פ:</strong> 516820826</p>
+              <p><strong>כתובת:</strong> שד׳ דוד המלך 509, אור עקיבא</p>
+            </div>
+            <div>
+              <p className="font-bold mb-2">העובד</p>
+              <p><strong>שם:</strong> {emp.name}</p>
+              {emp.teudatZehut && <p><strong>ת.ז.:</strong> {emp.teudatZehut}</p>}
+              {emp.birthDate && <p><strong>תאריך לידה:</strong> {emp.birthDate}</p>}
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <p className="font-bold mb-2">1. תיאור התפקיד ותחום עבודה</p>
+            <p>התפקיד: עובד ניקיון ותחזוקה | אזור: {emp.zone || '________'}</p>
+          </div>
+
+          <div><p className="font-bold mb-1">2. ימים ושעות עבודה</p>
+            <p>• ימים בשבוע: _________ מ-_____h ל-_____h</p>
+            <p>• ימי שישי וערבי חגים: מ-_____h ל-_____h</p>
+            <p>• בסה״כ 42 שעות בשבוע (חוק שעות עבודה ומנוחה, התשי״א-1951)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">3. תקופת העסקה</p>
+            <p>• התחלה: {emp.hireDate || '________'}</p>
+            <p>• תקופת ניסיון: 6 חודשים | הודעה מוקדמת בניסיון: 1 שבוע</p>
+            <p>• סיום: 30 יום הודעה מוקדמת משתי הצדדים</p>
+          </div>
+
+          <div><p className="font-bold mb-1">4. שכר</p>
+            {salary ? (
+              <>
+                <p>• שכר ברוטו חודשי: ₪{salary.toLocaleString()}</p>
+                <p>• שעות נוספות: 125% (שתי שעות ראשונות), 150% (הנוסף)</p>
+                <p>• תשלום: עד ה-9 בחודש הבא, בהעברה בנקאית</p>
+              </>
+            ) : (
+              <p>• _________ ₪</p>
+            )}
+          </div>
+
+          <div><p className="font-bold mb-1">5. הוצאות נסיעה</p>
+            <p>• סך הכל: _________ ₪ / חודש (או כפי שמוסכם)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">6. קרן פנסיה וסעיף 14</p>
+            {salary ? (
+              <>
+                <p>• תרומה חודשית: {emplrPension}₪ מעסיק + {empPension}₪ עובד (מנוכה משכר)</p>
+                <p>• <strong>סעיף 14 - ביטוח סיום:</strong> המעסיק יפקיד {severanceComp}₪ נוסף לכיסוי התחייבות סיום העסקה (במקום פיצויים)</p>
+              </>
+            ) : (
+              <p>• כמפורט בהודעה נפרדת</p>
+            )}
+          </div>
+
+          <div><p className="font-bold mb-1">7. קרן השתלמות</p>
+            {salary ? (
+              <p>• תרומה: {emplrHishtalmut}₪ מעסיק + {empHishtalmut}₪ עובד | זיכויים: 6 שנים</p>
+            ) : (
+              <p>• לא מוצעת בהסכם זה</p>
+            )}
+          </div>
+
+          <div><p className="font-bold mb-1">8. דמי הבראה (Convalescence Pay)</p>
+            <p>• {havraaDays} ימים בשנה × ₪470/יום (משולם ביוני-יולי)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">9. חופשה שנתית</p>
+            <p>• {leaveDays} ימים בתשלום מלא בשנה (חוק חופשה שנתית, התשי״א-1951)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">10. דמי מחלה</p>
+            <p>• יום 1: חינם | ימים 2-3: 50% משכר | יום 4 ואילך: 100%</p>
+            <p>• צבירה: 1.5 יום לחודש, מקסימום 90 ימים</p>
+          </div>
+
+          <div><p className="font-bold mb-1">11. מיסים וחיובים חובה</p>
+            <p>• המעסיק משלם דמי ביטוח לאומי</p>
+            <p>• העובד אחראי לדיווח למס הכנסה וביטוח לאומי</p>
+          </div>
+
+          <div><p className="font-bold mb-1">12. סודיות ומידע עסקי</p>
+            <p>• העובד מתחייב לשמור בסוד כל מידע עסקי, רשימות לקוחות ונהלים</p>
+            <p>• התחייבות זו תוקפה גם לאחר סיום העסקה (24 חודשים)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">13. זכויות יוצר ורכוש רוחני</p>
+            <p>• כל יצירה, שיפור, תוכנה או חומר שנוצרו בעבודה שייכים למעסיק</p>
+          </div>
+
+          <div><p className="font-bold mb-1">14. אי-תחרות</p>
+            <p>• 6 חודשים לאחר סיום: אין עסקה תחרותית בתחום הניקיון באותה עיר</p>
+          </div>
+
+          <div><p className="font-bold mb-1">15. דיני חוק וסיום</p>
+            <p>• דיני ישראל בלבד | בתי דין לעבודה בתל אביב</p>
+            <p>• זה הסכם שלם וחוקי לאחר חתימה משתי הצדדים</p>
           </div>
         </div>
 
-        <div className="border-t-4 border-[#c9a84c] pt-4">
-          <p className="font-semibold text-[#0a1628] mb-3">חתימה סופית</p>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">קמינוס הפקות בע״מ</p><p className="text-xs text-gray-500">{today}</p></div>
-            <div className="text-center"><p className="mb-6 min-h-[32px]">________________</p><p className="text-xs text-gray-600">{emp.name}</p><p className="text-xs text-gray-500">{today}</p></div>
+        <div className="mt-6 space-y-4">
+          <div className="bg-amber-50 p-3 border border-amber-200 rounded text-xs">
+            <p className="font-bold mb-1">⚠️ אישור סעיף 14</p>
+            <p>על ידי חתימה, העובד מאשר קבלה והבנה כי פקדונות המעסיק לקרן פנסיה מכסים את התחייבות סיום העסקה.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 text-sm">
+            <div className="text-center border-t-2 border-gray-400 pt-3">
+              <p className="min-h-[40px]">________________</p>
+              <p className="font-bold">חתימת המעסיק</p>
+              <p className="text-xs text-gray-600">{today}</p>
+            </div>
+            <div className="text-center border-t-2 border-gray-400 pt-3">
+              <p className="min-h-[40px]">________________</p>
+              <p className="font-bold">חתימת העובד</p>
+              <p className="text-xs text-gray-600">{today}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 text-xs text-gray-400 border-t pt-2">שתי עותקים — אחד למעסיק, אחד לעובד. חוקי לאחר חתימה משתי הצדדים.</div>
+      {/* FRENCH VERSION - Page 2 */}
+      <div dir="ltr" className="mt-12 page-break">
+        <div className="text-center mb-4">
+          <h1 className="text-2xl font-bold mb-2">CONTRAT D'EMPLOI</h1>
+          <p className="text-xs text-gray-600">Conformément à la Loi sur la notification aux salariés, 5762-2002</p>
+        </div>
+
+        <p className="text-xs mb-4 text-gray-700">
+          L'employeur doit fournir au salarié un résumé écrit des conditions d'emploi dans les trente jours suivant le début du travail.
+        </p>
+
+        <div className="border-t-2 border-gray-300 pt-4 space-y-4 text-sm">
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <p className="font-bold mb-2">L'Employeur</p>
+              <p><strong>Nom :</strong> Caminos Productions Ltd</p>
+              <p><strong>N° ID/Tva :</strong> 516820826</p>
+              <p><strong>Adresse :</strong> 509 David Hamelech St, Or Akiva</p>
+            </div>
+            <div>
+              <p className="font-bold mb-2">L'Employé</p>
+              <p><strong>Nom :</strong> {emp.name}</p>
+              {emp.teudatZehut && <p><strong>N° ID :</strong> {emp.teudatZehut}</p>}
+              {emp.birthDate && <p><strong>Date de naissance :</strong> {emp.birthDate}</p>}
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <p className="font-bold mb-2">1. Poste et domaine d'activité</p>
+            <p>Poste : Agent de nettoyage et maintenance | Région : {emp.zone || '________'}</p>
+          </div>
+
+          <div><p className="font-bold mb-1">2. Jours et heures de travail</p>
+            <p>• Jours par semaine : _________ de ___h à ___h</p>
+            <p>• Vendredis et veilles de fêtes : de ___h à ___h</p>
+            <p>• Total : 42 heures par semaine (Loi sur les heures de travail et repos, 1951)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">3. Période d'emploi</p>
+            <p>• Début : {emp.hireDate || '________'}</p>
+            <p>• Période d'essai : 6 mois | Préavis d'essai : 1 semaine</p>
+            <p>• Fin : 30 jours de préavis mutuel</p>
+          </div>
+
+          <div><p className="font-bold mb-1">4. Salaire</p>
+            {salary ? (
+              <>
+                <p>• Salaire mensuel brut : ₪{salary.toLocaleString()}</p>
+                <p>• Heures supplémentaires : 125% (deux premières heures), 150% (au-delà)</p>
+                <p>• Paiement : avant le 9 du mois suivant, par virement bancaire</p>
+              </>
+            ) : (
+              <p>• _________ ₪</p>
+            )}
+          </div>
+
+          <div><p className="font-bold mb-1">5. Frais de déplacement</p>
+            <p>• Total : _________ ₪ / mois (ou selon accord)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">6. Retraite et article 14</p>
+            {salary ? (
+              <>
+                <p>• Cotisation mensuelle : {emplrPension}₪ employeur + {empPension}₪ salarié (déduit du salaire)</p>
+                <p>• <strong>Article 14 - Assurance fin de contrat :</strong> L'employeur versera {severanceComp}₪ supplémentaires pour couvrir l'indemnité de fin de contrat (en lieu et place des indemnités)</p>
+              </>
+            ) : (
+              <p>• Selon avis séparé</p>
+            )}
+          </div>
+
+          <div><p className="font-bold mb-1">7. Fonds de formation continue</p>
+            {salary ? (
+              <p>• Contribution : {emplrHishtalmut}₪ employeur + {empHishtalmut}₪ salarié | Droits acquis : 6 ans</p>
+            ) : (
+              <p>• Non proposé dans ce contrat</p>
+            )}
+          </div>
+
+          <div><p className="font-bold mb-1">8. Prime de récupération (Convalescence)</p>
+            <p>• {havraaDays} jours par an × ₪470/jour (versé en juin-juillet)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">9. Congés annuels</p>
+            <p>• {leaveDays} jours payés par an (Loi sur les congés annuels, 1951)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">10. Congés maladie</p>
+            <p>• Jour 1 : gratuit | Jours 2-3 : 50% du salaire | Jour 4+ : 100%</p>
+            <p>• Accumulation : 1,5 jour par mois, maximum 90 jours</p>
+          </div>
+
+          <div><p className="font-bold mb-1">11. Impôts et cotisations obligatoires</p>
+            <p>• L'employeur paie les cotisations d'assurance nationale</p>
+            <p>• Le salarié est seul responsable de ses déclarations fiscales et cotisations</p>
+          </div>
+
+          <div><p className="font-bold mb-1">12. Confidentialité et informations commerciales</p>
+            <p>• Le salarié s'engage à garder confidentiels tous les secrets commerciaux et listes de clients</p>
+            <p>• Cette obligation subsiste après fin du contrat (24 mois)</p>
+          </div>
+
+          <div><p className="font-bold mb-1">13. Droits d'auteur et propriété intellectuelle</p>
+            <p>• Toute création, amélioration, logiciel ou document produit pendant l'emploi appartient à l'employeur</p>
+          </div>
+
+          <div><p className="font-bold mb-1">14. Non-concurrence</p>
+            <p>• 6 mois après la fin : pas d'activité concurrente dans le nettoyage dans la même ville</p>
+          </div>
+
+          <div><p className="font-bold mb-1">15. Droit applicable et résiliation</p>
+            <p>• Droit israélien uniquement | Juridiction : Tribunaux du travail de Tel Aviv</p>
+            <p>• Ce contrat constitue l'accord complet et contraignant après signature des deux parties</p>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <div className="bg-amber-50 p-3 border border-amber-200 rounded text-xs">
+            <p className="font-bold mb-1">⚠️ Confirmation de l'article 14</p>
+            <p>En signant, le salarié confirme avoir reçu et compris que les versements de l'employeur au fonds de retraite couvrent l'obligation de fin de contrat.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 text-sm">
+            <div className="text-center border-t-2 border-gray-400 pt-3">
+              <p className="min-h-[40px]">________________</p>
+              <p className="font-bold">Signature de l'Employeur</p>
+              <p className="text-xs text-gray-600">{today}</p>
+            </div>
+            <div className="text-center border-t-2 border-gray-400 pt-3">
+              <p className="min-h-[40px]">________________</p>
+              <p className="font-bold">Signature du Salarié</p>
+              <p className="text-xs text-gray-600">{today}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {signature && <SignatureBadge sig={signature} />}
     </div>
   );
