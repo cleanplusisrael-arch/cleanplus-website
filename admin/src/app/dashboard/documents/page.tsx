@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { useEmployees } from '@/hooks/useEmployees';
 import { useLeads } from '@/hooks/useLeads';
+import { useClients } from '@/hooks/useClients';
 import { Header } from '@/components/layout/Header';
 import { CONTRACT_LABELS } from '@/lib/employee-types';
 import type { Employee } from '@/lib/employee-types';
-import type { Lead } from '@/lib/types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
 import { FileText, Download, ChevronDown, ExternalLink } from 'lucide-react';
 
@@ -77,7 +77,9 @@ function EmploymentContract({ emp }: { emp: Employee }) {
   );
 }
 
-function ClientQuote({ lead }: { lead: Lead }) {
+type QuoteSubject = { name: string; phone: string; city?: string; notes?: string; service?: string };
+
+function ClientQuote({ subject }: { subject: QuoteSubject }) {
   const today = fmtDate(new Date());
   const validUntil = fmtDate(new Date(Date.now() + 30 * 24 * 3600000));
 
@@ -93,16 +95,15 @@ function ClientQuote({ lead }: { lead: Lead }) {
       <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
         <div className="space-y-1">
           <p className="font-bold text-gray-600 text-xs uppercase tracking-wide mb-2">פרטי הלקוח</p>
-          <p><strong>שם:</strong> {lead.name}</p>
-          <p><strong>טלפון:</strong> <span dir="ltr">{lead.phone}</span></p>
-          {lead.city && <p><strong>עיר:</strong> {lead.city}</p>}
+          <p><strong>שם:</strong> {subject.name}</p>
+          <p><strong>טלפון:</strong> <span dir="ltr">{subject.phone}</span></p>
+          {subject.city && <p><strong>עיר:</strong> {subject.city}</p>}
         </div>
         <div className="space-y-1">
           <p className="font-bold text-gray-600 text-xs uppercase tracking-wide mb-2">פרטי ההצעה</p>
           <p><strong>תאריך:</strong> {today}</p>
           <p><strong>תוקף:</strong> {validUntil}</p>
-          {lead.service && <p><strong>שירות:</strong> {LEAD_SERVICE_LABELS[lead.service]}</p>}
-          {lead.city && <p><strong>עיר:</strong> {lead.city}</p>}
+          {subject.service && <p><strong>שירות:</strong> {LEAD_SERVICE_LABELS[subject.service as keyof typeof LEAD_SERVICE_LABELS] ?? subject.service}</p>}
         </div>
       </div>
 
@@ -118,7 +119,7 @@ function ClientQuote({ lead }: { lead: Lead }) {
           </thead>
           <tbody>
             <tr className="border-t border-gray-100">
-              <td className="px-4 py-3 font-hebrew">{(lead.service ? LEAD_SERVICE_LABELS[lead.service] : 'שירותי ניקיון')}</td>
+              <td className="px-4 py-3 font-hebrew">{subject.service ? (LEAD_SERVICE_LABELS[subject.service as keyof typeof LEAD_SERVICE_LABELS] ?? subject.service) : 'שירותי ניקיון'}</td>
               <td className="px-4 py-3 text-center">1</td>
               <td className="px-4 py-3 text-end" dir="ltr">—</td>
               <td className="px-4 py-3 text-end font-medium" dir="ltr">לפי סיכום</td>
@@ -133,10 +134,10 @@ function ClientQuote({ lead }: { lead: Lead }) {
         </table>
       </div>
 
-      {lead.notes && (
+      {subject.notes && (
         <div className="mb-6 p-4 bg-gray-50 rounded-lg text-sm">
           <p className="font-semibold mb-1 font-hebrew">הערות:</p>
-          <p className="text-gray-600 font-hebrew">{lead.notes}</p>
+          <p className="text-gray-600 font-hebrew">{subject.notes}</p>
         </div>
       )}
 
@@ -283,16 +284,32 @@ function Tofes101Form({ emp }: { emp: Employee }) {
 export default function DocumentsPage() {
   const { employees } = useEmployees();
   const { leads } = useLeads();
+  const { clients } = useClients();
   const [docType, setDocType] = useState<'contract' | 'quote' | 'tofes101'>('contract');
   const [selectedEmpId, setSelectedEmpId] = useState('');
-  const [selectedLeadId, setSelectedLeadId] = useState('');
+  // prefixed: "lead:<id>" or "client:<id>"
+  const [selectedQuoteId, setSelectedQuoteId] = useState('');
   const [preview, setPreview] = useState(false);
 
-  const activeEmps = employees.filter((e) => e.status === 'active');
-  const wonLeads   = leads.filter((l) => l.status === 'won' || l.status === 'contacted' || l.status === 'quote_sent');
+  const activeEmps  = employees.filter((e) => e.status === 'active');
+  const wonLeads    = leads.filter((l) => ['won', 'contacted', 'quote_sent'].includes(l.status));
+  const activeClients = clients.filter((c) => c.status !== 'inactive');
 
-  const selectedEmp  = activeEmps.find((e) => e.id === selectedEmpId);
-  const selectedLead = wonLeads.find((l) => l.id === selectedLeadId);
+  const selectedEmp = activeEmps.find((e) => e.id === selectedEmpId);
+
+  // Resolve the selected quote subject from prefixed id
+  const quoteSubject: QuoteSubject | null = (() => {
+    if (!selectedQuoteId) return null;
+    if (selectedQuoteId.startsWith('lead:')) {
+      const lead = wonLeads.find((l) => l.id === selectedQuoteId.slice(5));
+      return lead ? { name: lead.name, phone: lead.phone, city: lead.city, notes: lead.notes, service: lead.service } : null;
+    }
+    if (selectedQuoteId.startsWith('client:')) {
+      const client = activeClients.find((c) => c.id === selectedQuoteId.slice(7));
+      return client ? { name: client.name, phone: client.phone, city: client.city, notes: client.notes } : null;
+    }
+    return null;
+  })();
 
   function printDoc() {
     window.print();
@@ -338,10 +355,23 @@ export default function DocumentsPage() {
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">לקוח / ליד</label>
               <div className="relative">
-                <select value={selectedLeadId} onChange={(e) => { setSelectedLeadId(e.target.value); setPreview(false); }}
+                <select value={selectedQuoteId} onChange={(e) => { setSelectedQuoteId(e.target.value); setPreview(false); }}
                   className="w-full border border-gray-200 rounded-lg ps-3 pe-8 py-2.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white appearance-none">
                   <option value="">בחר לקוח...</option>
-                  {wonLeads.map((l) => <option key={l.id} value={l.id}>{l.name} {l.phone ? `— ${l.phone}` : ''}</option>)}
+                  {activeClients.length > 0 && (
+                    <optgroup label="לקוחות">
+                      {activeClients.map((c) => (
+                        <option key={c.id} value={`client:${c.id}`}>{c.name}{c.phone ? ` — ${c.phone}` : ''}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {wonLeads.length > 0 && (
+                    <optgroup label="לידים">
+                      {wonLeads.map((l) => (
+                        <option key={l.id} value={`lead:${l.id}`}>{l.name}{l.phone ? ` — ${l.phone}` : ''}</option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
                 <ChevronDown size={14} className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
@@ -351,7 +381,7 @@ export default function DocumentsPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setPreview(true)}
-              disabled={((docType === 'contract' || docType === 'tofes101') && !selectedEmpId) || (docType === 'quote' && !selectedLeadId)}
+              disabled={((docType === 'contract' || docType === 'tofes101') && !selectedEmpId) || (docType === 'quote' && !selectedQuoteId)}
               className="flex items-center gap-2 bg-navy text-white px-5 py-2.5 rounded-lg text-sm font-hebrew hover:bg-navy/90 disabled:opacity-40">
               <FileText size={15} />תצוגה מקדימה
             </button>
@@ -376,7 +406,7 @@ export default function DocumentsPage() {
           </div>
         )}
 
-        {preview && docType === 'quote' && selectedLead && (
+        {preview && docType === 'quote' && quoteSubject && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
               <p className="text-xs text-gray-500 font-hebrew">תצוגה מקדימה — הצעת מחיר</p>
@@ -384,7 +414,7 @@ export default function DocumentsPage() {
                 <Download size={13} />הדפס
               </button>
             </div>
-            <ClientQuote lead={selectedLead} />
+            <ClientQuote subject={quoteSubject} />
           </div>
         )}
 
