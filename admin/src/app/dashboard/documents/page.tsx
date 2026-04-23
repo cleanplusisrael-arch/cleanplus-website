@@ -174,142 +174,6 @@ function EmploymentContract({ emp, signature }: { emp: Employee; signature?: Sig
         </div>
       </div>
 
-      {/* FRENCH VERSION - Page 2 */}
-      <div dir="ltr" className="mt-12 page-break">
-        <div className="text-center mb-4">
-          <h1 className="text-2xl font-bold mb-2">CONTRAT D'EMPLOI</h1>
-          <p className="text-xs text-gray-600">Conformément à la Loi sur la notification aux salariés, 5762-2002</p>
-        </div>
-
-        <p className="text-xs mb-4 text-gray-700">
-          L'employeur doit fournir au salarié un résumé écrit des conditions d'emploi dans les trente jours suivant le début du travail.
-        </p>
-
-        <div className="border-t-2 border-gray-300 pt-4 space-y-4 text-sm">
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <p className="font-bold mb-2">L'Employeur</p>
-              <p><strong>Nom :</strong> Caminos Productions Ltd</p>
-              <p><strong>N° ID/Tva :</strong> 516820826</p>
-              <p><strong>Adresse :</strong> 509 David Hamelech St, Or Akiva</p>
-            </div>
-            <div>
-              <p className="font-bold mb-2">L'Employé</p>
-              <p><strong>Nom :</strong> {emp.name}</p>
-              {emp.teudatZehut && <p><strong>N° ID :</strong> {emp.teudatZehut}</p>}
-              {emp.birthDate && <p><strong>Date de naissance :</strong> {emp.birthDate}</p>}
-            </div>
-          </div>
-
-          <div className="border-t pt-4">
-            <p className="font-bold mb-2">1. Poste et domaine d'activité</p>
-            <p>Poste : Agent de nettoyage et maintenance | Région : {emp.zone || '________'}</p>
-          </div>
-
-          <div><p className="font-bold mb-1">2. Jours et heures de travail</p>
-            <p>• Jours par semaine : _________ de ___h à ___h</p>
-            <p>• Vendredis et veilles de fêtes : de ___h à ___h</p>
-            <p>• Total : 42 heures par semaine (Loi sur les heures de travail et repos, 1951)</p>
-          </div>
-
-          <div><p className="font-bold mb-1">3. Période d'emploi</p>
-            <p>• Début : {emp.hireDate || '________'}</p>
-            <p>• Période d'essai : 6 mois | Préavis d'essai : 1 semaine</p>
-            <p>• Fin : 30 jours de préavis mutuel</p>
-          </div>
-
-          <div><p className="font-bold mb-1">4. Salaire</p>
-            {salary ? (
-              <>
-                <p>• Salaire mensuel brut : ₪{salary.toLocaleString()}</p>
-                <p>• Heures supplémentaires : 125% (deux premières heures), 150% (au-delà)</p>
-                <p>• Paiement : avant le 9 du mois suivant, par virement bancaire</p>
-              </>
-            ) : (
-              <p>• _________ ₪</p>
-            )}
-          </div>
-
-          <div><p className="font-bold mb-1">5. Frais de déplacement</p>
-            <p>• Total : _________ ₪ / mois (ou selon accord)</p>
-          </div>
-
-          <div><p className="font-bold mb-1">6. Retraite et article 14</p>
-            {salary ? (
-              <>
-                <p>• Cotisation mensuelle : {emplrPension}₪ employeur + {empPension}₪ salarié (déduit du salaire)</p>
-                <p>• <strong>Article 14 - Assurance fin de contrat :</strong> L'employeur versera {severanceComp}₪ supplémentaires pour couvrir l'indemnité de fin de contrat (en lieu et place des indemnités)</p>
-              </>
-            ) : (
-              <p>• Selon avis séparé</p>
-            )}
-          </div>
-
-          <div><p className="font-bold mb-1">7. Fonds de formation continue</p>
-            {salary ? (
-              <p>• Contribution : {emplrHishtalmut}₪ employeur + {empHishtalmut}₪ salarié | Droits acquis : 6 ans</p>
-            ) : (
-              <p>• Non proposé dans ce contrat</p>
-            )}
-          </div>
-
-          <div><p className="font-bold mb-1">8. Prime de récupération (Convalescence)</p>
-            <p>• {havraaDays} jours par an × ₪470/jour (versé en juin-juillet)</p>
-          </div>
-
-          <div><p className="font-bold mb-1">9. Congés annuels</p>
-            <p>• {leaveDays} jours payés par an (Loi sur les congés annuels, 1951)</p>
-          </div>
-
-          <div><p className="font-bold mb-1">10. Congés maladie</p>
-            <p>• Jour 1 : gratuit | Jours 2-3 : 50% du salaire | Jour 4+ : 100%</p>
-            <p>• Accumulation : 1,5 jour par mois, maximum 90 jours</p>
-          </div>
-
-          <div><p className="font-bold mb-1">11. Impôts et cotisations obligatoires</p>
-            <p>• L'employeur paie les cotisations d'assurance nationale</p>
-            <p>• Le salarié est seul responsable de ses déclarations fiscales et cotisations</p>
-          </div>
-
-          <div><p className="font-bold mb-1">12. Confidentialité et informations commerciales</p>
-            <p>• Le salarié s'engage à garder confidentiels tous les secrets commerciaux et listes de clients</p>
-            <p>• Cette obligation subsiste après fin du contrat (24 mois)</p>
-          </div>
-
-          <div><p className="font-bold mb-1">13. Droits d'auteur et propriété intellectuelle</p>
-            <p>• Toute création, amélioration, logiciel ou document produit pendant l'emploi appartient à l'employeur</p>
-          </div>
-
-          <div><p className="font-bold mb-1">14. Non-concurrence</p>
-            <p>• 6 mois après la fin : pas d'activité concurrente dans le nettoyage dans la même ville</p>
-          </div>
-
-          <div><p className="font-bold mb-1">15. Droit applicable et résiliation</p>
-            <p>• Droit israélien uniquement | Juridiction : Tribunaux du travail de Tel Aviv</p>
-            <p>• Ce contrat constitue l'accord complet et contraignant après signature des deux parties</p>
-          </div>
-        </div>
-
-        <div className="mt-6 space-y-4">
-          <div className="bg-amber-50 p-3 border border-amber-200 rounded text-xs">
-            <p className="font-bold mb-1">⚠️ Confirmation de l'article 14</p>
-            <p>En signant, le salarié confirme avoir reçu et compris que les versements de l'employeur au fonds de retraite couvrent l'obligation de fin de contrat.</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 text-sm">
-            <div className="text-center border-t-2 border-gray-400 pt-3">
-              <p className="min-h-[40px]">________________</p>
-              <p className="font-bold">Signature de l'Employeur</p>
-              <p className="text-xs text-gray-600">{today}</p>
-            </div>
-            <div className="text-center border-t-2 border-gray-400 pt-3">
-              <p className="min-h-[40px]">________________</p>
-              <p className="font-bold">Signature du Salarié</p>
-              <p className="text-xs text-gray-600">{today}</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {signature && <SignatureBadge sig={signature} />}
     </div>
@@ -823,14 +687,14 @@ export default function DocumentsPage() {
               <div className="flex items-center gap-3">
                 {!signature && (
                   <button
-                    onClick={() => signDocument({ docType: 'contract', signedBy: selectedEmp.name, signedById: selectedEmp.id })}
+                    onClick={() => signDocument({ docType: 'contract', signedBy: 'קמינוס הפקות בע״מ', signedById: selectedEmp.id })}
                     disabled={signing}
                     className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
                     {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
-                    {signing ? 'חותם...' : 'חתום דיגיטלית'}
+                    {signing ? 'חותם...' : 'חתום דיגיטלית - קמינוס'}
                   </button>
                 )}
-                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום ✓</span>}
+                {signature && <span className="text-xs text-green-600 font-hebrew flex items-center gap-1"><ShieldCheck size={12} />חתום על ידי קמינוס ✓</span>}
                 <button onClick={printDoc} className="flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 font-hebrew">
                   <Download size={13} />הדפס
                 </button>
