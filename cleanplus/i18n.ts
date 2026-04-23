@@ -2,10 +2,13 @@ import { getRequestConfig } from 'next-intl/server';
 
 const SUPPORTED_LOCALES = ['he', 'en', 'fr', 'ru'];
 
-export default getRequestConfig(async ({ locale }) => {
-  const safeLocale = SUPPORTED_LOCALES.includes(locale as string) ? locale as string : 'he';
+// next-intl v4: requestLocale is a Promise, not a direct string
+export default getRequestConfig(async ({ requestLocale }) => {
+  const requested = await requestLocale;
+  const locale = SUPPORTED_LOCALES.includes(requested as string) ? (requested as string) : 'he';
+
   return {
-    locale: safeLocale,
-    messages: (await import(`./messages/${safeLocale}.json`)).default
+    locale,
+    messages: (await import(`./messages/${locale}.json`)).default,
   };
 });
