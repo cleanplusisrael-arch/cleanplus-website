@@ -9,7 +9,7 @@ import type { Employee, ContractType } from '@/lib/employee-types';
 import { Users, UserCheck, UserX, Plus, Phone, Pencil, X, Save, Trash2, ExternalLink } from 'lucide-react';
 
 const EMPTY: Omit<Employee, 'id' | 'createdAt' | 'employeeNumber'> = {
-  name: '', teudatZehut: '', phone: '', email: '', zone: '', hireDate: '',
+  name: '', teudatZehut: '', birthDate: '', phone: '', email: '', zone: '', hireDate: '',
   status: 'active', contractType: 'full_time',
   nekudotZikui: 2.25, grossSalary: 0, hourlyRate: 0, notes: '',
 };
@@ -37,6 +37,7 @@ function EmployeeModal({ initial, onSave, onClose }: {
             { label: 'תעודת זהות *', key: 'teudatZehut', type: 'text', dir: 'ltr', placeholder: '000000000', maxLength: 9 },
             { label: 'טלפון *', key: 'phone', type: 'tel', dir: 'ltr' },
             { label: 'אימייל', key: 'email', type: 'email', dir: 'ltr' },
+            { label: 'תאריך לידה', key: 'birthDate', type: 'date', dir: 'ltr' },
             { label: 'תאריך תחילת עבודה', key: 'hireDate', type: 'date', dir: 'ltr' },
           ].map(({ label, key, type, dir, placeholder, maxLength }) => (
             <div key={key}>

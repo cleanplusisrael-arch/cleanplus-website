@@ -178,7 +178,7 @@ function Tofes101Form({ emp }: { emp: Employee }) {
           </div>
           <div>
             <p className="text-xs text-gray-500 mb-0.5">תאריך לידה</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.birthDate || ''}</div>
           </div>
           <div>
             <p className="text-xs text-gray-500 mb-0.5">כתובת מגורים</p>

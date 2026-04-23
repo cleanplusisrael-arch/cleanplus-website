@@ -6,6 +6,7 @@ export interface Employee {
   employeeNumber: string;      // E-00001
   name: string;
   teudatZehut?: string;        // Israeli ID
+  birthDate?: string;          // YYYY-MM-DD
   phone: string;
   email?: string;
   zone?: string;
