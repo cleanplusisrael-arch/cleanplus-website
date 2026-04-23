@@ -377,24 +377,7 @@ function SignatureBadge({ sig }: { sig: SignatureRecord }) {
   const dt = new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(sig.signedAt));
   return (
     <div className="flex items-center gap-4 p-4 border-2 border-blue-400 rounded-xl bg-blue-50/60 mt-6" dir="rtl">
-      <div className="relative flex-shrink-0 w-24 h-24">
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <circle cx="50" cy="50" r="48" fill="none" stroke="#1d6fa8" strokeWidth="2.5" />
-          <circle cx="50" cy="50" r="43" fill="none" stroke="#1d6fa8" strokeWidth="1" strokeDasharray="3 2" />
-          <defs>
-            <path id="topArc" d="M 10,50 A 40,40 0 0,1 90,50" />
-            <path id="botArc" d="M 12,56 A 40,40 0 0,0 88,56" />
-          </defs>
-          <text fontSize="9.5" fill="#1d6fa8" fontWeight="600" fontFamily="Heebo, Arial, sans-serif">
-            <textPath href="#topArc" startOffset="50%" textAnchor="middle">מסמך חתום דיגיטלית</textPath>
-          </text>
-          <text fontSize="7" fill="#1d6fa8" fontFamily="Heebo, Arial, sans-serif">
-            <textPath href="#botArc" startOffset="50%" textAnchor="middle">קמינוס הפקות בע״מ ח.פ 516820826</textPath>
-          </text>
-          <text x="50" y="46" textAnchor="middle" fontSize="22" fill="#1d6fa8">🛡️</text>
-          <text x="50" y="62" textAnchor="middle" fontSize="7.5" fill="#1d6fa8" fontWeight="bold" fontFamily="monospace">{sig.verificationCode}</text>
-        </svg>
-      </div>
+      <img src="/digital-stamp.png" alt="Digital stamp" className="w-24 h-24 flex-shrink-0" />
       <div className="text-xs text-blue-800 space-y-0.5" dir="rtl">
         <p className="font-bold text-sm text-blue-900">מסמך חתום דיגיטלית ✓</p>
         <p>נחתם על ידי: <span className="font-semibold">{sig.signedBy}</span></p>
