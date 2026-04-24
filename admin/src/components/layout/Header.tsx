@@ -19,8 +19,8 @@ export function Header({ title }: HeaderProps) {
   }
 
   return (
-    <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between" dir="rtl">
-      <h1 className="text-lg font-bold text-navy font-hebrew">{title}</h1>
+    <header className="bg-white border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between" dir="rtl">
+      <h1 className="text-base sm:text-lg font-bold text-navy font-hebrew">{title}</h1>
 
       <div className="flex items-center gap-3">
         <button className="w-9 h-9 rounded-lg hover:bg-gray-50 flex items-center justify-center text-gray-500 transition-colors relative">
