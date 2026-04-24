@@ -5,7 +5,7 @@ const intlMiddleware = createMiddleware({
   locales: ['he', 'en', 'fr', 'ru'],
   defaultLocale: 'he',
   localePrefix: 'as-needed',
-  localeDetection: false,   // toujours hébreu par défaut, peu importe le navigateur
+  localeDetection: false,   // Default to Hebrew regardless of browser language
 });
 
 export default function middleware(request: NextRequest) {

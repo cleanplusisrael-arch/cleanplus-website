@@ -7,7 +7,8 @@ import Image from 'next/image';
 const LOCALES = [
   { code: 'he', label: 'עברית' },
   { code: 'en', label: 'English' },
-  // FR and RU coming soon - translations in progress
+  { code: 'fr', label: 'Français' },
+  { code: 'ru', label: 'Русский' },
 ];
 
 export default function Navbar() {
