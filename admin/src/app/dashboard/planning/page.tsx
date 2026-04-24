@@ -293,7 +293,7 @@ function ShiftCard({ shift, detailed = false, onEdit, onDelete, onStatusChange }
 }
 
 export default function PlanningPage() {
-  const { shifts, loading, createShift, updateShiftStatus, updateShift, deleteShift } = useShifts();
+  const { shifts, loading, createShift, updateShiftStatus, deleteShift } = useShifts();
   const { employees } = useEmployees();
   const { clients, createClient } = useClients();
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
@@ -311,6 +311,15 @@ export default function PlanningPage() {
   const monthGrid = getMonthGrid(monthYear.year, monthYear.month);
 
   const getShiftsForDate = (dateStr: string) => shifts.filter((s) => s.date === dateStr).sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+  // Temporary: delete and recreate for edit (full updateShift not yet available)
+  async function updateShift(id: string, data: Partial<Omit<Shift, 'id' | 'createdAt'>>) {
+    const shift = shifts.find(s => s.id === id);
+    if (shift) {
+      await deleteShift(id);
+      await createShift({ ...shift, ...data } as Omit<Shift, 'id' | 'createdAt'>);
+    }
+  }
 
   if (loading) return <Header title="תכנון משמרות" />;
 
