@@ -230,7 +230,7 @@ function ShiftModal({ employees, clients, mode, onSave, onUpdate, onCreateClient
           <button onClick={async () => {
             if (!form.employeeId || !form.clientName || !form.address) return;
             setSaving(true);
-            const fullData = { ...form, assignedByName: 'מנהל', employeePhone: selectedEmp?.phone };
+            const fullData = { ...form, employeePhone: selectedEmp?.phone };
             if (isEdit) {
               await onUpdate(mode.shift.id, fullData);
             } else {
@@ -266,7 +266,6 @@ function ShiftCard({ shift, detailed = false, onEdit, onDelete, onStatusChange }
               {shift.service && <p className="font-hebrew opacity-70">🧹 {shift.service}</p>}
               <p dir="ltr" className="opacity-70 font-mono text-[11px]">⏰ {shift.startTime} – {shift.endTime}</p>
               <p className="font-hebrew opacity-80 text-[11px]">👷 {shift.employeeName}</p>
-              {shift.assignedByName && <p className="font-hebrew opacity-60 text-[10px]">שובץ ע"י {shift.assignedByName}</p>}
               {shift.notes && <p className="font-hebrew opacity-60 text-[10px]">📝 {shift.notes}</p>}
             </div>
             <div className="flex flex-col gap-1 items-end">
