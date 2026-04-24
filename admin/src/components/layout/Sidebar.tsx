@@ -20,11 +20,11 @@ const NAV = [
   { href: '/dashboard/stats',       icon: BarChart3,       label: 'סטטיסטיקות' },
 ];
 
-export function Sidebar({ mobile = false, onLinkClick }: { mobile?: boolean; onLinkClick?: () => void }) {
+export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className={`${mobile ? 'w-full' : 'w-64'} bg-navy flex flex-col border-e border-navy/80 ${mobile ? 'min-h-auto' : 'min-h-screen'}`} dir="rtl">
+    <aside className="w-64 bg-navy min-h-screen flex flex-col border-e border-navy/80" dir="rtl">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -48,7 +48,6 @@ export function Sidebar({ mobile = false, onLinkClick }: { mobile?: boolean; onL
             <Link
               key={href}
               href={href}
-              onClick={onLinkClick}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
                 ${active
                   ? 'bg-gold/15 text-gold border border-gold/20'
