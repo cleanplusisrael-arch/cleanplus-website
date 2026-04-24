@@ -2,6 +2,27 @@
 import { useLocale } from 'next-intl';
 import { useState } from 'react';
 import Image from 'next/image';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Free Cleaning Quote - Clean+ Israel | Same-Day Response',
+  description: 'Get your professional cleaning quote in 60 seconds. Transparent pricing, no commitment, expert team. Free estimate for residential & commercial cleaning.',
+  keywords: ['cleaning services', 'free quote', 'professional cleaning', 'Israel', 'Tel Aviv', 'Herzliya'],
+  openGraph: {
+    title: 'Free Cleaning Quote - Clean+',
+    description: 'Professional cleaning services. Get a free quote within 1 hour.',
+    images: [{ url: 'https://cleanplus.co.il/og-quote.png', width: 1200, height: 630, alt: 'Clean+ Free Cleaning Quote' }],
+    url: 'https://cleanplus.co.il/new-client',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://cleanplus.co.il/new-client',
+    languages: {
+      'he': 'https://cleanplus.co.il/he/new-client',
+      'en': 'https://cleanplus.co.il/en/new-client',
+    }
+  }
+};
 
 export default function NewClientPage() {
   const locale = useLocale();
@@ -49,8 +70,9 @@ export default function NewClientPage() {
 
       {/* HERO */}
       <div style={{ background: 'linear-gradient(135deg, #060f1e 0%, #0a1628 60%, #0d2444 100%)', padding: '60px 24px', position: 'relative', overflow: 'hidden' }}>
+        <style>{`@media (max-width: 768px) { .hero-grid { grid-template-columns: 1fr !important; } }`}</style>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '48px', alignItems: 'center' }}>
+          <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '48px', alignItems: 'center' }}>
 
             {/* Content */}
             <div>
@@ -119,6 +141,11 @@ export default function NewClientPage() {
               </div>
 
               <div style={{ padding: '24px 28px' }}>
+                {error && (
+                  <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#dc2626', fontSize: '13px' }}>
+                    ⚠️ {error}
+                  </div>
+                )}
                 {submitted ? (
                   <div style={{ textAlign: 'center', padding: '32px 0' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>

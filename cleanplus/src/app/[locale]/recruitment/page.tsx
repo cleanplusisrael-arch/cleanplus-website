@@ -2,14 +2,37 @@
 import { useLocale } from 'next-intl';
 import { useState } from 'react';
 import Image from 'next/image';
+import { Metadata } from 'next';
 
-export default function RejoindreEquipe() {
+export const metadata: Metadata = {
+  title: 'Join Our Team - Clean+ Cleaning Services | Careers',
+  description: 'Join Clean+ team as a cleaning professional. Flexible hours, competitive pay, training provided. Apply now for immediate opportunities in Israel.',
+  keywords: ['cleaning jobs', 'recruitment', 'employment', 'careers', 'Israel'],
+  openGraph: {
+    title: 'Join Clean+ Team - Cleaning Jobs Available',
+    description: 'Flexible work, competitive pay. Apply for cleaning professional positions.',
+    images: [{ url: 'https://cleanplus.co.il/og-recruitment.png', width: 1200, height: 630, alt: 'Clean+ Recruitment' }],
+    url: 'https://cleanplus.co.il/recruitment',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://cleanplus.co.il/recruitment',
+    languages: {
+      'he': 'https://cleanplus.co.il/he/recruitment',
+      'en': 'https://cleanplus.co.il/en/recruitment',
+    }
+  }
+};
+
+export default function RecruitmentPage() {
   const locale = useLocale();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
     const form = e.currentTarget;
     const data = {
@@ -17,12 +40,15 @@ export default function RejoindreEquipe() {
       phone: (form.elements.namedItem('phone') as HTMLInputElement).value,
       availability: (form.elements.namedItem('availability') as HTMLSelectElement).value,
       area: (form.elements.namedItem('area') as HTMLSelectElement).value,
-      locale, type: 'recruitment', source: 'landing-recrutement',
+      locale, type: 'recruitment', source: 'landing-recruitment',
     };
     try {
-      await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!res.ok) throw new Error('Failed to submit');
       setSubmitted(true);
-    } catch { /* silent */ } finally { setLoading(false); }
+    } catch (err) {
+      setError(locale === 'he' ? 'שגיאה בשליחת הטופס. אנא נסה שוב.' : 'Error sending form. Please try again.');
+    } finally { setLoading(false); }
   };
 
   return (
@@ -42,8 +68,9 @@ export default function RejoindreEquipe() {
 
       {/* HERO */}
       <div style={{ background: 'linear-gradient(135deg, #060f1e 0%, #0a1628 60%, #0d2444 100%)', padding: '60px 24px' }}>
+        <style>{`@media (max-width: 768px) { .recruitment-grid { grid-template-columns: 1fr !important; } }`}</style>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '48px', alignItems: 'center' }}>
+          <div className="recruitment-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '48px', alignItems: 'center' }}>
 
             {/* Content */}
             <div>
@@ -92,6 +119,11 @@ export default function RejoindreEquipe() {
               </div>
 
               <div style={{ padding: '24px 28px' }}>
+                {error && (
+                  <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#dc2626', fontSize: '13px' }}>
+                    ⚠️ {error}
+                  </div>
+                )}
                 {submitted ? (
                   <div style={{ textAlign: 'center', padding: '32px 0' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>

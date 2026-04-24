@@ -5,10 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const LOCALES = [
-  { code: 'he', label: 'עב' },
-  { code: 'en', label: 'EN' },
-  { code: 'fr', label: 'FR' },
-  { code: 'ru', label: 'RU' },
+  { code: 'he', label: 'עברית' },
+  { code: 'en', label: 'English' },
+  // FR and RU coming soon - translations in progress
 ];
 
 export default function Navbar() {
