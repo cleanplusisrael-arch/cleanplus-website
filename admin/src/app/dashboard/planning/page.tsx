@@ -1,12 +1,14 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useShifts } from '@/hooks/useShifts';
 import { useEmployees } from '@/hooks/useEmployees';
+import { useClients } from '@/hooks/useClients';
 import { Header } from '@/components/layout/Header';
 import { SHIFT_STATUS_LABELS, SHIFT_STATUS_COLORS, DAYS_HE } from '@/lib/shift-types';
 import type { Shift, ShiftStatus } from '@/lib/shift-types';
 import type { Employee } from '@/lib/employee-types';
-import { X, Save, ChevronRight, ChevronLeft, Pencil, Trash2, Calendar, CalendarDays, Clock } from 'lucide-react';
+import type { Client, ClientType } from '@/lib/client-types';
+import { X, Save, ChevronRight, ChevronLeft, Pencil, Trash2, Calendar, CalendarDays, Clock, Search, UserPlus } from 'lucide-react';
 
 const DAYS_HE_FULL = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 
@@ -43,22 +45,65 @@ function sendWhatsApp(employee: Employee, shift: Omit<Shift, 'id' | 'createdAt'>
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-function ShiftModal({ employees, mode, onSave, onUpdate, onClose }: {
+function ShiftModal({ employees, clients, mode, onSave, onUpdate, onCreateClient, onClose }: {
   employees: Employee[];
+  clients: Client[];
   mode: ModalMode;
   onSave: (data: Omit<Shift, 'id' | 'createdAt'>) => Promise<void>;
   onUpdate: (id: string, data: Partial<Omit<Shift, 'id' | 'createdAt'>>) => Promise<void>;
+  onCreateClient: (data: Omit<Client, 'id' | 'createdAt' | 'clientNumber'>) => Promise<void>;
   onClose: () => void;
 }) {
-  const initial = mode.type === 'edit'
-    ? { employeeId: mode.shift.employeeId, employeeName: mode.shift.employeeName, clientName: mode.shift.clientName, address: mode.shift.address, date: mode.shift.date, startTime: mode.shift.startTime, endTime: mode.shift.endTime, service: mode.shift.service ?? '', notes: mode.shift.notes ?? '', status: mode.shift.status }
-    : { employeeId: '', employeeName: '', clientName: '', address: '', date: mode.date, startTime: '08:00', endTime: '16:00', service: '', notes: '', status: 'planned' as ShiftStatus };
+  const isEdit = mode.type === 'edit';
+  const initial = isEdit
+    ? { employeeId: mode.shift.employeeId, employeeName: mode.shift.employeeName, clientId: '', clientName: mode.shift.clientName, address: mode.shift.address, date: mode.shift.date, startTime: mode.shift.startTime, endTime: mode.shift.endTime, service: mode.shift.service ?? '', notes: mode.shift.notes ?? '', status: mode.shift.status }
+    : { employeeId: '', employeeName: '', clientId: '', clientName: '', address: '', date: mode.date, startTime: '08:00', endTime: '16:00', service: '', notes: '', status: 'planned' as ShiftStatus };
 
   const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
+  const [clientSearch, setClientSearch] = useState(isEdit ? mode.shift.clientName : '');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showNewClient, setShowNewClient] = useState(false);
+  const [newClient, setNewClient] = useState({ name: '', phone: '', address: '', city: '', clientType: 'private' as ClientType, status: 'active' as const });
+  const [savingClient, setSavingClient] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
-  const isEdit = mode.type === 'edit';
+  const setNC = (k: string, v: string) => setNewClient((f) => ({ ...f, [k]: v }));
   const selectedEmp = employees.find(e => e.id === form.employeeId);
+
+  const filteredClients = clients.filter(c =>
+    c.name.includes(clientSearch) || c.phone.includes(clientSearch) || (c.city ?? '').includes(clientSearch)
+  );
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setShowDropdown(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  function selectClient(c: Client) {
+    set('clientId', c.id);
+    set('clientName', c.name);
+    set('address', [c.address, c.city].filter(Boolean).join(', '));
+    setClientSearch(c.name);
+    setShowDropdown(false);
+  }
+
+  async function handleCreateClient() {
+    if (!newClient.name || !newClient.phone) return;
+    setSavingClient(true);
+    await onCreateClient(newClient);
+    const justCreated = { id: '__new__', name: newClient.name, phone: newClient.phone, address: newClient.address, city: newClient.city, clientType: newClient.clientType, status: 'active' as const, clientNumber: '', createdAt: '' };
+    set('clientName', newClient.name);
+    set('address', [newClient.address, newClient.city].filter(Boolean).join(', '));
+    setClientSearch(newClient.name);
+    setSavingClient(false);
+    setShowNewClient(false);
+    setNewClient({ name: '', phone: '', address: '', city: '', clientType: 'private', status: 'active' });
+  }
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" dir="rtl">
@@ -67,7 +112,9 @@ function ShiftModal({ employees, mode, onSave, onUpdate, onClose }: {
           <h2 className="font-bold text-navy font-hebrew">{isEdit ? 'עריכת משמרת' : 'משמרת חדשה'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
         </div>
-        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+
+          {/* Employee */}
           <div>
             <label className="block text-xs text-gray-500 font-hebrew mb-1">עובד *</label>
             <select value={form.employeeId} onChange={(e) => { const emp = employees.find((x) => x.id === e.target.value); set('employeeId', e.target.value); if (emp) set('employeeName', emp.name); }}
@@ -76,18 +123,97 @@ function ShiftModal({ employees, mode, onSave, onUpdate, onClose }: {
               {employees.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
-          {[{ l: 'שם לקוח *', k: 'clientName' }, { l: 'כתובת *', k: 'address' }, { l: 'שירות', k: 'service' }, { l: 'הערות', k: 'notes' }].map(({ l, k }) => (
-            <div key={k}><label className="block text-xs text-gray-500 font-hebrew mb-1">{l}</label>
+
+          {/* Client search */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs text-gray-500 font-hebrew">לקוח *</label>
+              <button onClick={() => setShowNewClient((v) => !v)} className="flex items-center gap-1 text-xs text-gold hover:text-gold/80 font-hebrew">
+                <UserPlus size={12} />{showNewClient ? 'ביטול' : 'לקוח חדש'}
+              </button>
+            </div>
+
+            {/* New client inline form */}
+            {showNewClient && (
+              <div className="mb-3 p-3 bg-gold/5 border border-gold/20 rounded-xl space-y-2">
+                <p className="text-xs font-semibold text-navy font-hebrew">הוספת לקוח חדש</p>
+                {[{ l: 'שם *', k: 'name' }, { l: 'טלפון *', k: 'phone' }, { l: 'כתובת', k: 'address' }, { l: 'עיר', k: 'city' }].map(({ l, k }) => (
+                  <div key={k}>
+                    <label className="block text-[10px] text-gray-500 font-hebrew mb-0.5">{l}</label>
+                    <input value={(newClient as Record<string, string>)[k]} onChange={(e) => setNC(k, e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                  </div>
+                ))}
+                <div>
+                  <label className="block text-[10px] text-gray-500 font-hebrew mb-0.5">סוג</label>
+                  <select value={newClient.clientType} onChange={(e) => setNC('clientType', e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-hebrew bg-white focus:outline-none focus:ring-2 focus:ring-gold/30">
+                    <option value="private">פרטי</option>
+                    <option value="business">עסקי</option>
+                  </select>
+                </div>
+                <button onClick={handleCreateClient} disabled={savingClient || !newClient.name || !newClient.phone}
+                  className="w-full flex items-center justify-center gap-1.5 bg-navy text-white px-3 py-1.5 rounded-lg text-xs font-hebrew hover:bg-navy/90 disabled:opacity-50">
+                  <Save size={12} />{savingClient ? 'שומר...' : 'צור לקוח ובחר'}
+                </button>
+              </div>
+            )}
+
+            {/* Client search input + dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <div className="relative">
+                <Search size={14} className="absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  value={clientSearch}
+                  onChange={(e) => { setClientSearch(e.target.value); setShowDropdown(true); set('clientName', e.target.value); set('clientId', ''); }}
+                  onFocus={() => setShowDropdown(true)}
+                  placeholder="חפש לקוח או הקלד שם..."
+                  className="w-full border border-gray-200 rounded-lg pe-8 px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30"
+                />
+              </div>
+              {showDropdown && filteredClients.length > 0 && (
+                <div className="absolute top-full start-0 end-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto mt-1">
+                  {filteredClients.slice(0, 8).map((c) => (
+                    <button key={c.id} onClick={() => selectClient(c)}
+                      className="w-full text-start px-3 py-2 text-xs hover:bg-gray-50 border-b border-gray-50 last:border-0 font-hebrew">
+                      <span className="font-medium">{c.name}</span>
+                      {c.city && <span className="text-gray-400 ms-1">— {c.city}</span>}
+                      <span className="text-gray-400 ms-1" dir="ltr">{c.phone}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className="block text-xs text-gray-500 font-hebrew mb-1">כתובת *</label>
+            <input value={form.address} onChange={(e) => set('address', e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+          </div>
+
+          {/* Service + notes */}
+          {[{ l: 'שירות', k: 'service' }, { l: 'הערות', k: 'notes' }].map(({ l, k }) => (
+            <div key={k}>
+              <label className="block text-xs text-gray-500 font-hebrew mb-1">{l}</label>
               <input value={(form as Record<string, string>)[k]} onChange={(e) => set(k, e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" /></div>
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+            </div>
           ))}
+
+          {/* Date + times */}
           <div className="grid grid-cols-3 gap-3">
             {[{ l: 'תאריך', k: 'date', t: 'date' }, { l: 'שעת התחלה', k: 'startTime', t: 'time' }, { l: 'שעת סיום', k: 'endTime', t: 'time' }].map(({ l, k, t }) => (
-              <div key={k}><label className="block text-xs text-gray-500 font-hebrew mb-1">{l}</label>
+              <div key={k}>
+                <label className="block text-xs text-gray-500 font-hebrew mb-1">{l}</label>
                 <input type={t} value={(form as Record<string, string>)[k]} onChange={(e) => set(k, e.target.value)}
-                  dir="ltr" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" /></div>
+                  dir="ltr" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+              </div>
             ))}
           </div>
+
+          {/* Status (edit only) */}
           {isEdit && (
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">סטטוס</label>
@@ -98,6 +224,7 @@ function ShiftModal({ employees, mode, onSave, onUpdate, onClose }: {
             </div>
           )}
         </div>
+
         <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
           <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg font-hebrew">ביטול</button>
           <button onClick={async () => {
@@ -169,6 +296,7 @@ function ShiftCard({ shift, detailed = false, onEdit, onDelete, onStatusChange }
 export default function PlanningPage() {
   const { shifts, loading, createShift, updateShiftStatus, updateShift, deleteShift } = useShifts();
   const { employees } = useEmployees();
+  const { clients, createClient } = useClients();
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
   const [dayOffset, setDayOffset] = useState(0);
   const [weekOffset, setWeekOffset] = useState(0);
@@ -190,7 +318,7 @@ export default function PlanningPage() {
   return (
     <>
       <Header title="תכנון משמרות" />
-      {modal && <ShiftModal employees={activeEmps} mode={modal} onSave={createShift} onUpdate={updateShift} onClose={() => setModal(null)} />}
+      {modal && <ShiftModal employees={activeEmps} clients={clients} mode={modal} onSave={createShift} onUpdate={updateShift} onCreateClient={createClient} onClose={() => setModal(null)} />}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" dir="rtl">
           <div className="bg-white rounded-2xl max-w-xs shadow-2xl p-6 space-y-4">
