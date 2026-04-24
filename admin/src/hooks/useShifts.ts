@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, orderBy, query, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, doc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Shift, ShiftStatus } from '@/lib/shift-types';
 
@@ -25,9 +25,13 @@ export function useShifts() {
     await updateDoc(doc(db, 'shifts', id), { status, updatedAt: new Date().toISOString() });
   }
 
-  async function deleteShift(id: string) {
-    await updateDoc(doc(db, 'shifts', id), { status: 'cancelled', updatedAt: new Date().toISOString() });
+  async function updateShift(id: string, data: Partial<Omit<Shift, 'id' | 'createdAt'>>) {
+    await updateDoc(doc(db, 'shifts', id), { ...data, updatedAt: new Date().toISOString() });
   }
 
-  return { shifts, loading, createShift, updateShiftStatus, deleteShift };
+  async function deleteShift(id: string) {
+    await deleteDoc(doc(db, 'shifts', id));
+  }
+
+  return { shifts, loading, createShift, updateShiftStatus, updateShift, deleteShift };
 }

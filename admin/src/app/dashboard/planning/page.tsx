@@ -5,12 +5,11 @@ import { useEmployees } from '@/hooks/useEmployees';
 import { Header } from '@/components/layout/Header';
 import { SHIFT_STATUS_LABELS, SHIFT_STATUS_COLORS, DAYS_HE } from '@/lib/shift-types';
 import type { Shift, ShiftStatus } from '@/lib/shift-types';
-import { Plus, X, Save, ChevronRight, ChevronLeft } from 'lucide-react';
-import { ZONES } from '@/lib/employee-types';
+import { Plus, X, Save, ChevronRight, ChevronLeft, Pencil, Trash2 } from 'lucide-react';
 
 function getWeekDates(offset: number): Date[] {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun
+  const day = now.getDay();
   const sunday = new Date(now);
   sunday.setDate(now.getDate() - day + offset * 7);
   return Array.from({ length: 6 }, (_, i) => { const d = new Date(sunday); d.setDate(sunday.getDate() + i); return d; });
@@ -19,21 +18,30 @@ function getWeekDates(offset: number): Date[] {
 function fmtDate(d: Date) { return d.toISOString().slice(0, 10); }
 function fmtDisplay(d: Date) { return new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit' }).format(d); }
 
-function ShiftModal({ employees, onSave, onClose, defaultDate }: {
+type ModalMode = { type: 'create'; date: string } | { type: 'edit'; shift: Shift };
+
+function ShiftModal({ employees, mode, onSave, onUpdate, onClose }: {
   employees: { id: string; name: string }[];
+  mode: ModalMode;
   onSave: (data: Omit<Shift, 'id' | 'createdAt'>) => Promise<void>;
+  onUpdate: (id: string, data: Partial<Omit<Shift, 'id' | 'createdAt'>>) => Promise<void>;
   onClose: () => void;
-  defaultDate: string;
 }) {
-  const [form, setForm] = useState({ employeeId: '', employeeName: '', clientName: '', address: '', date: defaultDate, startTime: '08:00', endTime: '16:00', service: '', notes: '', status: 'planned' as ShiftStatus });
+  const initial = mode.type === 'edit'
+    ? { employeeId: mode.shift.employeeId, employeeName: mode.shift.employeeName, clientName: mode.shift.clientName, address: mode.shift.address, date: mode.shift.date, startTime: mode.shift.startTime, endTime: mode.shift.endTime, service: mode.shift.service ?? '', notes: mode.shift.notes ?? '', status: mode.shift.status }
+    : { employeeId: '', employeeName: '', clientName: '', address: '', date: mode.date, startTime: '08:00', endTime: '16:00', service: '', notes: '', status: 'planned' as ShiftStatus };
+
+  const [form, setForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const isEdit = mode.type === 'edit';
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" dir="rtl">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="font-bold text-navy font-hebrew">משמרת חדשה</h2>
+          <h2 className="font-bold text-navy font-hebrew">{isEdit ? 'עריכת משמרת' : 'משמרת חדשה'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
         </div>
         <div className="p-6 space-y-4">
@@ -45,7 +53,7 @@ function ShiftModal({ employees, onSave, onClose, defaultDate }: {
               {employees.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
-          {[{ l: 'שם לקוח *', k: 'clientName' }, { l: 'כתובת *', k: 'address' }, { l: 'שירות', k: 'service' }].map(({ l, k }) => (
+          {[{ l: 'שם לקוח *', k: 'clientName' }, { l: 'כתובת *', k: 'address' }, { l: 'שירות', k: 'service' }, { l: 'הערות', k: 'notes' }].map(({ l, k }) => (
             <div key={k}><label className="block text-xs text-gray-500 font-hebrew mb-1">{l}</label>
               <input value={(form as Record<string, string>)[k]} onChange={(e) => set(k, e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" /></div>
@@ -57,12 +65,28 @@ function ShiftModal({ employees, onSave, onClose, defaultDate }: {
                   dir="ltr" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" /></div>
             ))}
           </div>
+          {isEdit && (
+            <div>
+              <label className="block text-xs text-gray-500 font-hebrew mb-1">סטטוס</label>
+              <select value={form.status} onChange={(e) => set('status', e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white">
+                {Object.entries(SHIFT_STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              </select>
+            </div>
+          )}
         </div>
         <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
           <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg font-hebrew">ביטול</button>
           <button onClick={async () => {
             if (!form.employeeId || !form.clientName || !form.address) return;
-            setSaving(true); await onSave(form); setSaving(false); onClose();
+            setSaving(true);
+            if (isEdit) {
+              await onUpdate(mode.shift.id, form);
+            } else {
+              await onSave(form);
+            }
+            setSaving(false);
+            onClose();
           }} disabled={saving} className="flex items-center gap-2 bg-navy text-white px-4 py-2 rounded-lg text-sm font-hebrew hover:bg-navy/90">
             <Save size={14} />{saving ? 'שומר...' : 'שמור'}
           </button>
@@ -73,10 +97,11 @@ function ShiftModal({ employees, onSave, onClose, defaultDate }: {
 }
 
 export default function PlanningPage() {
-  const { shifts, loading, createShift, updateShiftStatus, deleteShift } = useShifts();
+  const { shifts, loading, createShift, updateShiftStatus, updateShift, deleteShift } = useShifts();
   const { employees } = useEmployees();
   const [weekOffset, setWeekOffset] = useState(0);
-  const [modal, setModal]           = useState<string | null>(null); // date string
+  const [modal, setModal] = useState<ModalMode | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const weekDates = getWeekDates(weekOffset);
 
   const shiftsByDate = weekDates.reduce((acc, d) => {
@@ -89,7 +114,28 @@ export default function PlanningPage() {
   return (
     <>
       <Header title="תכנון משמרות" />
-      {modal && <ShiftModal employees={activeEmps} onSave={createShift} onClose={() => setModal(null)} defaultDate={modal} />}
+      {modal && (
+        <ShiftModal
+          employees={activeEmps}
+          mode={modal}
+          onSave={createShift}
+          onUpdate={updateShift}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" dir="rtl">
+          <div className="bg-white rounded-2xl w-full max-w-xs shadow-2xl p-6 space-y-4">
+            <p className="font-semibold text-navy font-hebrew text-center">למחוק את המשמרת?</p>
+            <p className="text-xs text-gray-500 font-hebrew text-center">הפעולה לא ניתנת לביטול</p>
+            <div className="flex gap-3 justify-center">
+              <button onClick={() => setConfirmDelete(null)} className="px-4 py-2 text-sm border border-gray-200 rounded-lg font-hebrew">ביטול</button>
+              <button onClick={async () => { await deleteShift(confirmDelete); setConfirmDelete(null); }}
+                className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg font-hebrew hover:bg-red-600">מחק</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="p-6 space-y-5" dir="rtl">
         {/* Week nav */}
         <div className="flex items-center gap-4 bg-white rounded-xl border border-gray-100 px-5 py-3 shadow-sm">
@@ -120,15 +166,23 @@ export default function PlanningPage() {
                       <p className="font-medium font-hebrew truncate">{shift.employeeName}</p>
                       <p className="font-hebrew truncate opacity-80">{shift.clientName}</p>
                       <p dir="ltr" className="opacity-70">{shift.startTime}–{shift.endTime}</p>
-                      <div className="flex gap-1 mt-1">
+                      <div className="flex items-center gap-1 mt-1.5">
                         {shift.status === 'planned' && (
-                          <button onClick={() => updateShiftStatus(shift.id, 'done')} className="text-[10px] text-green-600 hover:underline font-hebrew">סיים</button>
+                          <button onClick={() => updateShiftStatus(shift.id, 'done')}
+                            className="text-[10px] text-green-600 hover:underline font-hebrew">סיים</button>
                         )}
-                        <button onClick={() => deleteShift(shift.id)} className="text-[10px] text-red-400 hover:underline font-hebrew ms-auto">בטל</button>
+                        <button onClick={() => setModal({ type: 'edit', shift })}
+                          className="ms-auto text-gray-400 hover:text-navy transition-colors p-0.5 rounded">
+                          <Pencil size={10} />
+                        </button>
+                        <button onClick={() => setConfirmDelete(shift.id)}
+                          className="text-gray-400 hover:text-red-500 transition-colors p-0.5 rounded">
+                          <Trash2 size={10} />
+                        </button>
                       </div>
                     </div>
                   ))}
-                  <button onClick={() => setModal(k)}
+                  <button onClick={() => setModal({ type: 'create', date: k })}
                     className="w-full mt-1 text-xs text-gray-300 hover:text-gold hover:border-gold/30 border border-dashed border-gray-200 rounded-lg py-1.5 transition-colors font-hebrew">
                     + הוסף
                   </button>
