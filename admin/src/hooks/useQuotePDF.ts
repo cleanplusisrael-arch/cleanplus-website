@@ -45,13 +45,13 @@ export function useQuotePDF() {
     }
   }
 
-  async function downloadPDF(): Promise<Blob | null> {
+  async function downloadPDF(filename?: string): Promise<Blob | null> {
     const result = await generateAndDownload();
     if (!result) return null;
     const url = URL.createObjectURL(result.blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = result.filename;
+    a.download = filename ?? result.filename;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
     return result.blob;
