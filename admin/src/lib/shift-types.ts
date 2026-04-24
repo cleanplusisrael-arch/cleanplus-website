@@ -4,6 +4,7 @@ export interface Shift {
   id: string;
   employeeId: string;
   employeeName: string;
+  employeePhone?: string;
   clientName: string;
   address: string;
   date: string;       // YYYY-MM-DD
@@ -12,6 +13,7 @@ export interface Shift {
   service?: string;
   notes?: string;
   status: ShiftStatus;
+  assignedByName?: string;
   createdAt: string;
   updatedAt?: string;
 }
