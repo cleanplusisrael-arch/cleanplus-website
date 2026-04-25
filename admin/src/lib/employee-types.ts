@@ -40,6 +40,8 @@ export interface Employee {
   disabilityPercent?: number;   // 0-100
   isNewImmigrant?: boolean;
   immigrationDate?: string;     // YYYY-MM-DD
+  postalCode?: string;          // מיקוד
+  settlementZaka?: boolean;     // תושב ישוב מזכה (סעיף 11)
 
   createdAt: string;
   updatedAt?: string;

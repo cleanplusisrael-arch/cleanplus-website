@@ -332,203 +332,445 @@ function CheckBox({ checked, label }: { checked?: boolean; label: string }) {
 
 function Tofes101Form({ emp, signature }: { emp: Employee; signature?: SignatureRecord }) {
   const today = fmtDate(new Date());
+  const taxYear = new Date().getFullYear();
   const firstName = emp.name.split(' ').slice(0, -1).join(' ') || emp.name;
-  const lastName  = emp.name.split(' ').slice(-1)[0] || '';
-  const { total: nekTotal, breakdown } = calcNekudotZikui(emp);
-  const nekudot = emp.nekudotZikui ?? nekTotal;
-  const taxSaving = Math.round(nekudot * 242);
+  const lastName = emp.name.split(' ').slice(-1)[0] || '';
   const children = emp.children ?? [];
 
+  const isNewImmigrant = emp.isNewImmigrant ?? false;
+  const isDisabled100 = (emp.disabilityPercent ?? 0) >= 100;
+  const spouseNoIncome = emp.maritalStatus === 'married' && emp.spouseHasIncome === false;
+  const isSingleParentFamily = (emp.maritalStatus === 'divorced' || emp.maritalStatus === 'widowed') && children.length > 0;
+  const noOtherIncome = emp.isOnlyEmployer === true;
+  const hasOtherIncome = emp.isOnlyEmployer === false;
+
+  const childAgeGroups = { newborn: 0, age1_2: 0, age3: 0, age4_5: 0, age6_17: 0, age18: 0 };
+  for (const child of children) {
+    if (!child.birthDate) continue;
+    const ageThisYear = taxYear - new Date(child.birthDate).getFullYear();
+    if (ageThisYear === 0) childAgeGroups.newborn++;
+    else if (ageThisYear <= 2) childAgeGroups.age1_2++;
+    else if (ageThisYear === 3) childAgeGroups.age3++;
+    else if (ageThisYear <= 5) childAgeGroups.age4_5++;
+    else if (ageThisYear <= 17) childAgeGroups.age6_17++;
+    else if (ageThisYear === 18) childAgeGroups.age18++;
+  }
+
+  const CB = ({ checked }: { checked?: boolean }) => (
+    <span className={`inline-flex items-center justify-center w-3.5 h-3.5 border border-gray-700 text-[9px] flex-shrink-0 ${checked ? 'bg-gray-900 text-white' : 'bg-white'}`}>
+      {checked ? '✓' : ''}
+    </span>
+  );
+
+  const BlankLine = ({ w }: { w?: string }) => (
+    <span className={`inline-block border-b border-gray-600 ${w || 'w-24'}`}>&nbsp;</span>
+  );
+
   return (
-    <div id="doc-print" className="bg-white p-8 max-w-2xl mx-auto" dir="rtl"
-      style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: 1.6 }}>
+    <div id="doc-print" className="bg-white max-w-3xl mx-auto" dir="rtl"
+      style={{ fontFamily: 'Arial, sans-serif', fontSize: '11px', lineHeight: 1.5 }}>
 
-      {/* Header */}
-      <div className="text-center mb-5 pb-4 border-b-2 border-navy">
-        <p className="text-xs text-gray-500">רשות המסים בישראל</p>
-        <div className="flex items-center justify-center gap-3 my-1">
-          <span className="text-3xl font-black text-navy">101</span>
-          <div className="text-right">
-            <p className="text-sm font-bold text-navy">כרטיס עובד</p>
-            <p className="text-xs text-gray-600">בקשה לפטור / שינוי ניכוי מס במקור</p>
+      {/* ===== PAGE 1 ===== */}
+      <div className="p-6">
+
+        {/* Header */}
+        <div className="flex justify-between items-start mb-3 pb-2 border-b-2 border-gray-800">
+          <div>
+            <div className="text-[10px] text-gray-500">0101/130</div>
+            <div className="text-[10px] text-gray-500">דף 1 מתוך 2</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl font-black text-gray-900">כרטיס עובד</div>
+            <div className="text-[11px] font-bold">ובקשה להקלה ולתיאום מס על ידי המעסיק</div>
+            <div className="text-[10px] text-gray-600">לפי תקנות מס הכנסה (ניכוי ממשכורת ומשכר עבודה), התשנ"ג 1993</div>
+          </div>
+          <div className="text-end">
+            <div className="text-[10px] text-gray-500">שנת המס</div>
+            <div className="text-lg font-black">{taxYear}</div>
           </div>
         </div>
-        <p className="text-[10px] text-gray-400">יש למלא בתחילת עבודה ובכל שינוי במצב המשפחתי / הכנסות | תקנות מס הכנסה (ניכוי ממשכורת), תשנ״ג-1993</p>
-      </div>
 
-      {/* A — Employee Details */}
-      <div className="mb-4">
-        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">א. פרטי העובד</div>
-        <div className="border border-navy/30 border-t-0 rounded-b p-3 space-y-2">
-          <div className="grid grid-cols-3 gap-3">
-            <Field label="שם משפחה" value={lastName} />
-            <Field label="שם פרטי" value={firstName} />
-            <Field label="מספר ת.ז." value={emp.teudatZehut} dir="ltr" />
+        <div className="text-[10px] text-gray-600 mb-3">
+          טופס זה ימולא על-ידי כל עובד עם תחילת עבודתו, וכן בתחילת כל שנת מס (אא"כ המנהל אישר אחרת).
+          הטופס מהווה אסמכתא למעסיק למתן הקלות במס ולעריכת תיאומי מס בחישוב משכורת העובד.
+          אם חל שינוי בפרטים — יש להצהיר על כך תוך שבוע ימים.
+        </div>
+
+        {/* Section א - Employer */}
+        <div className="border border-gray-700 mb-2">
+          <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+            <span className="font-bold text-[11px]">א. פרטי המעסיק</span>
+            <span className="text-[10px] text-gray-500 me-1"> (למילוי ע"י המעסיק)</span>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <Field label="תאריך לידה" value={emp.birthDate} dir="ltr" />
+          <div className="p-2 grid grid-cols-[2fr_1.5fr_1fr_1fr] gap-x-3 gap-y-1">
             <div>
-              <p className="text-[10px] text-gray-500 mb-0.5">מגדר</p>
-              <div className="pt-1">
-                <CheckBox checked={emp.gender === 'male'}   label="זכר" />
-                <CheckBox checked={emp.gender === 'female'} label="נקבה" />
-              </div>
+              <div className="text-[10px] text-gray-500 mb-0.5">שם</div>
+              <div className="border-b border-gray-600 text-[11px] pb-px">קמינוס הפקות בע״מ</div>
             </div>
-            <Field label="טלפון" value={emp.phone} dir="ltr" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="כתובת מגורים" value={emp.address} />
-            <Field label="עיר / ישוב" value={emp.city} />
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-500 mb-0.5">מצב משפחתי</p>
-            <div className="pt-1">
-              <CheckBox checked={emp.maritalStatus === 'single'}   label="רווק/ה" />
-              <CheckBox checked={emp.maritalStatus === 'married'}  label="נשוי/אה" />
-              <CheckBox checked={emp.maritalStatus === 'divorced'} label="גרוש/ה" />
-              <CheckBox checked={emp.maritalStatus === 'widowed'}  label="אלמן/ה" />
+            <div>
+              <div className="text-[10px] text-gray-500 mb-0.5">כתובת</div>
+              <div className="border-b border-gray-600 text-[11px] pb-px">שד׳ דוד המלך 509, אור עקיבא</div>
+            </div>
+            <div>
+              <div className="text-[10px] text-gray-500 mb-0.5">מספר טלפון</div>
+              <div className="border-b border-gray-600 text-[11px] pb-px">&nbsp;</div>
+            </div>
+            <div>
+              <div className="text-[10px] text-gray-500 mb-0.5">מספר תיק ניכויים</div>
+              <div className="border-b border-gray-600 text-[11px] pb-px text-gray-600" dir="ltr">516820826</div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* B — Employment */}
-      <div className="mb-4">
-        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ב. פרטי ההעסקה</div>
-        <div className="border border-navy/30 border-t-0 rounded-b p-3 space-y-2">
-          <div className="grid grid-cols-3 gap-3">
-            <Field label="שם המעסיק" value="קמינוס הפקות בע״מ" />
-            <Field label="ח.פ / ע.מ מעסיק" value="516820826" dir="ltr" />
-            <Field label="תאריך תחילת עבודה" value={emp.hireDate} dir="ltr" />
+        {/* Section ב - Employee */}
+        <div className="border border-gray-700 mb-2">
+          <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+            <span className="font-bold text-[11px]">ב. פרטי העובד/ת</span>
+            <span className="text-[10px] text-gray-500 me-1"> (יש לצרף צילום תעודת זהות כולל ספח)</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="כתובת המעסיק" value="שד׳ דוד המלך 509, אור עקיבא" />
-            <Field label="סוג משרה" value={emp.contractType ? CONTRACT_LABELS[emp.contractType] : undefined} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="שכר ברוטו חודשי" value={emp.grossSalary ? `₪${emp.grossSalary.toLocaleString()}` : undefined} dir="ltr" />
-            <Field label="שכר שעתי" value={emp.hourlyRate ? `₪${emp.hourlyRate}` : undefined} dir="ltr" />
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-500 mb-0.5">האם מעסיק יחיד?</p>
-            <CheckBox checked={emp.isOnlyEmployer === true}  label="כן — מעסיק יחיד" />
-            <CheckBox checked={emp.isOnlyEmployer === false} label="לא — יש מעסיק נוסף" />
+          <div className="p-2 space-y-1.5 text-[11px]">
+            <div className="grid grid-cols-[1.5fr_1.5fr_1.5fr_1fr] gap-x-3">
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">מספר זהות (9 ספרות)</div>
+                <div className="border-b border-gray-600 pb-px" dir="ltr">{emp.teudatZehut || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">שם משפחה</div>
+                <div className="border-b border-gray-600 pb-px">{lastName}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">שם פרטי</div>
+                <div className="border-b border-gray-600 pb-px">{firstName}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">תאריך לידה</div>
+                <div className="border-b border-gray-600 pb-px" dir="ltr">{emp.birthDate || ''}</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr] gap-x-3">
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">כתובת — רחוב/שכונה ומספר</div>
+                <div className="border-b border-gray-600 pb-px">{emp.address || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">עיר/ישוב</div>
+                <div className="border-b border-gray-600 pb-px">{emp.city || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">מיקוד</div>
+                <div className="border-b border-gray-600 pb-px" dir="ltr">{emp.postalCode || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">דרכון</div>
+                <div className="border-b border-gray-600 pb-px">&nbsp;</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-x-3 items-start">
+              <div>
+                <div className="text-[10px] text-gray-500 mb-1">מין</div>
+                <div className="flex gap-2 text-[11px]">
+                  <span className="flex items-center gap-0.5"><CB checked={emp.gender === 'male'} /><span>זכר</span></span>
+                  <span className="flex items-center gap-0.5"><CB checked={emp.gender === 'female'} /><span>נקבה</span></span>
+                </div>
+              </div>
+              <div className="col-span-2">
+                <div className="text-[10px] text-gray-500 mb-1">מצב משפחתי</div>
+                <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[11px]">
+                  {[
+                    { val: 'single', label: 'רווק/ה' },
+                    { val: 'married', label: 'נשוי/אה' },
+                    { val: 'divorced', label: 'גרוש/ה' },
+                    { val: 'widowed', label: 'אלמן/ה' },
+                  ].map(({ val, label }) => (
+                    <span key={val} className="flex items-center gap-0.5">
+                      <CB checked={emp.maritalStatus === val} /><span>{label}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-1">תושב ישראל</div>
+                <div className="flex gap-1 text-[11px]">
+                  <span className="flex items-center gap-0.5"><CB checked={true} /><span>כן</span></span>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-x-3">
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">מספר טלפון</div>
+                <div className="border-b border-gray-600 pb-px" dir="ltr">{emp.phone || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">מספר טלפון נייד</div>
+                <div className="border-b border-gray-600 pb-px" dir="ltr">{emp.phone || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">כתובת דואר אלקטרוני</div>
+                <div className="border-b border-gray-600 pb-px" dir="ltr">{emp.email || ''}</div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* C — Tax Credits */}
-      <div className="mb-4">
-        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ג. נקודות זיכוי — פירוט (ערך נקודה: ₪242/חודש)</div>
-        <div className="border border-navy/30 border-t-0 rounded-b p-3 space-y-2">
-          <div className="grid grid-cols-2 gap-2 text-[11px]">
-            {breakdown.map((b, i) => (
-              <div key={i} className="flex justify-between border-b border-dashed border-gray-200 pb-0.5">
-                <span className="text-gray-700">{b.label}</span>
-                <span className="font-mono font-semibold text-navy">{b.points}</span>
-              </div>
-            ))}
-          </div>
-          <div className="flex items-center justify-between bg-navy/5 rounded px-3 py-2 mt-2">
-            <span className="text-xs font-bold text-navy">סה״כ נקודות זיכוי מבוקשות</span>
-            <span className="text-lg font-black text-navy">{nekudot}</span>
-          </div>
-          <p className="text-[10px] text-gray-500 text-left" dir="ltr">
-            Monthly tax saving: ₪{taxSaving.toLocaleString()} | Annual: ₪{(taxSaving * 12).toLocaleString()}
-          </p>
-
-          {/* Children table */}
-          {children.length > 0 && (
-            <div className="mt-2">
-              <p className="text-[10px] font-semibold text-gray-600 mb-1">פרטי ילדים:</p>
-              <table className="w-full text-[11px] border border-gray-200 rounded">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="text-right px-2 py-1 font-medium text-gray-600">שם</th>
-                    <th className="text-right px-2 py-1 font-medium text-gray-600">תאריך לידה</th>
-                    <th className="text-right px-2 py-1 font-medium text-gray-600">גיל</th>
-                    <th className="text-right px-2 py-1 font-medium text-gray-600">נקודות</th>
+        {/* Sections ג and ד side by side */}
+        <div className="grid grid-cols-[3fr_2fr] gap-0 border border-gray-700 mb-2">
+          {/* Section ג - Children */}
+          <div className="border-e border-gray-600">
+            <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+              <span className="font-bold text-[11px]">ג. פרטים על ילדיי</span>
+              <span className="text-[10px] text-gray-500"> שטרם מלאו להם 19 שנה</span>
+            </div>
+            <div className="p-1">
+              <table className="w-full text-[10px]">
+                <thead>
+                  <tr className="border-b border-gray-300">
+                    <th className="w-5 text-center pb-0.5">1</th>
+                    <th className="w-5 text-center pb-0.5">2</th>
+                    <th className="text-right pb-0.5 px-1">שם</th>
+                    <th className="text-right pb-0.5 px-1">ת.ז.</th>
+                    <th className="text-right pb-0.5 px-1">תאריך לידה</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {children.map((child, i) => {
-                    const bd = new Date(child.birthDate);
-                    const ageYears = (new Date().getTime() - bd.getTime()) / (365.25 * 24 * 3600 * 1000);
-                    const pts = ageYears < 18 ? (ageYears < 5 && emp.gender === 'female' ? 1.5 : 1.0) : 0;
-                    return (
-                      <tr key={i} className="border-t border-gray-100">
-                        <td className="px-2 py-1">{child.name || '—'}</td>
-                        <td className="px-2 py-1" dir="ltr">{child.birthDate}</td>
-                        <td className="px-2 py-1">{Math.floor(ageYears)}</td>
-                        <td className="px-2 py-1 font-semibold text-navy">{pts > 0 ? pts : '—'}</td>
+                  {children.length === 0 ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                      <tr key={i} className="border-b border-gray-100">
+                        <td className="py-1 text-center"><CB /></td>
+                        <td className="py-1 text-center"><CB /></td>
+                        <td className="py-1 px-1 border-b border-dashed border-gray-300">&nbsp;</td>
+                        <td className="py-1 px-1 border-b border-dashed border-gray-300">&nbsp;</td>
+                        <td className="py-1 px-1 border-b border-dashed border-gray-300">&nbsp;</td>
                       </tr>
-                    );
-                  })}
+                    ))
+                  ) : (
+                    children.map((child, i) => (
+                      <tr key={i} className="border-b border-gray-100">
+                        <td className="py-0.5 text-center"><CB checked={true} /></td>
+                        <td className="py-0.5 text-center"><CB /></td>
+                        <td className="py-0.5 px-1">{child.name}</td>
+                        <td className="py-0.5 px-1 text-gray-300">—</td>
+                        <td className="py-0.5 px-1" dir="ltr">{child.birthDate}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
-          )}
+          </div>
 
-          {/* Disability */}
-          {(emp.disabilityPercent ?? 0) > 0 && (
-            <Field label="אחוז נכות" value={`${emp.disabilityPercent}%`} />
-          )}
-
-          {/* New immigrant */}
-          {emp.isNewImmigrant && (
-            <div className="flex gap-4">
-              <Field label="עלייה חדשה" value="כן" />
-              {emp.immigrationDate && <Field label="תאריך עלייה" value={emp.immigrationDate} dir="ltr" />}
+          {/* Section ד - Income */}
+          <div>
+            <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+              <span className="font-bold text-[11px]">ד. הכנסות ממעסיק זה</span>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* D — Bank */}
-      <div className="mb-4">
-        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ד. פרטי חשבון בנק להעברת שכר</div>
-        <div className="border border-navy/30 border-t-0 rounded-b p-3">
-          <div className="grid grid-cols-3 gap-3">
-            <Field label="שם הבנק" value={emp.bankName} />
-            <Field label="מספר סניף" value={emp.bankBranch} dir="ltr" />
-            <Field label="מספר חשבון" value={emp.bankAccount} dir="ltr" />
+            <div className="p-2 space-y-1">
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">תאריך תחילת עבודה</div>
+                <div className="border-b border-gray-600 pb-px text-[11px]" dir="ltr">{emp.hireDate || ''}</div>
+              </div>
+              <div className="text-[10px] text-gray-500 mb-0.5">אני מקבל/ת:</div>
+              {[
+                { key: 'full_time', label: 'משכורת חודש' },
+                { key: 'part_time', label: 'משכורת חלקית' },
+                { key: 'hourly', label: 'שכר עבודה יומי' },
+              ].map(({ key, label }) => (
+                <div key={key} className="flex items-center gap-1 text-[11px]">
+                  <CB checked={
+                    (key === 'full_time' && emp.contractType === 'full_time') ||
+                    (key === 'part_time' && emp.contractType === 'part_time') ||
+                    (key === 'hourly' && emp.contractType === 'hourly')
+                  } />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* E — ID scan */}
-      {emp.idCardUrl && (
-        <div className="mb-4">
-          <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ה. צילום תעודת זהות</div>
-          <div className="border border-navy/30 border-t-0 rounded-b p-3 text-center">
-            <img src={emp.idCardUrl} alt="תעודת זהות" className="max-w-full max-h-48 mx-auto rounded object-contain" />
-            <p className="text-[10px] text-gray-400 mt-1">מצורף לצרכי זיהוי בלבד — לשימוש פנימי</p>
+        {/* Section ה - Other income */}
+        <div className="border border-gray-700 mb-2">
+          <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+            <span className="font-bold text-[11px]">ה. הכנסות אחרות</span>
+          </div>
+          <div className="p-2 space-y-1 text-[11px]">
+            <div className="flex items-start gap-1">
+              <CB checked={noOtherIncome || emp.isOnlyEmployer === undefined} />
+              <span>אין לי הכנסות אחרות ממשכורת, מקצבה וממלגה</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={hasOtherIncome} />
+              <span>יש לי הכנסות אחרות</span>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Declaration */}
-      <div className="mb-5 p-3 border border-gray-300 rounded text-[10px] text-gray-600 bg-gray-50">
-        <p className="font-semibold mb-1">הצהרה:</p>
-        <p>אני החתום/ה מטה מצהיר/ה כי הפרטים המפורטים בטופס זה נכונים ומלאים. ידוע לי שמסירת פרטים כוזבים מהווה עבירה לפי חוק.
-        אני מסכים/ה שהמעסיק ינכה ממשכורתי את המס בהתאם לפרטים שמסרתי.</p>
+        {/* Section ו - Spouse */}
+        {emp.maritalStatus === 'married' && (
+          <div className="border border-gray-700 mb-2">
+            <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+              <span className="font-bold text-[11px]">ו. פרטים על בן/בת הזוג</span>
+            </div>
+            <div className="p-2 space-y-1.5 text-[11px]">
+              <div className="grid grid-cols-[1.5fr_1.5fr_1.5fr_1fr] gap-x-3">
+                <div className="text-[10px] text-gray-500">מספר זהות</div>
+                <div className="text-[10px] text-gray-500">שם משפחה</div>
+                <div className="text-[10px] text-gray-500">שם פרטי</div>
+                <div className="text-[10px] text-gray-500">תאריך לידה</div>
+              </div>
+              <div className="flex gap-3 text-[10px]">
+                <span className="flex items-center gap-1"><CB checked={emp.spouseHasIncome === false} /><span>אין הכנסה</span></span>
+                <span className="flex items-center gap-1"><CB checked={emp.spouseHasIncome === true} /><span>יש הכנסה</span></span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section ז - Changes */}
+        <div className="border border-gray-700 mb-3">
+          <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+            <span className="font-bold text-[11px]">ז. שינויים במהלך השנה</span>
+          </div>
+          <table className="w-full text-[10px]">
+            <thead>
+              <tr className="border-b border-gray-300 bg-gray-50">
+                <th className="text-right px-2 py-0.5 w-20">תאריך השינוי</th>
+                <th className="text-right px-2 py-0.5 flex-1">פרטי השינוי</th>
+                <th className="text-right px-2 py-0.5 w-20">תאריך ההודעה</th>
+                <th className="text-right px-2 py-0.5 w-20">חתימה</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <tr key={i} className="border-b border-gray-100 h-7">
+                  <td className="px-2"></td>
+                  <td className="px-2"></td>
+                  <td className="px-2"></td>
+                  <td className="px-2"></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Signatures */}
-      <div className="grid grid-cols-2 gap-8 text-sm">
-        <div>
-          <p className="text-[10px] text-gray-500 mb-1">תאריך מילוי הטופס</p>
-          <div className="border-b border-gray-400 pb-1 font-medium">{today}</div>
-        </div>
-        <div>
-          <p className="text-[10px] text-gray-500 mb-1">חתימת העובד</p>
-          <div className="border-b border-gray-400 pb-1 min-h-[28px]">
-            {signature && <span className="text-navy font-bold text-xs">{emp.name} ✓</span>}
+      {/* ===== PAGE 2 ===== */}
+      <div className="p-6" style={{ pageBreakBefore: 'always' }}>
+
+        {/* Page 2 header */}
+        <div className="flex justify-between items-center mb-3 pb-1 border-b border-gray-700">
+          <div className="text-[10px] text-gray-500">דף 2 מתוך 2 | טופס 101</div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-gray-500">מספר זהות</span>
+            <div className="border-b border-gray-600 w-36 text-[11px] pb-px" dir="ltr">{emp.teudatZehut}</div>
           </div>
         </div>
-      </div>
 
-      {signature && <SignatureBadge sig={signature} />}
+        {/* Section ח - Tax credits */}
+        <div className="border border-gray-700 mb-2">
+          <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+            <span className="font-bold text-[11px]">ח. אני מבקש/ת פטור או זיכוי ממס</span>
+            <span className="text-[10px] text-gray-500 me-1"> (סמן/י √ בריבוע המתאים)</span>
+          </div>
+          <div className="p-2 space-y-1.5 text-[11px]">
+            <div className="flex items-start gap-1">
+              <CB checked={true} />
+              <span><strong>1</strong> אני תושב/ת ישראל.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={isDisabled100} />
+              <span><strong>2א</strong> אני נכה 100% / עיוור/ת לצמיתות.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={emp.settlementZaka === true} />
+              <span><strong>3</strong> אני תושב/ת קבוע/ה בישוב מזכה.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={isNewImmigrant} />
+              <span><strong>4</strong> אני עולה חדש/ה מתאריך <span className="font-medium">{isNewImmigrant && emp.immigrationDate ? emp.immigrationDate : '__________'}</span>.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={spouseNoIncome} />
+              <span><strong>5</strong> בגין בן/בת זוגי שאין לו/לה הכנסות בשנת המס.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={isSingleParentFamily} />
+              <span><strong>6</strong> אני הורה במשפחה חד הורית החי בנפרד.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={children.length > 0 && (emp.gender === 'female' || isSingleParentFamily)} />
+              <span><strong>7</strong> בגין ילדיי שבחזקתי — סה״כ <strong>{children.length}</strong> ילדים.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={false} />
+              <span><strong>9</strong> אני הורה יחיד לילדיי שבחזקתי.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={false} />
+              <span><strong>14</strong> אני חייל/ת משוחרר/ת / שירתתי בשירות לאומי.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={false} />
+              <span><strong>15</strong> בגין סיום לימודים לתואר אקדמי או התמחות.</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section ט - Tax coordination */}
+        <div className="border border-gray-700 mb-2">
+          <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+            <span className="font-bold text-[11px]">ט. תיאום מס</span>
+            <span className="text-[10px] text-gray-500 me-1"> (סמן/י √ בריבוע המתאים)</span>
+          </div>
+          <div className="p-2 space-y-1 text-[11px]">
+            <div className="flex items-start gap-1">
+              <CB checked={false} />
+              <span><strong>1</strong> לא היתה לי הכנסה מתחילת שנת המס עד לתחילת עבודתי אצל מעסיק זה.</span>
+            </div>
+            <div className="flex items-start gap-1">
+              <CB checked={hasOtherIncome} />
+              <span><strong>2</strong> יש לי הכנסות נוספות ממשכורת כמפורט להלן.</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section י - Declaration */}
+        <div className="border border-gray-700 mb-3">
+          <div className="bg-gray-100 border-b border-gray-600 px-2 py-0.5">
+            <span className="font-bold text-[11px]">י. הצהרה</span>
+          </div>
+          <div className="p-3">
+            <p className="text-[11px] text-gray-700 mb-4">
+              אני מצהיר/ה כי הפרטים שמסרתי בטופס זה הינם מלאים ונכונים. ידוע לי שהשמטה או מסירת פרטים לא נכונים הינה עבירה על פקודת מס הכנסה.
+              אני מתחייב/ת להודיע למעסיק על כל שינוי בפרטיי תוך שבוע ימים מתאריך השינוי.
+            </p>
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <div className="border-b border-gray-600 pb-1 min-h-[40px]">
+                  {signature && <span className="text-navy font-bold text-sm">{emp.name} ✓</span>}
+                </div>
+                <p className="text-[10px] text-gray-500 mt-1">חתימת העובד/ת</p>
+              </div>
+              <div>
+                <div className="border-b border-gray-600 pb-1 font-medium">{today}</div>
+                <p className="text-[10px] text-gray-500 mt-1">תאריך</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {signature && <SignatureBadge sig={signature} />}
+
+        {/* Footer explanations */}
+        <div className="mt-4 border-t border-gray-200 pt-3 text-[9px] text-gray-500">
+          <p className="font-bold text-[10px] mb-1">דברי הסבר למילוי טופס 101</p>
+          <p className="mb-0.5">(1) "עובד" יחיד המקבל משכורת. "משכורת" הכנסת עבודה, קיצבה, מלגה וכיו"ב.</p>
+          <p className="mb-0.5">(2) משכורת חודש — משכורת בעד עבודה של לא פחות מ-18 יום בחודש.</p>
+          <p className="mb-0.5">(11) הורה במשפחה חד הורית: רווק, גרוש, אלמן.</p>
+          <p className="mb-0.5">(12) הורה יחיד — הורה שהיה לו ילד שנפטר ההורה השני או שהילד רשום בלא פרטי ההורה השני.</p>
+          <p className="mb-0.5">(13) ישוב מזכה — ישוב שחל עליו סעיף 11 לפקודה או סעיף 11 לחוק אס"ח.</p>
+          <p className="text-[8px] text-gray-400 mt-2">ר"י, אגף בכיר טכנולוגיות דיגיטליות ומידע (מעודכן ל-11.2025)</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -990,32 +1232,39 @@ export default function DocumentsPage() {
               )}
             </div>
 
-            {/* Section D — Bank */}
+            {/* Additional personal info */}
             <div>
-              <p className="text-xs font-semibold text-navy font-hebrew mb-2 pb-1 border-b border-navy/10">ד. פרטי חשבון בנק</p>
+              <p className="text-xs font-semibold text-navy font-hebrew mb-2 pb-1 border-b border-navy/10">מידע נוסף</p>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-500 font-hebrew mb-1">שם הבנק</label>
-                  <input value={tofes101Edits.bankName ?? selectedEmp.bankName ?? ''}
-                    onChange={(e) => setT101({ bankName: e.target.value })}
-                    placeholder="שם הבנק..."
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מספר סניף</label>
-                  <input value={tofes101Edits.bankBranch ?? selectedEmp.bankBranch ?? ''}
-                    onChange={(e) => setT101({ bankBranch: e.target.value })}
-                    placeholder="מס׳ סניף..."
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מיקוד</label>
+                  <input value={tofes101Edits.postalCode ?? selectedEmp.postalCode ?? ''}
+                    onChange={(e) => setT101({ postalCode: e.target.value })}
+                    placeholder="מיקוד..."
                     dir="ltr"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מספר חשבון</label>
-                  <input value={tofes101Edits.bankAccount ?? selectedEmp.bankAccount ?? ''}
-                    onChange={(e) => setT101({ bankAccount: e.target.value })}
-                    placeholder="מס׳ חשבון..."
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">דואר אלקטרוני</label>
+                  <input value={tofes101Edits.email ?? selectedEmp.email ?? ''}
+                    onChange={(e) => setT101({ email: e.target.value })}
+                    placeholder="דואר אלקטרוני..."
                     dir="ltr"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">ישוב מזכה?</label>
+                  <div className="flex gap-3 pt-1.5">
+                    {[{val: true, label: 'כן'}, {val: false, label: 'לא'}].map(opt => (
+                      <label key={String(opt.val)} className="flex items-center gap-1.5 text-sm font-hebrew cursor-pointer">
+                        <input type="radio" name="t101Settlement"
+                          checked={(tofes101Edits.settlementZaka ?? selectedEmp.settlementZaka) === opt.val}
+                          onChange={() => setT101({ settlementZaka: opt.val })}
+                          className="accent-navy" />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
