@@ -4,7 +4,7 @@ import { useEmployees } from '@/hooks/useEmployees';
 import { useLeads } from '@/hooks/useLeads';
 import { useClients } from '@/hooks/useClients';
 import { Header } from '@/components/layout/Header';
-import { CONTRACT_LABELS } from '@/lib/employee-types';
+import { CONTRACT_LABELS, MARITAL_LABELS, GENDER_LABELS, calcNekudotZikui } from '@/lib/employee-types';
 import type { Employee } from '@/lib/employee-types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
 import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle, Loader2, ShieldCheck } from 'lucide-react';
@@ -308,144 +308,226 @@ function ClientQuote({ subject, lines, extraNotes, quoteNum, signature }: {
   );
 }
 
+function Field({ label, value, dir }: { label: string; value?: string | number; dir?: string }) {
+  return (
+    <div>
+      <p className="text-[10px] text-gray-500 mb-0.5">{label}</p>
+      <div className={`border-b border-gray-400 pb-0.5 min-h-[22px] text-sm text-gray-900 ${!value ? 'text-gray-300' : ''}`} dir={dir}>
+        {value ?? '________________'}
+      </div>
+    </div>
+  );
+}
+
+function CheckBox({ checked, label }: { checked?: boolean; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-gray-700 me-4">
+      <span className={`inline-block w-3.5 h-3.5 border border-gray-500 rounded-sm text-center leading-3 text-[10px] ${checked ? 'bg-navy text-white' : ''}`}>
+        {checked ? '✓' : ''}
+      </span>
+      {label}
+    </span>
+  );
+}
+
 function Tofes101Form({ emp, signature }: { emp: Employee; signature?: SignatureRecord }) {
   const today = fmtDate(new Date());
+  const firstName = emp.name.split(' ').slice(0, -1).join(' ') || emp.name;
+  const lastName  = emp.name.split(' ').slice(-1)[0] || '';
+  const { total: nekTotal, breakdown } = calcNekudotZikui(emp);
+  const nekudot = emp.nekudotZikui ?? nekTotal;
+  const taxSaving = Math.round(nekudot * 242);
+  const children = emp.children ?? [];
+
   return (
-    <div id="doc-print" className="bg-white p-10 max-w-2xl mx-auto font-hebrew" dir="rtl" style={{ fontFamily: 'Heebo, Arial, sans-serif', lineHeight: 1.8 }}>
-      <div className="text-center mb-6 border-b border-gray-200 pb-5">
-        <p className="text-xs text-gray-400 mb-1">מס הכנסה — טופס</p>
-        <h1 className="text-2xl font-bold text-gray-900">101</h1>
-        <p className="text-sm text-gray-600 font-semibold mt-1">כרטיס עובד ובקשה לפטור / שינוי מניכוי מס במקור</p>
-        <p className="text-xs text-gray-400 mt-1">יש למלא טופס זה בתחילת עבודה ובכל שינוי</p>
+    <div id="doc-print" className="bg-white p-8 max-w-2xl mx-auto" dir="rtl"
+      style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', lineHeight: 1.6 }}>
+
+      {/* Header */}
+      <div className="text-center mb-5 pb-4 border-b-2 border-navy">
+        <p className="text-xs text-gray-500">רשות המסים בישראל</p>
+        <div className="flex items-center justify-center gap-3 my-1">
+          <span className="text-3xl font-black text-navy">101</span>
+          <div className="text-right">
+            <p className="text-sm font-bold text-navy">כרטיס עובד</p>
+            <p className="text-xs text-gray-600">בקשה לפטור / שינוי ניכוי מס במקור</p>
+          </div>
+        </div>
+        <p className="text-[10px] text-gray-400">יש למלא בתחילת עבודה ובכל שינוי במצב המשפחתי / הכנסות | תקנות מס הכנסה (ניכוי ממשכורת), תשנ״ג-1993</p>
       </div>
 
-      {/* Section A - Employee details */}
-      <div className="mb-5">
-        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">א. פרטי העובד</h2>
-        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">שם משפחה</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.name.split(' ').slice(-1)[0] || ''}</div>
+      {/* A — Employee Details */}
+      <div className="mb-4">
+        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">א. פרטי העובד</div>
+        <div className="border border-navy/30 border-t-0 rounded-b p-3 space-y-2">
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="שם משפחה" value={lastName} />
+            <Field label="שם פרטי" value={firstName} />
+            <Field label="מספר ת.ז." value={emp.teudatZehut} dir="ltr" />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="תאריך לידה" value={emp.birthDate} dir="ltr" />
+            <div>
+              <p className="text-[10px] text-gray-500 mb-0.5">מגדר</p>
+              <div className="pt-1">
+                <CheckBox checked={emp.gender === 'male'}   label="זכר" />
+                <CheckBox checked={emp.gender === 'female'} label="נקבה" />
+              </div>
+            </div>
+            <Field label="טלפון" value={emp.phone} dir="ltr" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="כתובת מגורים" value={emp.address} />
+            <Field label="עיר / ישוב" value={emp.city} />
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-0.5">שם פרטי</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.name.split(' ').slice(0, -1).join(' ') || emp.name}</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">מספר תעודת זהות</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] font-mono text-gray-800" dir="ltr">{emp.teudatZehut || '_______________'}</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">תאריך לידה</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.birthDate || ''}</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">כתובת מגורים</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">טלפון</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.phone || ''}</div>
+            <p className="text-[10px] text-gray-500 mb-0.5">מצב משפחתי</p>
+            <div className="pt-1">
+              <CheckBox checked={emp.maritalStatus === 'single'}   label="רווק/ה" />
+              <CheckBox checked={emp.maritalStatus === 'married'}  label="נשוי/אה" />
+              <CheckBox checked={emp.maritalStatus === 'divorced'} label="גרוש/ה" />
+              <CheckBox checked={emp.maritalStatus === 'widowed'}  label="אלמן/ה" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Section B - Employment */}
-      <div className="mb-5">
-        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ב. פרטי ההעסקה</h2>
-        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">שם המעסיק</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">קמינוס הפקות בע״מ</div>
+      {/* B — Employment */}
+      <div className="mb-4">
+        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ב. פרטי ההעסקה</div>
+        <div className="border border-navy/30 border-t-0 rounded-b p-3 space-y-2">
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="שם המעסיק" value="קמינוס הפקות בע״מ" />
+            <Field label="ח.פ / ע.מ מעסיק" value="516820826" dir="ltr" />
+            <Field label="תאריך תחילת עבודה" value={emp.hireDate} dir="ltr" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="כתובת המעסיק" value="שד׳ דוד המלך 509, אור עקיבא" />
+            <Field label="סוג משרה" value={emp.contractType ? CONTRACT_LABELS[emp.contractType] : undefined} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="שכר ברוטו חודשי" value={emp.grossSalary ? `₪${emp.grossSalary.toLocaleString()}` : undefined} dir="ltr" />
+            <Field label="שכר שעתי" value={emp.hourlyRate ? `₪${emp.hourlyRate}` : undefined} dir="ltr" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-0.5">ח.פ מעסיק</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800" dir="ltr">516820826</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">כתובת המעסיק</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">שד׳ דוד המלך 509, אור עקיבא</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">תאריך תחילת עבודה</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.hireDate || ''}</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">סוג משרה</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.contractType ? CONTRACT_LABELS[emp.contractType] : ''}</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">שכר ברוטו חודשי</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.grossSalary ? `₪${emp.grossSalary.toLocaleString()}` : ''}</div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">שכר שעתי</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]" dir="ltr">{emp.hourlyRate ? `₪${emp.hourlyRate}` : ''}</div>
+            <p className="text-[10px] text-gray-500 mb-0.5">האם מעסיק יחיד?</p>
+            <CheckBox checked={emp.isOnlyEmployer === true}  label="כן — מעסיק יחיד" />
+            <CheckBox checked={emp.isOnlyEmployer === false} label="לא — יש מעסיק נוסף" />
           </div>
         </div>
       </div>
 
-      {/* Section C - Tax credits */}
-      <div className="mb-5">
-        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ג. נקודות זיכוי</h2>
-        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">סה״כ נקודות זיכוי מבוקשות</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px] text-gray-800">{emp.nekudotZikui ?? ''}</div>
+      {/* C — Tax Credits */}
+      <div className="mb-4">
+        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ג. נקודות זיכוי — פירוט (ערך נקודה: ₪242/חודש)</div>
+        <div className="border border-navy/30 border-t-0 rounded-b p-3 space-y-2">
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            {breakdown.map((b, i) => (
+              <div key={i} className="flex justify-between border-b border-dashed border-gray-200 pb-0.5">
+                <span className="text-gray-700">{b.label}</span>
+                <span className="font-mono font-semibold text-navy">{b.points}</span>
+              </div>
+            ))}
           </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">מצב משפחתי</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
+          <div className="flex items-center justify-between bg-navy/5 rounded px-3 py-2 mt-2">
+            <span className="text-xs font-bold text-navy">סה״כ נקודות זיכוי מבוקשות</span>
+            <span className="text-lg font-black text-navy">{nekudot}</span>
+          </div>
+          <p className="text-[10px] text-gray-500 text-left" dir="ltr">
+            Monthly tax saving: ₪{taxSaving.toLocaleString()} | Annual: ₪{(taxSaving * 12).toLocaleString()}
+          </p>
+
+          {/* Children table */}
+          {children.length > 0 && (
+            <div className="mt-2">
+              <p className="text-[10px] font-semibold text-gray-600 mb-1">פרטי ילדים:</p>
+              <table className="w-full text-[11px] border border-gray-200 rounded">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="text-right px-2 py-1 font-medium text-gray-600">שם</th>
+                    <th className="text-right px-2 py-1 font-medium text-gray-600">תאריך לידה</th>
+                    <th className="text-right px-2 py-1 font-medium text-gray-600">גיל</th>
+                    <th className="text-right px-2 py-1 font-medium text-gray-600">נקודות</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {children.map((child, i) => {
+                    const bd = new Date(child.birthDate);
+                    const ageYears = (new Date().getTime() - bd.getTime()) / (365.25 * 24 * 3600 * 1000);
+                    const pts = ageYears < 18 ? (ageYears < 5 && emp.gender === 'female' ? 1.5 : 1.0) : 0;
+                    return (
+                      <tr key={i} className="border-t border-gray-100">
+                        <td className="px-2 py-1">{child.name || '—'}</td>
+                        <td className="px-2 py-1" dir="ltr">{child.birthDate}</td>
+                        <td className="px-2 py-1">{Math.floor(ageYears)}</td>
+                        <td className="px-2 py-1 font-semibold text-navy">{pts > 0 ? pts : '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Disability */}
+          {(emp.disabilityPercent ?? 0) > 0 && (
+            <Field label="אחוז נכות" value={`${emp.disabilityPercent}%`} />
+          )}
+
+          {/* New immigrant */}
+          {emp.isNewImmigrant && (
+            <div className="flex gap-4">
+              <Field label="עלייה חדשה" value="כן" />
+              {emp.immigrationDate && <Field label="תאריך עלייה" value={emp.immigrationDate} dir="ltr" />}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* D — Bank */}
+      <div className="mb-4">
+        <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ד. פרטי חשבון בנק להעברת שכר</div>
+        <div className="border border-navy/30 border-t-0 rounded-b p-3">
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="שם הבנק" value={emp.bankName} />
+            <Field label="מספר סניף" value={emp.bankBranch} dir="ltr" />
+            <Field label="מספר חשבון" value={emp.bankAccount} dir="ltr" />
           </div>
         </div>
       </div>
 
-      {/* Section D - Bank */}
-      <div className="mb-5">
-        <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ד. פרטי חשבון בנק להעברת שכר</h2>
-        <div className="border border-gray-200 border-t-0 rounded-b-md p-4 grid grid-cols-3 gap-3 text-sm">
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">שם הבנק</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">מספר סניף</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">מספר חשבון</p>
-            <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Signatures */}
-      <div className="mt-8 grid grid-cols-2 gap-8 text-sm">
-        <div>
-          <p className="text-xs text-gray-500 mb-1">תאריך מילוי הטופס</p>
-          <div className="border-b border-gray-300 pb-1">{today}</div>
-        </div>
-        <div>
-          <p className="text-xs text-gray-500 mb-1">חתימת העובד</p>
-          <div className="border-b border-gray-300 pb-1 min-h-[24px]"></div>
-        </div>
-      </div>
-
-      {/* ID Card scan */}
+      {/* E — ID scan */}
       {emp.idCardUrl && (
-        <div className="mt-6">
-          <h2 className="text-xs font-bold text-white bg-navy px-3 py-1.5 rounded-t-md">ה. צילום תעודת זהות</h2>
-          <div className="border border-gray-200 border-t-0 rounded-b-md p-3 text-center">
+        <div className="mb-4">
+          <div className="bg-navy text-white text-xs font-bold px-3 py-1 rounded-t">ה. צילום תעודת זהות</div>
+          <div className="border border-navy/30 border-t-0 rounded-b p-3 text-center">
             <img src={emp.idCardUrl} alt="תעודת זהות" className="max-w-full max-h-48 mx-auto rounded object-contain" />
-            <p className="text-xs text-gray-400 mt-1">מצורף לצרכי זיהוי בלבד — לשימוש פנימי</p>
+            <p className="text-[10px] text-gray-400 mt-1">מצורף לצרכי זיהוי בלבד — לשימוש פנימי</p>
           </div>
         </div>
       )}
 
-      <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
-        <p className="font-semibold mb-1">הנחיות למילוי:</p>
-        <p>יש להדפיס, למלא את הפרטים החסרים ולחתום. ניתן גם למלא את הטופס המקוון באתר מס הכנסה.</p>
+      {/* Declaration */}
+      <div className="mb-5 p-3 border border-gray-300 rounded text-[10px] text-gray-600 bg-gray-50">
+        <p className="font-semibold mb-1">הצהרה:</p>
+        <p>אני החתום/ה מטה מצהיר/ה כי הפרטים המפורטים בטופס זה נכונים ומלאים. ידוע לי שמסירת פרטים כוזבים מהווה עבירה לפי חוק.
+        אני מסכים/ה שהמעסיק ינכה ממשכורתי את המס בהתאם לפרטים שמסרתי.</p>
       </div>
+
+      {/* Signatures */}
+      <div className="grid grid-cols-2 gap-8 text-sm">
+        <div>
+          <p className="text-[10px] text-gray-500 mb-1">תאריך מילוי הטופס</p>
+          <div className="border-b border-gray-400 pb-1 font-medium">{today}</div>
+        </div>
+        <div>
+          <p className="text-[10px] text-gray-500 mb-1">חתימת העובד</p>
+          <div className="border-b border-gray-400 pb-1 min-h-[28px]">
+            {signature && <span className="text-navy font-bold text-xs">{emp.name} ✓</span>}
+          </div>
+        </div>
+      </div>
+
       {signature && <SignatureBadge sig={signature} />}
     </div>
   );
