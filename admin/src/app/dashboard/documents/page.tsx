@@ -812,6 +812,14 @@ export default function DocumentsPage() {
     setTofes101Edits((prev) => ({ ...prev, ...updates }));
   }
 
+  // Payroll & bank — separate collapsible panel
+  const [payrollEdits, setPayrollEdits] = useState<Partial<Employee>>({});
+  const [payrollOpen, setPayrollOpen] = useState(false);
+
+  function setPayroll(updates: Partial<Employee>) {
+    setPayrollEdits((prev) => ({ ...prev, ...updates }));
+  }
+
   function addLine() { setQuoteLines((l) => [...l, { description: '', qty: 1, unitPrice: 0 }]); }
   function removeLine(i: number) { setQuoteLines((l) => l.filter((_, idx) => idx !== i)); }
   function updateLine(i: number, field: keyof QuoteLine, value: string | number) {
@@ -879,7 +887,7 @@ export default function DocumentsPage() {
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">עובד</label>
               <div className="relative">
-                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); setSignature(null); setTofes101Edits({}); }}
+                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); setSignature(null); setTofes101Edits({}); setPayrollEdits({}); setPayrollOpen(false); }}
                   className="w-full border border-gray-200 rounded-lg ps-3 pe-8 py-2.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white appearance-none">
                   <option value="">בחר עובד...</option>
                   {activeEmps.map((e) => <option key={e.id} value={e.id}>{e.name} {e.zone ? `— ${e.zone}` : ''}</option>)}
@@ -1031,6 +1039,79 @@ export default function DocumentsPage() {
           </div>
         )}
 
+        {/* Payroll & Bank panel — shown for contract and tofes101 */}
+        {(docType === 'contract' || docType === 'tofes101') && selectedEmpId && selectedEmp && (
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden" dir="rtl">
+            <button
+              onClick={() => setPayrollOpen((o) => !o)}
+              className="w-full flex items-center justify-between px-5 py-3 text-sm font-semibold text-gray-700 font-hebrew hover:bg-gray-50 transition-colors">
+              <span className="flex items-center gap-2">
+                <span className="text-base">🏦</span>
+                <span>פרטי שכר ובנק</span>
+                {(selectedEmp.bankAccount || payrollEdits.bankAccount) && (
+                  <span className="text-[10px] text-green-600 font-normal">✓ מולא</span>
+                )}
+              </span>
+              <ChevronDown size={15} className={`text-gray-400 transition-transform duration-200 ${payrollOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {payrollOpen && (
+              <div className="px-5 pb-5 border-t border-gray-100 space-y-4">
+                <div className="pt-4">
+                  <p className="text-xs font-semibold text-navy font-hebrew mb-3 pb-1 border-b border-navy/10">פרטי חשבון בנק</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 font-hebrew mb-1">שם הבנק</label>
+                      <input value={payrollEdits.bankName ?? selectedEmp.bankName ?? ''}
+                        onChange={(e) => setPayroll({ bankName: e.target.value })}
+                        placeholder="בנק הפועלים..."
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 font-hebrew mb-1">מספר סניף</label>
+                      <input value={payrollEdits.bankBranch ?? selectedEmp.bankBranch ?? ''}
+                        onChange={(e) => setPayroll({ bankBranch: e.target.value })}
+                        placeholder="123"
+                        dir="ltr"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 font-hebrew mb-1">מספר חשבון</label>
+                      <input value={payrollEdits.bankAccount ?? selectedEmp.bankAccount ?? ''}
+                        onChange={(e) => setPayroll({ bankAccount: e.target.value })}
+                        placeholder="123456789"
+                        dir="ltr"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-navy font-hebrew mb-3 pb-1 border-b border-navy/10">פרטי שכר</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 font-hebrew mb-1">שכר ברוטו חודשי ₪</label>
+                      <input type="number" min={0}
+                        value={payrollEdits.grossSalary ?? selectedEmp.grossSalary ?? ''}
+                        onChange={(e) => setPayroll({ grossSalary: e.target.value ? Number(e.target.value) : undefined })}
+                        placeholder="0"
+                        dir="ltr"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 font-hebrew mb-1">שכר שעתי ₪</label>
+                      <input type="number" min={0}
+                        value={payrollEdits.hourlyRate ?? selectedEmp.hourlyRate ?? ''}
+                        onChange={(e) => setPayroll({ hourlyRate: e.target.value ? Number(e.target.value) : undefined })}
+                        placeholder="0"
+                        dir="ltr"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {preview && docType === 'contract' && selectedEmp && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
@@ -1051,7 +1132,7 @@ export default function DocumentsPage() {
                 </button>
               </div>
             </div>
-            <EmploymentContract emp={selectedEmp} signature={signature ?? undefined} />
+            <EmploymentContract emp={{ ...selectedEmp, ...payrollEdits }} signature={signature ?? undefined} />
           </div>
         )}
 
