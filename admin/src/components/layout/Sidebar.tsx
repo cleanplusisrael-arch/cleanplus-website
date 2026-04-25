@@ -20,11 +20,15 @@ const NAV = [
   { href: '/dashboard/stats',       icon: BarChart3,       label: 'סטטיסטיקות' },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-navy min-h-screen flex flex-col border-e border-navy/80" dir="rtl">
+    <aside className="w-64 bg-navy h-full min-h-screen flex flex-col border-e border-navy/80" dir="rtl">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -38,7 +42,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {NAV.map(({ href, icon: Icon, label }) => {
           const active = href === '/dashboard'
             ? pathname === '/dashboard'
@@ -48,7 +52,8 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+              onClick={onClose}
+              className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors
                 ${active
                   ? 'bg-gold/15 text-gold border border-gold/20'
                   : 'text-white/65 hover:text-white hover:bg-white/8'
