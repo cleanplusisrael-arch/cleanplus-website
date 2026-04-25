@@ -87,6 +87,9 @@ function EmploymentContract({ emp, signature }: { emp: Employee; signature?: Sig
                 <p>• שכר ברוטו חודשי: ₪{salary.toLocaleString()}</p>
                 <p>• שעות נוספות: 125% (שתי שעות ראשונות), 150% (הנוסף)</p>
                 <p>• תשלום: עד ה-9 בחודש הבא, בהעברה בנקאית</p>
+                {(emp.bankName || emp.bankBranch || emp.bankAccount) && (
+                  <p>• פרטי בנק: {[emp.bankName, emp.bankBranch ? `סניף ${emp.bankBranch}` : '', emp.bankAccount ? `חשבון ${emp.bankAccount}` : ''].filter(Boolean).join(' | ')}</p>
+                )}
               </>
             ) : (
               <p>• _________ ₪</p>
@@ -758,6 +761,30 @@ function Tofes101Form({ emp, signature }: { emp: Employee; signature?: Signature
           </div>
         </div>
 
+        {/* Bank details — internal administrative section */}
+        {(emp.bankName || emp.bankBranch || emp.bankAccount) && (
+          <div className="border border-gray-400 border-dashed mb-3 rounded">
+            <div className="bg-gray-50 border-b border-gray-300 px-2 py-0.5 flex items-center gap-2">
+              <span className="font-bold text-[11px]">פרטי חשבון בנק להעברת שכר</span>
+              <span className="text-[9px] text-gray-400">(לשימוש פנימי — אינו חלק מהטופס הרשמי)</span>
+            </div>
+            <div className="p-2 grid grid-cols-3 gap-3 text-[11px]">
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">שם הבנק</div>
+                <div className="border-b border-gray-500 pb-px">{emp.bankName || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">מספר סניף</div>
+                <div className="border-b border-gray-500 pb-px" dir="ltr">{emp.bankBranch || ''}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 mb-0.5">מספר חשבון</div>
+                <div className="border-b border-gray-500 pb-px" dir="ltr">{emp.bankAccount || ''}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {signature && <SignatureBadge sig={signature} />}
 
         {/* Footer explanations */}
@@ -831,7 +858,7 @@ export default function DocumentsPage() {
   const activeClients = clients.filter((c) => c.status !== 'inactive');
 
   const selectedEmp = activeEmps.find((e) => e.id === selectedEmpId);
-  const tofes101Emp: Employee | null = selectedEmp ? { ...selectedEmp, ...tofes101Edits } : null;
+  const tofes101Emp: Employee | null = selectedEmp ? { ...selectedEmp, ...tofes101Edits, ...payrollEdits } : null;
 
   // Children helpers for tofes101 edit panel
   const t101Children: Child[] = (tofes101Edits.children !== undefined ? tofes101Edits.children : (selectedEmp?.children ?? []));
