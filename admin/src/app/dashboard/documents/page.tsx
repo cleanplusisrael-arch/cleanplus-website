@@ -5,7 +5,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { useClients } from '@/hooks/useClients';
 import { Header } from '@/components/layout/Header';
 import { CONTRACT_LABELS, MARITAL_LABELS, GENDER_LABELS, calcNekudotZikui } from '@/lib/employee-types';
-import type { Employee } from '@/lib/employee-types';
+import type { Employee, Gender, MaritalStatus, Child } from '@/lib/employee-types';
 import { LEAD_SERVICE_LABELS } from '@/lib/types';
 import { FileText, Download, ChevronDown, ExternalLink, Plus, Trash2, Mail, MessageCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { useQuotePDF } from '@/hooks/useQuotePDF';
@@ -563,6 +563,13 @@ export default function DocumentsPage() {
   const [quoteNotes, setQuoteNotes] = useState('');
   const [quoteNum] = useState(() => `Q-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 8999) + 1000)}`);
 
+  // Tofes 101 — editable overrides before printing
+  const [tofes101Edits, setTofes101Edits] = useState<Partial<Employee>>({});
+
+  function setT101(updates: Partial<Employee>) {
+    setTofes101Edits((prev) => ({ ...prev, ...updates }));
+  }
+
   function addLine() { setQuoteLines((l) => [...l, { description: '', qty: 1, unitPrice: 0 }]); }
   function removeLine(i: number) { setQuoteLines((l) => l.filter((_, idx) => idx !== i)); }
   function updateLine(i: number, field: keyof QuoteLine, value: string | number) {
@@ -574,6 +581,15 @@ export default function DocumentsPage() {
   const activeClients = clients.filter((c) => c.status !== 'inactive');
 
   const selectedEmp = activeEmps.find((e) => e.id === selectedEmpId);
+  const tofes101Emp: Employee | null = selectedEmp ? { ...selectedEmp, ...tofes101Edits } : null;
+
+  // Children helpers for tofes101 edit panel
+  const t101Children: Child[] = (tofes101Edits.children !== undefined ? tofes101Edits.children : (selectedEmp?.children ?? []));
+  function addT101Child() { setT101({ children: [...t101Children, { name: '', birthDate: '' }] }); }
+  function removeT101Child(i: number) { setT101({ children: t101Children.filter((_, idx) => idx !== i) }); }
+  function updateT101Child(i: number, field: keyof Child, val: string) {
+    setT101({ children: t101Children.map((c, idx) => idx === i ? { ...c, [field]: val } : c) });
+  }
 
   // Resolve the selected quote subject from prefixed id
   const quoteSubject: QuoteSubject | null = (() => {
@@ -621,7 +637,7 @@ export default function DocumentsPage() {
             <div>
               <label className="block text-xs text-gray-500 font-hebrew mb-1">עובד</label>
               <div className="relative">
-                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); setSignature(null); }}
+                <select value={selectedEmpId} onChange={(e) => { setSelectedEmpId(e.target.value); setPreview(false); setSignature(null); setTofes101Edits({}); }}
                   className="w-full border border-gray-200 rounded-lg ps-3 pe-8 py-2.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30 bg-white appearance-none">
                   <option value="">בחר עובד...</option>
                   {activeEmps.map((e) => <option key={e.id} value={e.id}>{e.name} {e.zone ? `— ${e.zone}` : ''}</option>)}
@@ -821,18 +837,235 @@ export default function DocumentsPage() {
           </div>
         )}
 
-        {preview && docType === 'tofes101' && selectedEmp && (
+        {/* Tofes 101 — fill-before-print edit panel */}
+        {docType === 'tofes101' && selectedEmpId && selectedEmp && !preview && (
+          <div className="bg-white rounded-xl border border-gold/20 p-5 shadow-sm space-y-5" dir="rtl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-700 font-hebrew">השלמת פרטים לטופס 101</h3>
+              <span className="text-xs text-gray-400 font-hebrew">מלא/י את הפרטים החסרים לפני ההדפסה</span>
+            </div>
+
+            {/* Section A — Personal */}
+            <div>
+              <p className="text-xs font-semibold text-navy font-hebrew mb-2 pb-1 border-b border-navy/10">א. פרטי העובד</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">כתובת מגורים</label>
+                  <input value={tofes101Edits.address ?? selectedEmp.address ?? ''}
+                    onChange={(e) => setT101({ address: e.target.value })}
+                    placeholder="רחוב ומספר..."
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">עיר / ישוב</label>
+                  <input value={tofes101Edits.city ?? selectedEmp.city ?? ''}
+                    onChange={(e) => setT101({ city: e.target.value })}
+                    placeholder="עיר..."
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מגדר</label>
+                  <div className="flex gap-4 pt-1.5">
+                    {(['male', 'female'] as Gender[]).map((g) => (
+                      <label key={g} className="flex items-center gap-1.5 text-sm font-hebrew cursor-pointer">
+                        <input type="radio" name="t101Gender" value={g}
+                          checked={(tofes101Edits.gender ?? selectedEmp.gender) === g}
+                          onChange={() => setT101({ gender: g })}
+                          className="accent-navy" />
+                        {GENDER_LABELS[g]}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מצב משפחתי</label>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1.5 pt-1">
+                    {(['single', 'married', 'divorced', 'widowed'] as MaritalStatus[]).map((m) => (
+                      <label key={m} className="flex items-center gap-1 text-xs font-hebrew cursor-pointer">
+                        <input type="radio" name="t101Marital" value={m}
+                          checked={(tofes101Edits.maritalStatus ?? selectedEmp.maritalStatus) === m}
+                          onChange={() => setT101({ maritalStatus: m })}
+                          className="accent-navy" />
+                        {MARITAL_LABELS[m]}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section C — Family & Tax */}
+            <div>
+              <p className="text-xs font-semibold text-navy font-hebrew mb-2 pb-1 border-b border-navy/10">ג. ילדים ומס</p>
+
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-gray-600 font-hebrew">ילדים</p>
+                  <button onClick={addT101Child}
+                    className="text-xs text-gold hover:text-gold/80 font-hebrew flex items-center gap-1">
+                    <Plus size={12} />הוסף ילד
+                  </button>
+                </div>
+                {t101Children.length === 0 && (
+                  <p className="text-xs text-gray-400 font-hebrew py-1 italic">אין ילדים רשומים</p>
+                )}
+                {t101Children.map((child, i) => (
+                  <div key={i} className="grid grid-cols-[1fr_1fr_32px] gap-2 mb-2 items-center">
+                    <input value={child.name} onChange={(e) => updateT101Child(i, 'name', e.target.value)}
+                      placeholder="שם הילד/ה..."
+                      className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                    <input type="date" value={child.birthDate} onChange={(e) => updateT101Child(i, 'birthDate', e.target.value)}
+                      className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                    <button onClick={() => removeT101Child(i)} className="text-gray-300 hover:text-red-400 transition-colors flex justify-center">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">אחוז נכות</label>
+                  <input type="number" min={0} max={100}
+                    value={tofes101Edits.disabilityPercent ?? selectedEmp.disabilityPercent ?? ''}
+                    onChange={(e) => setT101({ disabilityPercent: e.target.value === '' ? undefined : Number(e.target.value) })}
+                    placeholder="0–100"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">עולה חדש/ה</label>
+                  <div className="flex gap-4 pt-1.5">
+                    {([{ val: true, label: 'כן' }, { val: false, label: 'לא' }]).map((opt) => (
+                      <label key={String(opt.val)} className="flex items-center gap-1.5 text-sm font-hebrew cursor-pointer">
+                        <input type="radio" name="t101Immigrant"
+                          checked={(tofes101Edits.isNewImmigrant ?? selectedEmp.isNewImmigrant) === opt.val}
+                          onChange={() => setT101({ isNewImmigrant: opt.val })}
+                          className="accent-navy" />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                {(tofes101Edits.isNewImmigrant ?? selectedEmp.isNewImmigrant) && (
+                  <div>
+                    <label className="block text-xs text-gray-500 font-hebrew mb-1">תאריך עלייה</label>
+                    <input type="date"
+                      value={tofes101Edits.immigrationDate ?? selectedEmp.immigrationDate ?? ''}
+                      onChange={(e) => setT101({ immigrationDate: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                  </div>
+                )}
+                {(tofes101Edits.maritalStatus ?? selectedEmp.maritalStatus) === 'married' && (
+                  <div>
+                    <label className="block text-xs text-gray-500 font-hebrew mb-1">האם לבן/בת הזוג יש הכנסה?</label>
+                    <div className="flex gap-4 pt-1.5">
+                      {([{ val: true, label: 'כן' }, { val: false, label: 'לא' }]).map((opt) => (
+                        <label key={String(opt.val)} className="flex items-center gap-1.5 text-sm font-hebrew cursor-pointer">
+                          <input type="radio" name="t101SpouseIncome"
+                            checked={(tofes101Edits.spouseHasIncome ?? selectedEmp.spouseHasIncome) === opt.val}
+                            onChange={() => setT101({ spouseHasIncome: opt.val })}
+                            className="accent-navy" />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Live nekudot preview */}
+              {tofes101Emp && (
+                <div className="mt-3 p-3 bg-navy/5 rounded-lg flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-hebrew text-gray-600">נקודות זיכוי מחושבות</p>
+                    <p className="text-[10px] text-gray-400 font-hebrew mt-0.5">
+                      {calcNekudotZikui(tofes101Emp).breakdown.map((b) => b.label).join(' · ')}
+                    </p>
+                  </div>
+                  <div className="text-end">
+                    <p className="text-2xl font-black text-navy">{calcNekudotZikui(tofes101Emp).total}</p>
+                    <p className="text-[10px] text-gray-500">₪{Math.round(calcNekudotZikui(tofes101Emp).total * 242).toLocaleString()}/חודש</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Section D — Bank */}
+            <div>
+              <p className="text-xs font-semibold text-navy font-hebrew mb-2 pb-1 border-b border-navy/10">ד. פרטי חשבון בנק</p>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">שם הבנק</label>
+                  <input value={tofes101Edits.bankName ?? selectedEmp.bankName ?? ''}
+                    onChange={(e) => setT101({ bankName: e.target.value })}
+                    placeholder="שם הבנק..."
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-hebrew focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מספר סניף</label>
+                  <input value={tofes101Edits.bankBranch ?? selectedEmp.bankBranch ?? ''}
+                    onChange={(e) => setT101({ bankBranch: e.target.value })}
+                    placeholder="מס׳ סניף..."
+                    dir="ltr"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מספר חשבון</label>
+                  <input value={tofes101Edits.bankAccount ?? selectedEmp.bankAccount ?? ''}
+                    onChange={(e) => setT101({ bankAccount: e.target.value })}
+                    placeholder="מס׳ חשבון..."
+                    dir="ltr"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+              </div>
+            </div>
+
+            {/* Section B — Employment */}
+            <div>
+              <p className="text-xs font-semibold text-navy font-hebrew mb-2 pb-1 border-b border-navy/10">ב. פרטי ההעסקה</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">תאריך תחילת עבודה</label>
+                  <input type="date"
+                    value={tofes101Edits.hireDate ?? selectedEmp.hireDate ?? ''}
+                    onChange={(e) => setT101({ hireDate: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/30" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 font-hebrew mb-1">מעסיק יחיד?</label>
+                  <div className="flex gap-4 pt-1.5">
+                    {([{ val: true, label: 'כן' }, { val: false, label: 'לא' }]).map((opt) => (
+                      <label key={String(opt.val)} className="flex items-center gap-1.5 text-sm font-hebrew cursor-pointer">
+                        <input type="radio" name="t101OnlyEmployer"
+                          checked={(tofes101Edits.isOnlyEmployer ?? selectedEmp.isOnlyEmployer) === opt.val}
+                          onChange={() => setT101({ isOnlyEmployer: opt.val })}
+                          className="accent-navy" />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {preview && docType === 'tofes101' && tofes101Emp && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
               <p className="text-xs text-gray-500 font-hebrew">תצוגה מקדימה — טופס 101</p>
               <div className="flex items-center gap-3">
+                <button onClick={() => setPreview(false)}
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-navy border border-gray-200 px-3 py-1.5 rounded-lg font-hebrew transition-colors">
+                  ✏️ חזור לעריכה
+                </button>
                 <a href="https://tofes101.co.il/forms/itc-101/submit/" target="_blank" rel="noreferrer"
                   className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-hebrew">
                   <ExternalLink size={13} />מילוי מקוון
                 </a>
                 {!signature && (
                   <button
-                    onClick={() => signDocument({ docType: 'tofes101', signedBy: selectedEmp.name, signedById: selectedEmp.id })}
+                    onClick={() => signDocument({ docType: 'tofes101', signedBy: tofes101Emp.name, signedById: tofes101Emp.id })}
                     disabled={signing}
                     className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-hebrew transition-colors disabled:opacity-50">
                     {signing ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
@@ -845,7 +1078,7 @@ export default function DocumentsPage() {
                 </button>
               </div>
             </div>
-            <Tofes101Form emp={selectedEmp} signature={signature ?? undefined} />
+            <Tofes101Form emp={tofes101Emp} signature={signature ?? undefined} />
           </div>
         )}
       </div>
