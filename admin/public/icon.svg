@@ -1,5 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="100" fill="#0a1628"/>
-  <text x="256" y="290" font-family="Arial, Helvetica, sans-serif" font-size="180" font-weight="900" text-anchor="middle" fill="white" letter-spacing="-4">Clean</text>
-  <text x="390" y="290" font-family="Arial, Helvetica, sans-serif" font-size="200" font-weight="900" text-anchor="middle" fill="#c9a84c">+</text>
+  <!-- Navy background with rounded corners -->
+  <rect width="512" height="512" rx="90" fill="#0a1628"/>
+
+  <!-- Gold ellipse / orbit ring -->
+  <ellipse cx="256" cy="210" rx="155" ry="32" fill="none" stroke="#c9a84c" stroke-width="8" opacity="0.85"/>
+
+  <!-- House shape in gold -->
+  <polygon points="256,95 330,158 330,230 182,230 182,158" fill="none" stroke="#c9a84c" stroke-width="10" stroke-linejoin="round"/>
+  <!-- Roof peak -->
+  <polyline points="168,165 256,90 344,165" fill="none" stroke="#c9a84c" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Door -->
+  <rect x="232" y="190" width="48" height="40" rx="4" fill="#c9a84c" opacity="0.6"/>
+  <!-- Window -->
+  <rect x="196" y="165" width="28" height="24" rx="3" fill="#c9a84c" opacity="0.5"/>
+  <line x1="210" y1="165" x2="210" y2="189" stroke="#0a1628" stroke-width="2"/>
+  <line x1="196" y1="177" x2="224" y2="177" stroke="#0a1628" stroke-width="2"/>
+
+  <!-- Spray bottle simplified -->
+  <rect x="148" y="148" width="26" height="46" rx="6" fill="#c9a84c" opacity="0.9"/>
+  <rect x="155" y="138" width="18" height="14" rx="3" fill="#c9a84c" opacity="0.9"/>
+  <line x1="173" y1="141" x2="188" y2="131" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
+  <!-- Spray dots -->
+  <circle cx="194" cy="122" r="4" fill="#c9a84c" opacity="0.7"/>
+  <circle cx="204" cy="115" r="3" fill="#c9a84c" opacity="0.5"/>
+  <circle cx="200" cy="128" r="2.5" fill="#c9a84c" opacity="0.4"/>
+
+  <!-- "clean+" text -->
+  <text x="256" y="320" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" text-anchor="middle" fill="#c9a84c" letter-spacing="2">clean</text>
+  <text x="380" y="320" font-family="Arial, Helvetica, sans-serif" font-size="90" font-weight="900" text-anchor="middle" fill="#c9a84c">+</text>
+
 </svg>
